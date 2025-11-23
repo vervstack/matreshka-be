@@ -1,5 +1,6 @@
-import { Change } from "@/models/configs/Change.ts";
 import { ConfigValue } from "@/models/shared/Values.ts";
+import { PatchConfigPatch } from "@vervstack/matreshka";
+
 
 export default class ServerClass {
   port: ConfigValue<number> = new ConfigValue<number>("", 0);
@@ -26,8 +27,8 @@ export default class ServerClass {
     this.fs.map((f) => f.rollback());
   }
 
-  getChanges(): Change[] {
-    const changes: Change[] = [];
+  getChanges(): PatchConfigPatch[] {
+    const changes: PatchConfigPatch[] = [];
     changes.push(...this.port.getChanges());
 
     this.grpc.map((g) => g.getChanges());
@@ -50,8 +51,8 @@ export class GrpcHandler {
     this.gateway.rollback();
   }
 
-  getChanges(): Change[] {
-    const changes: Change[] = [];
+  getChanges(): PatchConfigPatch[] {
+    const changes: PatchConfigPatch[] = [];
 
     changes.push(...this.module.getChanges());
     changes.push(...this.gateway.getChanges());
@@ -71,8 +72,8 @@ export class FsHandler {
     this.dist.rollback();
   }
 
-  getChanges(): Change[] {
-    const changes: Change[] = [];
+  getChanges(): PatchConfigPatch[] {
+    const changes: PatchConfigPatch[] = [];
 
     changes.push(...this.dist.getChanges());
 

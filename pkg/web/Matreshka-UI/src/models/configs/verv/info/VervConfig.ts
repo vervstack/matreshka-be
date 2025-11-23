@@ -1,6 +1,5 @@
-import { Node } from "@vervstack/matreshka";
+import { Node, PatchConfigPatch } from "@vervstack/matreshka";
 
-import { Change } from "@/models/configs/Change.ts";
 import { ConfigValue, extractStringValue } from "@/models/shared/Values.ts";
 
 export default class AppInfoClass {
@@ -46,8 +45,8 @@ export default class AppInfoClass {
     this.serviceVersion = appVersion;
   }
 
-  getChanges(): Change[] {
-    const changes: Change[] = [];
+  getChanges(): PatchConfigPatch[] {
+    const changes: PatchConfigPatch[] = [];
     changes.push(...this.name.getChanges());
     changes.push(...this.serviceVersion.getChanges());
     return changes;

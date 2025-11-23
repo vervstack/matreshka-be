@@ -1,17 +1,18 @@
-import { Node, PatchConfigPatch } from "@vervstack/matreshka/matreshka-be_api.pb";
+import { Node, PatchConfigPatch } from "@vervstack/matreshka";
 import { newDeletePatch, newRenamePatch, newUpdatePatch } from "@/models/shared/Patch.ts";
-
 
 export type KeyMap = {
   [key: string]: any;
 };
 
-export class ConfigValue<T extends { toString(): string }> {
+export class ConfigValue<T extends { toString(): string } | boolean> {
   envName: string;
   value: T;
 
   isMuted: boolean = false;
   isNew: boolean = false;
+
+  enums: T[] = [];
 
   private readonly originalName: string;
   private readonly originalValue: T;

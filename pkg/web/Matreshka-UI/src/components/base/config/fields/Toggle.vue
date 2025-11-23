@@ -7,8 +7,11 @@ const model = defineModel<ConfigValue<boolean>>({ required: true });
 </script>
 
 <template>
-  <div class="ConfigToggle">
-    <div>{{ model.envName }}</div>
+  <div
+    class="ConfigToggle"
+    :class="{ 'changed': model.isChanged() }"
+  >
+    <div>{{ model.envName }}:</div>
     <ToggleSwitch v-model="model.value">
       <template #handle="{ checked }">
         <i :class="['!text-xs pi', { 'pi-check': checked, 'pi-times': !checked }]" />
@@ -24,5 +27,13 @@ const model = defineModel<ConfigValue<boolean>>({ required: true });
   width: 100%;
   gap: 1em;
   align-items: center;
+
+  border: 1px solid var(--basic-element-color);
+  padding: 0.5em;
+  border-radius: var(--border-radius);
+
+  &.changed {
+    border-color: var(--value-changed-outline);
+  }
 }
 </style>

@@ -17,7 +17,7 @@ resourceMapping.set(ResourceType.Redis, mapRedis);
 resourceMapping.set(ResourceType.Telegram, mapTelegram);
 resourceMapping.set(ResourceType.Grpc, mapGrpc);
 
-export function extractDataSources(root: Node): DataSource[] {
+export function mapDataSources(root: Node): DataSource[] {
   const dataSources: DataSource[] = [];
   root.innerNodes?.map((n) => {
     const resType = extractResourceType(n, root);

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import VervConfig from "@/models/configs/verv/VervConfig.ts";
+
 import AppInfo from "@/components/config/verv/app_info/AppInfo.vue";
 import ResourcesInfo from "@/components/config/verv/resource/AppResources.vue";
 import ServersInfo from "@/components/config/verv/server/ServersInfo.vue";
-import VervConfig from "@/models/configs/verv/VervConfig.ts";
+import VervEnvVars from "@/components/config/verv/env/VervEnvVars.vue";
 
 const model = defineModel<VervConfig>({
   required: true,
@@ -31,10 +33,21 @@ const model = defineModel<VervConfig>({
     <div
       class="ContentBlock"
       :style="{
-        borderColor: model?.getChangedServersNames().length != 0 ? 'var(--warn)' : 'var(--good)',
+        borderColor:
+        model?.getChangedServersNames().length != 0 ? 'var(--warn)' : 'var(--good)',
       }"
     >
       <ServersInfo v-model="model.servers" />
+    </div>
+
+    <div
+      class="ContentBlock"
+      :style="{
+        borderColor:
+        model?.getChangedEnvVarNames().length != 0 ? 'var(--warn)' : 'var(--good)',
+      }"
+    >
+      <VervEnvVars v-model="model.envVars" />
     </div>
   </div>
 </template>

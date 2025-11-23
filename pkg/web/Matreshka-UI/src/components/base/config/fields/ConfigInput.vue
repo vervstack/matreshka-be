@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Nullable } from "@primevue/core";
+
 import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
 import InputGroup from "primevue/inputgroup";
@@ -38,7 +39,10 @@ const originalValue = model.value.getOriginalValue().toString() as Nullable<stri
 </script>
 
 <template>
-  <div class="ConfigInputFields">
+  <div
+    class="ConfigInputFields"
+    :class="{'changed': model.isChanged()}"
+  >
     <div class="InputBox">
       <InputGroup>
         <FloatLabel variant="on">
@@ -82,6 +86,10 @@ label {
   display: flex;
   width: 100%;
   flex-direction: row;
+
+  &.changed{
+    border-color: var(--value-changed-outline);
+  }
 }
 
 .InputBox {

@@ -1,0 +1,29 @@
+import { Component } from "vue";
+
+import { EnvVar } from "@/models/configs/verv/env_vars/EnvVar.ts";
+
+import EnvVarView from "@/components/config/verv/env/EnvValView.vue";
+import { ConfigValue } from "@/models/shared/Values.ts";
+
+export class StringArrayEnvVarClass implements EnvVar {
+  readonly rootName: string;
+  readonly values: ConfigValue<string>[];
+
+  constructor(envName: string, value: string[]) {
+    this.rootName = envName;
+    this.values = value.map((v, idx) => new ConfigValue(envName + `_[${idx}]`, v));
+  }
+
+  isChanged(): boolean {
+    return this.values.find((v) => v.isChanged()) != undefined;
+  }
+
+  getOriginalName(): string {
+    return this.rootName;
+  }
+
+  getComponent(): Component {
+    return EnvVarView;
+  }
+}
+

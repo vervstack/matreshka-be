@@ -4,6 +4,7 @@ import SpeedDial from "primevue/speeddial";
 import { Component as VueComponent, ref, shallowRef, watch } from "vue";
 
 import ConfigConstructorWidget from "@/widget/ConfigConstructorWidget.vue";
+import Button from "primevue/button";
 
 const isDialogOpen = ref<boolean>(false);
 const newConfigDialog = shallowRef<VueComponent | undefined>();
@@ -34,7 +35,7 @@ const buttons = [
 <template>
   <!-- Help button at the bottom -->
   <SpeedDial
-    :style="{ position: 'absolute', bottom: '2%', right: '2%' }"
+    :style="{ position: 'fixed', bottom: '2%', right: '2%' }"
     :tooltipOptions="{ event: 'hover', position: 'left' }"
     :model="buttons"
     direction="up"

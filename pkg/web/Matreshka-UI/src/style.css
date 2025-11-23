@@ -21,7 +21,7 @@ html, body, #app {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    --focus: rgb(180, 206, 255)
+    --focus: rgb(180, 206, 255);
 }
 
 /* Coloring scheme*/
@@ -30,11 +30,14 @@ html, body, #app {
 
     --background: white;
     --primary-color: #70f1f1;
+    --primary-color-second-phase: #d1f4f4;
     --good: #cdf1cd;
     --warn: #f67322;
-    --value-changed-outline: #e63e18;
+    --value-changed-outline: #bf6e5c;
     --selected-gradient: linear-gradient(#70f1f1, #05878c);
+
     --basic-gradient: linear-gradient(#fff9f9, #AAA8A8);
+    --basic-element-color: #cbd5e1;
 
     --border-radius: 8px;
 }
@@ -42,6 +45,14 @@ html, body, #app {
 /* PrimeVue overrides*/
 :root {
     --p-primary-color: var(--primary-color) !important;
+    --p-button-primary-hover-background: var(--primary-color-second-phase) !important;
+    --p-button-primary-hover-border-color: var(--primary-color-second-phase) !important;
+
+    --p-toggleswitch-focus-ring-color: var(--primary-color-second-phase) !important;
+    --p-toggleswitch-checked-background: var(--primary-color) !important;
+    --p-toggleswitch-checked-hover-background: var(--primary-color-second-phase) !important;
+    --p-toggleswitch-handle-checked-color: var(--primary-color) !important;
+    --p-toggleswitch-handle-checked-hover-color: var(--primary-color) !important;
 }
 
 /*Font sizes*/

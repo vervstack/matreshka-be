@@ -57,6 +57,7 @@ function select(opt: string) {
       :disabled="disabled"
       rounded
       @click="model.isOpen = !model.isOpen"
+
     />
 
     <TransitionGroup

@@ -34,19 +34,19 @@ function showActual() {
 }
 
 function shouldShowOldName(): boolean {
-  return isPreparingToRevert.value && model.value.isNameChanged()
+  return isPreparingToRevert.value && model.value.isNameChanged();
 }
 
 function isNew(): boolean {
-  return model.value.isNew && !model.value.isMuted
+  return model.value.isNew && !model.value.isMuted;
 }
 
 function shouldShowValue(): boolean {
-  return model.value.value !== ''
+  return model.value.value !== "";
 }
 
 function shouldShowOldValue(): boolean {
-  return model.value.isValueChanged() && isPreparingToRevert.value
+  return model.value.isValueChanged() && isPreparingToRevert.value;
 }
 
 </script>
@@ -55,12 +55,11 @@ function shouldShowOldValue(): boolean {
   <div
     class="KeyValueInputer"
   >
-    <div
-      class="Field show"
-      :class="{
-        changed: model.isNameChanged(),
-        new: isNew(),
-      }"
+    <div class="Field show"
+         :class="{
+            changed: model.isNameChanged(),
+            new: isNew(),
+          }"
     >
       <Inputer
         v-model="model.envName"

@@ -22,8 +22,8 @@ defineProps({
   },
   soft: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 
 const emit = defineEmits(["click"]);
