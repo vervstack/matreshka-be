@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import ToggleSwitch from "primevue/toggleswitch";
-
-import { ConfigValue } from "@/models/shared/common";
+import { ConfigValue } from "@/models/shared/Values.ts";
 
 const model = defineModel<ConfigValue<boolean>>({ required: true });
+defineProps({
+  fieldName: {
+    type: String,
+  },
+})
+
 </script>
 
 <template>
@@ -11,7 +16,7 @@ const model = defineModel<ConfigValue<boolean>>({ required: true });
     class="ConfigToggle"
     :class="{ 'changed': model.isChanged() }"
   >
-    <div>{{ model.envName }}:</div>
+    <div>{{ fieldName || model.envName }}:</div>
     <ToggleSwitch v-model="model.value">
       <template #handle="{ checked }">
         <i :class="['!text-xs pi', { 'pi-check': checked, 'pi-times': !checked }]" />

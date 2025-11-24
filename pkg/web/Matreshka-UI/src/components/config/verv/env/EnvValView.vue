@@ -11,6 +11,8 @@ const model = defineModel<EnvVar>({
   required: true,
 });
 
+const envVarPrefix = 'ENVIRONMENT_'
+
 </script>
 
 <template>
@@ -18,11 +20,12 @@ const model = defineModel<EnvVar>({
     <ConfigField
       v-if="model instanceof ConfigValue && ['string', 'number'].includes(typeof model.value)"
       v-model="model"
-      :field-name="model.envName" />
+      :field-name="model.envName.slice(envVarPrefix.length)"
+    />
     <Toggle
       v-if="model instanceof ConfigValue && typeof model.value == 'boolean'"
       v-model="model"
-      :field-name="model.envName" />
+      :field-name="model.envName.slice(envVarPrefix.length)" />
 
     <div
       v-else-if="model instanceof StringArrayEnvVarClass"

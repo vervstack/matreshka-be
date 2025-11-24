@@ -23,8 +23,6 @@ export default function mapEnvVar(root: Node): EnvVar[] {
       return;
     }
 
-    let name = node.name.split("_")[1];
-
     let singleValue = "";
     let multipleValues: string[] = [];
 
@@ -51,8 +49,8 @@ export default function mapEnvVar(root: Node): EnvVar[] {
 
 
     envVars.push(multipleValues.length > 0 ?
-      mapMultipleValues(name, multipleValues) :
-      mapSingleValueByDataType(name, singleValue, dataType));
+      mapMultipleValues(node.name, multipleValues) :
+      mapSingleValueByDataType(node.name, singleValue, dataType));
   });
 
   return envVars;

@@ -4,7 +4,7 @@ import { EnvVar } from "@/models/configs/verv/env_vars/EnvVar.ts";
 
 import EnvVarView from "@/components/config/verv/env/EnvValView.vue";
 import { ConfigValue } from "@/models/shared/Values.ts";
-import { PatchConfigPatch } from "../../../../../../@vervstack/matreshka/matreshka_api.pb.ts";
+import { PatchConfigPatch } from "@vervstack/matreshka";
 
 export class StringArrayEnvVarClass implements EnvVar {
   readonly rootName: string;
