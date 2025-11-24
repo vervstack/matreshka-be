@@ -4,6 +4,7 @@ import { EnvVar } from "@/models/configs/verv/env_vars/EnvVar.ts";
 
 import EnvVarView from "@/components/config/verv/env/EnvValView.vue";
 import { ConfigValue } from "@/models/shared/Values.ts";
+import { PatchConfigPatch } from "../../../../../../@vervstack/matreshka/matreshka_api.pb.ts";
 
 export class StringArrayEnvVarClass implements EnvVar {
   readonly rootName: string;
@@ -24,6 +25,16 @@ export class StringArrayEnvVarClass implements EnvVar {
 
   getComponent(): Component {
     return EnvVarView;
+  }
+
+  getChanges(): PatchConfigPatch[] {
+    const changes: PatchConfigPatch[] = [];
+    this.values.forEach((v) => {
+      if (v.isChanged()) {
+        changes.push(...v.getChanges());
+      }
+    });
+    return changes;
   }
 }
 

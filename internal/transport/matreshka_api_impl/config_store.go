@@ -11,19 +11,22 @@ import (
 
 	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (s *Impl) StoreConfig(ctx context.Context, req *api.StoreConfig_Request) (
 	*api.StoreConfig_Response, error) {
 
-	pref, name := ParseConfigName(req.ConfigName)
+	parsedConfigTypePrefix, name := ParseConfigName(req.ConfigName)
 
-	if pref == nil {
-		pref = toolbox.ToPtr(api.ConfigTypePrefix_plain)
+	configTypePrefix := api.ConfigTypePrefix_plain
+
+	if parsedConfigTypePrefix != nil {
+		configTypePrefix = *parsedConfigTypePrefix
 	}
 
-	cfgName := domain.NewConfigName(*pref, name)
+	cfgName := domain.NewConfigName(configTypePrefix, name)
 
 	_, err := s.evonConfigService.Create(ctx, cfgName)
 	if err != nil {
@@ -42,9 +45,13 @@ func (s *Impl) StoreConfig(ctx context.Context, req *api.StoreConfig_Request) (
 	case api.Format_env:
 		replaceReq.Config, err = fromEvon(req.Config)
 	default:
-		replaceReq.Config, err = fromYaml(req.Config)
+		switch configTypePrefix {
+		case api.ConfigTypePrefix_verv:
+			replaceReq.Config, err = fromVervYamlToEvon(req.Config)
+		default:
+			replaceReq.Config, err = fromPlainYamlToEvon(req.Config)
+		}
 	}
-
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error parsing config", codes.InvalidArgument)
 	}
@@ -57,7 +64,9 @@ func (s *Impl) StoreConfig(ctx context.Context, req *api.StoreConfig_Request) (
 	return &api.StoreConfig_Response{}, nil
 }
 
-func fromYaml(cfg []byte) (*evon.Node, error) {
+// TODO When marshalled from Matreshka original config to map - marshalles wrong.
+// Must marshall as verv config, but puts all the values into innerNodes (must put main value in 'value' field in root)
+func fromPlainYamlToEvon(cfg []byte) (*evon.Node, error) {
 	yamlMap := map[string]any{}
 	err := yaml.Unmarshal(cfg, yamlMap)
 	if err != nil {
@@ -65,6 +74,23 @@ func fromYaml(cfg []byte) (*evon.Node, error) {
 	}
 
 	env, err := evon.MarshalEnv(yamlMap)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "")
+	}
+
+	return env, nil
+}
+
+// TODO When marshalled from Matreshka original config to map - marshalles wrong.
+// Must marshall as verv config, but puts all the values into innerNodes (must put main value in 'value' field in root)
+func fromVervYamlToEvon(cfgBytes []byte) (*evon.Node, error) {
+	cfg := matreshka.NewEmptyConfig()
+	err := yaml.Unmarshal(cfgBytes, &cfg)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "")
+	}
+
+	env, err := evon.MarshalEnv(&cfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "")
 	}

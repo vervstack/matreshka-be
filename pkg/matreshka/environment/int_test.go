@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/evon"
 	"gopkg.in/yaml.v3"
 )
 
@@ -233,6 +234,7 @@ func TestIntRangeVariable(t *testing.T) {
 	positiveExpected := []int{1, 2, 3, 5, 6, 7}
 	negativeExpected := []int{-7, -6, -5, -3, -2, -1}
 	mixedExpected := []int{-2, -1, 0, 1, 3, 4, 5}
+
 	testCases := map[string]testCase{
 		"int": {
 			val:      []int{1, 2, 3, 5, 6, 7},
@@ -284,16 +286,17 @@ func TestIntRangeVariable(t *testing.T) {
 			val:      []int8{-2, -1, 0, 1, 3, 4, 5},
 			expected: mixedExpected,
 		},
+
 		"mixed_int16": {
 			val:      []int16{-2, -1, 0, 1, 3, 4, 5},
 			expected: mixedExpected,
 		},
 		"mixed_int32": {
-			val:      []int8{-2, -1, 0, 1, 3, 4, 5},
+			val:      []int32{-2, -1, 0, 1, 3, 4, 5},
 			expected: mixedExpected,
 		},
 		"mixed_int64": {
-			val:      []int8{-2, -1, 0, 1, 3, 4, 5},
+			val:      []int64{-2, -1, 0, 1, 3, 4, 5},
 			expected: mixedExpected,
 		},
 	}
@@ -347,6 +350,11 @@ value: [-2:1, 3:5]
 			require.NoError(t, err)
 
 			require.Equal(t, expected, actualUnmarshalled)
+
+			//	Evon
+			marshalledEvon, err := evon.MarshalEnv(actual)
+			require.NoError(t, err)
+			_ = marshalledEvon
 		})
 	}
 }

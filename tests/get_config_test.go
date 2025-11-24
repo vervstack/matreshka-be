@@ -17,7 +17,7 @@ type GetConfigSuite struct {
 	suite.Suite
 
 	ctx context.Context
-	api matreshka_be_api.MatreshkaBeAPIClient
+	api matreshka_api.MatreshkaBeAPIClient
 }
 
 func (s *GetConfigSuite) SetupSuite() {
@@ -26,8 +26,8 @@ func (s *GetConfigSuite) SetupSuite() {
 }
 
 func (s *GetConfigSuite) Test_GetNotExisting() {
-	for _, typePrefix := range matreshka_be_api.ConfigTypePrefix_name {
-		req := &matreshka_be_api.GetConfig_Request{
+	for _, typePrefix := range matreshka_api.ConfigTypePrefix_name {
+		req := &matreshka_api.GetConfig_Request{
 			ConfigName: typePrefix + "_unexisting",
 		}
 

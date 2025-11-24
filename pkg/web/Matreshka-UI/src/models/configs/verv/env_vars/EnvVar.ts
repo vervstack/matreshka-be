@@ -1,4 +1,5 @@
 import { Component } from "vue";
+import { PatchConfigPatch } from "@vervstack/matreshka";
 
 export interface EnvVar {
   getOriginalName(): string;
@@ -6,6 +7,8 @@ export interface EnvVar {
   isChanged(): boolean;
 
   getComponent(): Component;
+
+  getChanges(): PatchConfigPatch[]
 }
 
 export enum DataType {

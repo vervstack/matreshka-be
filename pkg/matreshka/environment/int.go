@@ -41,10 +41,6 @@ func (v *intSliceValue) Val() any {
 }
 
 func (v *intSliceValue) YamlValue() any {
-	if slices.IsSorted(v.v) {
-		return v.asYamlRange()
-	}
-
 	node := &yaml.Node{
 		Kind:  yaml.SequenceNode,
 		Style: yaml.FlowStyle,
@@ -54,11 +50,11 @@ func (v *intSliceValue) YamlValue() any {
 		return node
 	}
 
-	for _, r := range v.v {
+	for _, r := range v.stringArray() {
 		node.Content = append(node.Content,
 			&yaml.Node{
 				Kind:  yaml.ScalarNode,
-				Value: strconv.Itoa(r),
+				Value: r,
 			})
 	}
 
@@ -66,12 +62,7 @@ func (v *intSliceValue) YamlValue() any {
 }
 
 func (v *intSliceValue) EvonValue() string {
-	outStr := make([]string, 0, len(v.v))
-	for _, vl := range v.v {
-		outStr = append(outStr, fmt.Sprintf("%d", vl))
-	}
-
-	return "[" + strings.Join(outStr, ",") + "]"
+	return "[" + strings.Join(v.stringArray(), ",") + "]"
 }
 
 func (v *intSliceValue) isEnum(val typedValue) error {
@@ -93,45 +84,6 @@ func (v *intSliceValue) isEnum(val typedValue) error {
 	}
 
 	return nil
-}
-
-func (v *intSliceValue) asYamlRange() *yaml.Node {
-	node := &yaml.Node{
-		Kind:  yaml.SequenceNode,
-		Style: yaml.FlowStyle,
-	}
-
-	convertToRange := func(start, end int) string {
-		newRange := strconv.Itoa(start)
-		if start != end {
-			newRange += rangeDelimiter + strconv.Itoa(end)
-		}
-
-		return newRange
-	}
-
-	prev := v.v[0]
-	rangeStart := prev
-
-	for _, v := range v.v[1:] {
-		if v-prev != 1 {
-			node.Content = append(node.Content, &yaml.Node{
-				Kind:  yaml.ScalarNode,
-				Value: convertToRange(rangeStart, prev),
-			})
-
-			prev = v
-			rangeStart = v
-		}
-		prev = v
-	}
-
-	node.Content = append(node.Content, &yaml.Node{
-		Kind:  yaml.ScalarNode,
-		Value: convertToRange(rangeStart, prev),
-	})
-
-	return node
 }
 
 func toIntVariable(val any) (typedValue, error) {
@@ -366,6 +318,40 @@ func toIntSlice[T int | int8 | int16 | int32 | int64](v []T) []int {
 	for _, v := range v {
 		out = append(out, int(v))
 	}
+
+	return out
+}
+
+func (v *intSliceValue) stringArray() []string {
+	if len(v.v) == 0 {
+		return []string{}
+	}
+
+	convertToRange := func(start, end int) string {
+		newRange := strconv.Itoa(start)
+		if start != end {
+			newRange += rangeDelimiter + strconv.Itoa(end)
+		}
+
+		return newRange
+	}
+
+	prev := v.v[0]
+	rangeStart := prev
+
+	out := make([]string, 0, min(len(v.v), 16))
+
+	for _, v := range v.v[1:] {
+		if v-prev != 1 {
+			out = append(out, convertToRange(rangeStart, prev))
+
+			prev = v
+			rangeStart = v
+		}
+		prev = v
+	}
+
+	out = append(out, convertToRange(rangeStart, prev))
 
 	return out
 }

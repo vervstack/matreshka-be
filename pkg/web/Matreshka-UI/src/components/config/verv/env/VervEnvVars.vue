@@ -6,13 +6,17 @@ import { StringArrayEnvVarClass } from "@/models/configs/verv/env_vars/MultipleV
 const envVars = defineModel<EnvVar[]>({ default: [] });
 
 // Values that enters via input
-const typingValues: EnvVar[] = envVars.value
-  .filter(v => (
-      v instanceof ConfigValue && ["string", "number"].includes(typeof v.value))
-    || v instanceof StringArrayEnvVarClass);
+const typingValuesIndexes: number[] = envVars.value
+  .map((v, idx) => {
+    if ((
+        v instanceof ConfigValue && ["string", "number"].includes(typeof v.value))
+      || v instanceof StringArrayEnvVarClass) return idx;
+  }).filter(v => v != undefined);
 
-const toggleValues: EnvVar[] = envVars.value
-  .filter(v => v instanceof ConfigValue && typeof v.value == "boolean");
+const toggleValuesIndexes: number[] = envVars.value
+  .map((v, idx) => {
+    if (v instanceof ConfigValue && typeof v.value == "boolean") return idx;
+  }).filter(v => v != undefined);
 
 </script>
 
@@ -21,16 +25,16 @@ const toggleValues: EnvVar[] = envVars.value
     <div v-if="envVars.length == 0">No environment variables are defined</div>
 
     <div v-else>Environment variables:</div>
-    <div class="Node" v-for="(ev, i) in typingValues" :key="ev.getOriginalName()">
+    <div class="Node" v-for="(i) in typingValuesIndexes" :key="envVars[i].getOriginalName()">
       <component
-        :is="ev.getComponent()"
-        v-model="typingValues[i]"
+        :is="envVars[i].getComponent()"
+        v-model="envVars[i]"
       />
     </div>
-    <div class="Node" v-for="(ev, i) in toggleValues" :key="ev.getOriginalName()">
+    <div class="Node" v-for="(i) in toggleValuesIndexes" :key="envVars[i].getOriginalName()">
       <component
-        :is="ev.getComponent()"
-        v-model="toggleValues[i]"
+        :is="envVars[i].getComponent()"
+        v-model="envVars[i]"
       />
     </div>
   </div>

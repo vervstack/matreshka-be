@@ -31,8 +31,8 @@ export default class ServerClass {
     const changes: PatchConfigPatch[] = [];
     changes.push(...this.port.getChanges());
 
-    this.grpc.map((g) => g.getChanges());
-    this.fs.map((f) => f.getChanges());
+    this.grpc.map((g) => changes.push(...g.getChanges()));
+    this.fs.map((f) => changes.push(...f.getChanges()));
 
     return changes;
   }

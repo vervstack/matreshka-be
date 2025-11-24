@@ -18,7 +18,6 @@ export default class VervConfig implements ConfigContent {
   servers: ServerClass[];
   envVars: EnvVar[] = [];
 
-
   constructor(root: Node) {
     let appInfo: AppInfoClass | undefined;
     let dataSources: DataSourceClass[] = [];
@@ -61,6 +60,10 @@ export default class VervConfig implements ConfigContent {
     this.dataSources.map((ds) => changes.push(...ds.getChanges()));
 
     this.servers.map((s) => changes.push(...s.getChanges()));
+
+    this.envVars.map((e) => {
+      changes.push(...e.getChanges());
+    });
 
     return changes;
   }
