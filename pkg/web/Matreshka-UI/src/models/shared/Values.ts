@@ -12,7 +12,7 @@ export class ConfigValue<T extends { toString(): string } | boolean> {
   isMuted: boolean = false;
   isNew: boolean = false;
 
-  enums: T[] = [];
+  enums: string[] = [];
 
   private readonly originalName: string;
   private readonly originalValue: T;

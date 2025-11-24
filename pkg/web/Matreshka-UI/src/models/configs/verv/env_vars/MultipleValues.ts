@@ -10,6 +10,8 @@ export class StringArrayEnvVarClass implements EnvVar {
   readonly rootName: string;
   readonly values: ConfigValue<string>[];
 
+  enums: string[] = [];
+
   constructor(envName: string, value: string[]) {
     this.rootName = envName;
     this.values = value.map((v, idx) => new ConfigValue(envName + `_[${idx}]`, v));
@@ -35,6 +37,9 @@ export class StringArrayEnvVarClass implements EnvVar {
       }
     });
     return changes;
+  }
+
+  setEnums(_: string[]) {
   }
 }
 

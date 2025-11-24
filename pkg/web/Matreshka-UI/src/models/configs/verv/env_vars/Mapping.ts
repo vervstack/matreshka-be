@@ -27,6 +27,7 @@ export default function mapEnvVar(root: Node): EnvVar[] {
     let multipleValues: string[] = [];
 
     let dataType = "";
+    let enums: string[] = [];
 
     if (node.value?.startsWith("[") && node.value?.endsWith("]")) {
       multipleValues = node.value?.slice(1, -1).split(",");
@@ -41,16 +42,22 @@ export default function mapEnvVar(root: Node): EnvVar[] {
         case "TYPE":
           dataType = subNod.value || "";
           break;
-        default:
-        // console.log("Unknown env var field: " + subNod.name);
+        case "ENUM":
+          enums = (subNod.value || "[]").slice(1, -1).split(",");
+          break;
       }
-
     });
 
 
-    envVars.push(multipleValues.length > 0 ?
-      mapMultipleValues(node.name, multipleValues) :
-      mapSingleValueByDataType(node.name, singleValue, dataType));
+    if (multipleValues.length > 0) {
+      envVars.push(mapMultipleValues(node.name, multipleValues));
+    } else {
+      const sv = mapSingleValueByDataType(node.name, singleValue, dataType);
+
+      sv.enums = enums;
+
+      envVars.push(sv);
+    }
   });
 
   return envVars;

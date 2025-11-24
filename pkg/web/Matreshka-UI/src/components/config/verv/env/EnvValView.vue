@@ -6,6 +6,7 @@ import { StringArrayEnvVarClass } from "@/models/configs/verv/env_vars/MultipleV
 
 import ConfigField from "@/components/base/config/fields/ConfigInput.vue";
 import Toggle from "@/components/base/config/fields/Toggle.vue";
+import SelectValue from "@/components/base/config/fields/SelectValue.vue";
 
 const model = defineModel<EnvVar>({
   required: true,
@@ -18,12 +19,17 @@ const envVarPrefix = 'ENVIRONMENT_'
 <template>
   <div class="NodeField">
     <ConfigField
-      v-if="model instanceof ConfigValue && ['string', 'number'].includes(typeof model.value)"
+      v-if="model instanceof ConfigValue && ['string', 'number'].includes(typeof model.value) && model.enums.length == 0"
       v-model="model"
       :field-name="model.envName.slice(envVarPrefix.length)"
     />
+    <SelectValue
+      v-else-if="model instanceof ConfigValue && ['string'].includes(typeof model.value) && model.enums.length != 0"
+      v-model="model"
+      :options="model.enums"
+      />
     <Toggle
-      v-if="model instanceof ConfigValue && typeof model.value == 'boolean'"
+      v-else-if="model instanceof ConfigValue && typeof model.value == 'boolean'"
       v-model="model"
       :field-name="model.envName.slice(envVarPrefix.length)" />
 

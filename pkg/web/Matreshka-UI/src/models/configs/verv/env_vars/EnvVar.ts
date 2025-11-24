@@ -9,6 +9,8 @@ export interface EnvVar {
   getComponent(): Component;
 
   getChanges(): PatchConfigPatch[]
+
+  enums: string[]
 }
 
 export enum DataType {
