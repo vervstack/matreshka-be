@@ -22,6 +22,7 @@ const props = defineProps({
 <template>
   <div class="SelectValueContainer">
     <SelectButton v-model="model.value" :options="props.options" />
+    <div class="floating-label">{{ label }}</div>
   </div>
 </template>
 
@@ -36,5 +37,18 @@ const props = defineProps({
   border: 1px solid var(--basic-element-color);
   border-radius: var(--border-radius);
   padding: 0.25em;
+  position: relative;
+}
+
+.floating-label {
+  position: absolute;
+  top: -0.75em;
+  left: 1em;
+
+  padding: 0 0.5em;
+  font-size: 0.75em;
+
+  transform: translateY(50%);
+  pointer-events: none;
 }
 </style>

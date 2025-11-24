@@ -27,6 +27,7 @@ const envVarPrefix = 'ENVIRONMENT_'
       v-else-if="model instanceof ConfigValue && ['string'].includes(typeof model.value) && model.enums.length != 0"
       v-model="model"
       :options="model.enums"
+      :label="model.envName.slice(envVarPrefix.length)"
       />
     <Toggle
       v-else-if="model instanceof ConfigValue && typeof model.value == 'boolean'"
