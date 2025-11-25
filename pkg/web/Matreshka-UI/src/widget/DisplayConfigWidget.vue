@@ -68,7 +68,7 @@ function download(format: Format) {
 }
 
 const options = ref({
-  isOpen: true,
+  isOpen: false,
   options: [
     {
       icon: YamlSvg,

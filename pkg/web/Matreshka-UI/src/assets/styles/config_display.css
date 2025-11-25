@@ -20,6 +20,7 @@
     flex-direction: column;
     gap: 0.5em;
     padding: 0.1em 0 0 0;
+    box-sizing: border-box;
 
     &.outlined {
         border: 1px solid var(--basic-element-color);
@@ -38,18 +39,28 @@
     width: 100%;
     gap: 0.25em;
     padding: 0.25em 0 0 0;
+    box-sizing: border-box;
 
     &.horizontal {
         flex-direction: row;
+        align-items: center;
     }
-    &.Header {
+    &.header {
       color: var(--text-color-secondary);
     }
 }
 
 .Node > .Node {
-    padding: 0 0 0 0.25em;
+    padding: 0.5em 0 0 0.25em;
 }
 .Node > .NodeField {
     padding: 0 0 0 0.25em;
+}
+
+.Node > .NodeField:first-child {
+    padding-top: 0.2em;
+}
+
+.Node > .NodeField:last-child {
+    padding-bottom: 0.25em;
 }

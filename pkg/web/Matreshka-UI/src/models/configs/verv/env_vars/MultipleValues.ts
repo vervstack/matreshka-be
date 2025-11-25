@@ -2,7 +2,7 @@ import { Component } from "vue";
 
 import { EnvVar } from "@/models/configs/verv/env_vars/EnvVar.ts";
 
-import EnvVarView from "@/components/config/verv/env/EnvValView.vue";
+import EnvVariableView from "@/components/config/verv/env/EnvVariableView.vue";
 import { ConfigValue } from "@/models/shared/Values.ts";
 import { PatchConfigPatch } from "@vervstack/matreshka";
 
@@ -26,7 +26,7 @@ export class StringArrayEnvVarClass implements EnvVar {
   }
 
   getComponent(): Component {
-    return EnvVarView;
+    return EnvVariableView;
   }
 
   getChanges(): PatchConfigPatch[] {
