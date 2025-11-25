@@ -42,6 +42,9 @@
     &.horizontal {
         flex-direction: row;
     }
+    &.Header {
+      color: var(--text-color-secondary);
+    }
 }
 
 .Node > .Node {

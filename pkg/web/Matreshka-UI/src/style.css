@@ -40,6 +40,7 @@ html, body, #app {
     --basic-element-color: #cbd5e1;
 
     --border-radius: 8px;
+    --text-color-secondary: #7a7a7a;
 }
 
 /* PrimeVue overrides*/
@@ -53,6 +54,9 @@ html, body, #app {
     --p-toggleswitch-checked-hover-background: var(--primary-color-second-phase) !important;
     --p-toggleswitch-handle-checked-color: var(--primary-color) !important;
     --p-toggleswitch-handle-checked-hover-color: var(--primary-color) !important;
+
+    --p-floatlabel-focus-color: var(--text-color-secondary) !important;
+    --p-floatlabel-active-color: var(--text-color-secondary) !important;
 }
 
 /*Font sizes*/

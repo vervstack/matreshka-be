@@ -39,8 +39,8 @@ const envVarPrefix = 'ENVIRONMENT_'
       class="Node outlined"
       :class="{'changed':model.isChanged() }"
     >
-      <div class="NodeField horizontal">
-        <div>{{ model.rootName.slice(envVarPrefix.length) }}:</div>
+      <div class="NodeField Header horizontal">
+        <div>{{ model.rootName.slice(envVarPrefix.length) }}</div>
         <img
           v-tooltip.bottom="'Array of values'"
           class="HintIcon"

@@ -17,12 +17,31 @@ const props = defineProps({
     default: "",
   },
 });
+
+
+function labeler(val: string): string {
+  // Displays '*' over original value in case other value was selected
+  if (val != model.value.value &&
+        model.value.getOriginalValue() === val) {
+      return val+'*'
+  }
+
+  return val;
+}
+
 </script>
 
 <template>
-  <div class="SelectValueContainer">
-    <SelectButton v-model="model.value" :options="props.options" />
-    <div class="floating-label">{{ label }}</div>
+  <div
+    class="SelectValueContainer"
+    :class="{'isChanged': model.isChanged()}"
+  >
+    <SelectButton
+      v-model="model.value"
+      :options="props.options"
+      :optionLabel="labeler"
+    />
+    <div class="FloatingLabel">{{ label }}</div>
   </div>
 </template>
 
@@ -36,13 +55,17 @@ const props = defineProps({
   flex-direction: column;
   border: 1px solid var(--basic-element-color);
   border-radius: var(--border-radius);
-  padding: 0.25em;
+  padding: 0.5em;
   position: relative;
+
+  &.isChanged {
+    border-color: var(--value-changed-outline);
+  }
 }
 
-.floating-label {
+.FloatingLabel {
   position: absolute;
-  top: -0.75em;
+  top: -1em;
   left: 1em;
 
   padding: 0 0.5em;
@@ -50,5 +73,8 @@ const props = defineProps({
 
   transform: translateY(50%);
   pointer-events: none;
+
+  background: var(--background);
+  color: var(--text-color-secondary);
 }
 </style>
