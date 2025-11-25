@@ -17,7 +17,7 @@ const servers = defineModel<Server[]>({ default: [] });
       <div class="NodeField PortField">
         <ConfigField v-model="s.port" field-name="Port" />
       </div>
-      <div class="Node">
+      <div class="NodeField">
         <ServerInfo v-model="servers[i]" />
       </div>
     </div>

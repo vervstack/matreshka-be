@@ -63,6 +63,6 @@ const model = defineModel<VervConfig>({
 .ContentBlock {
   border: solid;
   border-radius: 16px;
-  padding: 1em;
+  padding: 0.75em;
 }
 </style>

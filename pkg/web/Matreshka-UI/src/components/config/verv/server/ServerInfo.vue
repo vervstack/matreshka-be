@@ -9,7 +9,7 @@ const cfg = defineModel<ServerClass>({ required: true });
 <template>
   <div v-if="!cfg">No information on server</div>
 
-  <div v-else class="Node">
+  <div v-else>
     <div v-for="(_, idx) in cfg.grpc" class="Node">
       <div class="NodeField">
         {{ "Grpc" }}
