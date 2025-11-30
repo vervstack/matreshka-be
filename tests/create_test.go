@@ -15,7 +15,7 @@ type CreateSuite struct {
 	suite.Suite
 
 	ctx context.Context
-	api matreshka_be_api.MatreshkaBeAPIClient
+	api matreshka_api.MatreshkaBeAPIClient
 }
 
 func (s *CreateSuite) SetupSuite() {
@@ -54,7 +54,7 @@ func (s *CreateSuite) Test_InvalidName() {
 	for name, tc := range testCases {
 		tc := tc
 		s.Run(name, func() {
-			req := &matreshka_be_api.CreateConfig_Request{
+			req := &matreshka_api.CreateConfig_Request{
 				ConfigName: tc.name,
 			}
 			resp, err := s.api.CreateConfig(s.ctx, req)

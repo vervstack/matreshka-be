@@ -21,26 +21,26 @@ type ListSuite struct {
 	serviceName string
 	start       time.Time
 
-	req      *matreshka_be_api.ListConfigs_Request
-	expected *matreshka_be_api.ListConfigs_Response
+	req      *matreshka_api.ListConfigs_Request
+	expected *matreshka_api.ListConfigs_Response
 }
 
 func (s *ListSuite) SetupTest() {
 	s.ctx = context.Background()
 
 	s.start = time.Now().Add(-time.Minute).UTC()
-	s.serviceName = matreshka_be_api.ConfigTypePrefix_kv.String() + "_" + getServiceNameFromTest(s.T())
+	s.serviceName = matreshka_api.ConfigTypePrefix_kv.String() + "_" + getServiceNameFromTest(s.T())
 }
 
 func (s *ListSuite) Test_ListOneServiceWithOneVersion() {
 	testEnv.createWithName(s.T(), s.serviceName)
 
-	s.req = &matreshka_be_api.ListConfigs_Request{
+	s.req = &matreshka_api.ListConfigs_Request{
 		SearchPattern: s.serviceName,
 	}
 
-	s.expected = &matreshka_be_api.ListConfigs_Response{
-		Configs: []*matreshka_be_api.Config{{
+	s.expected = &matreshka_api.ListConfigs_Response{
+		Configs: []*matreshka_api.Config{{
 			Name:     s.serviceName,
 			Version:  domain.MasterVersion,
 			Versions: []string{domain.MasterVersion},
@@ -52,18 +52,18 @@ func (s *ListSuite) Test_ListOneServiceWithOneVersion() {
 func (s *ListSuite) Test_ListOneServiceWithTwoVersion() {
 	testEnv.createWithName(s.T(), s.serviceName)
 
-	patchReq := &matreshka_be_api.PatchConfig_Request{
+	patchReq := &matreshka_api.PatchConfig_Request{
 		ConfigName: s.serviceName,
-		Patches: []*matreshka_be_api.PatchConfig_Patch{
+		Patches: []*matreshka_api.PatchConfig_Patch{
 			{
 				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE",
-				Patch: &matreshka_be_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
 					UpdateValue: "true",
 				},
 			},
 			{
 				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE_TYPE",
-				Patch: &matreshka_be_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
 					UpdateValue: "bool",
 				},
 			},
@@ -74,12 +74,12 @@ func (s *ListSuite) Test_ListOneServiceWithTwoVersion() {
 	_, err := testEnv.matreshkaApi.PatchConfig(s.ctx, patchReq)
 	require.NoError(s.T(), err)
 
-	s.req = &matreshka_be_api.ListConfigs_Request{
+	s.req = &matreshka_api.ListConfigs_Request{
 		SearchPattern: s.serviceName,
 	}
 
-	s.expected = &matreshka_be_api.ListConfigs_Response{
-		Configs: []*matreshka_be_api.Config{{
+	s.expected = &matreshka_api.ListConfigs_Response{
+		Configs: []*matreshka_api.Config{{
 			Name:     s.serviceName,
 			Version:  domain.MasterVersion,
 			Versions: []string{domain.MasterVersion, "VERV-137"},

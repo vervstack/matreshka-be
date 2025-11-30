@@ -29,10 +29,11 @@ const (
 )
 
 type Variable struct {
-	Name  string       `yaml:"name"`
-	Type  variableType `yaml:"type"`
-	Enum  TypedEnum    `yaml:"enum,omitempty"`
-	Value Value        `yaml:"value"`
+	Name    string       `yaml:"name"`
+	Type    variableType `yaml:"type"`
+	Enum    TypedEnum    `yaml:"enum,omitempty"`
+	Value   Value        `yaml:"value"`
+	Comment string       `yaml:"comment,omitempty"`
 }
 
 type opt func(*Variable)
