@@ -3,18 +3,25 @@
 
 CREATE TABLE configs
 (
-    id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT UNIQUE NOT NULL,
+    updated_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE configs_values
 (
     config_id INTEGER REFERENCES configs (id),
-    key       TEXT DEFAULT '',
-    value     TEXT DEFAULT '',
-    version   TEXT DEFAULT '',
+    key       TEXT DEFAULT '' NOT NULL,
+    value     TEXT DEFAULT '' NOT NULL,
+    version   TEXT DEFAULT '' NOT NULL,
     UNIQUE (config_id, key, version)
+);
+
+CREATE TABLE binary_configs
+(
+    config_id INTEGER REFERENCES configs (id),
+    data      BLOB NOT NULL,
+    version   TEXT NOT NULL
 );
 -- +goose StatementEnd
 

@@ -7,6 +7,7 @@ import (
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
 func (p *Provider) ClearValues(ctx context.Context, req domain.ConfigName, version *string) error {
@@ -14,10 +15,12 @@ func (p *Provider) ClearValues(ctx context.Context, req domain.ConfigName, versi
 		version = toolbox.ToPtr("%%")
 	}
 
-	_, err := p.conn.ExecContext(ctx, `
-		DELETE FROM configs_values 
-	    WHERE config_id = (SELECT id FROM configs WHERE name = $1) 
-	    AND   version   LIKE $2`, req.Name(), version)
+	params := config_queries.ClearValuesParams{
+		Name:    req.Name(),
+		Version: *version,
+	}
+
+	err := p.querier.ClearValues(ctx, params)
 	if err != nil {
 		return rerrors.Wrap(err, "error removing values from configs")
 	}

@@ -7,26 +7,18 @@ import (
 )
 
 func (p *Provider) Create(ctx context.Context, serviceName string) (int64, error) {
-	var configId int64
-
-	err := p.conn.QueryRowContext(ctx,
-		`
-		INSERT INTO configs
-				(name)
-		VALUES  ($1)
-		ON CONFLICT 
-		DO UPDATE SET
-			     name = excluded.name
-		RETURNING COALESCE(
-			id, 
-			(SELECT id FROM configs WHERE name = $1 LIMIT 1)
-	  	)
-`,
-		serviceName).
-		Scan(&configId)
+	cfgId, err := p.querier.CreateConfig(ctx, serviceName)
 	if err != nil {
 		return 0, errors.Wrap(err, "error upserting config")
 	}
+	if cfgId != 0 {
+		return cfgId, nil
+	}
 
-	return configId, nil
+	cfg, err := p.querier.GetConfig(ctx, serviceName)
+	if err != nil {
+		return 0, errors.Wrap(err, "error getting config")
+	}
+
+	return cfg.ID, nil
 }

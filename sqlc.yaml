@@ -1,0 +1,16 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries:
+      - "internal/storage/sqlite/queries/config*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "config_queries"
+        out: "internal/storage/sqlite/queries/config_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
