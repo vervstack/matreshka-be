@@ -2,11 +2,12 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"sort"
 
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/matreshka/internal/domain"
@@ -16,15 +17,14 @@ import (
 const defaultPageSize = 20
 
 func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (out domain.ListConfigsResponse, err error) {
-	err = p.conn.QueryRow(`
-			SELECT
-				count(cfg.id)
-			FROM configs cfg
-			WHERE name LIKE '%'||$1||'%'`, req.SearchPattern).
-		Scan(&out.TotalRecords)
+	totalRecords, err := p.querier.ListConfigsCount(ctx, sql.NullString{
+		String: req.SearchPattern,
+		Valid:  true,
+	})
 	if err != nil {
-		return domain.ListConfigsResponse{}, errors.Wrap(err, "error scanning total amount of configs")
+		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error scanning total amount of configs")
 	}
+	out.TotalRecords = uint32(totalRecords)
 
 	q := `
 		WITH cfg AS (
@@ -68,7 +68,7 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 
 	rows, err := p.conn.QueryContext(ctx, q, args...)
 	if err != nil {
-		return domain.ListConfigsResponse{}, errors.Wrap(err, "error listing configs")
+		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error listing configs")
 	}
 	defer rows.Close()
 
@@ -83,12 +83,12 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 			&versionsJSON,
 		)
 		if err != nil {
-			return out, errors.Wrap(err, "error scanning row")
+			return out, rerrors.Wrap(err, "error scanning row")
 		}
 
 		err = json.Unmarshal([]byte(versionsJSON), &item.ConfigVersions)
 		if err != nil {
-			return out, errors.Wrap(err, "error marshalling from json ")
+			return out, rerrors.Wrap(err, "error marshalling from json ")
 		}
 		sort.Slice(item.ConfigVersions, func(i, j int) bool {
 			return item.ConfigVersions[i] < item.ConfigVersions[j]
@@ -110,38 +110,25 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 }
 
 func (p *Provider) GetVersions(ctx context.Context, name string) ([]string, error) {
-	q := `
-		WITH cfg AS (
-				SELECT 
-				    configs.id         AS id,
-                    configs.updated_at AS updated_at,
-                    configs.name       AS name,
-                    cv.version     AS version
-             FROM configs
-			 JOIN configs_values cv ON configs.id = cv.config_id
-             WHERE name = $1
-             GROUP BY configs.name, cv.version)
-SELECT json_group_array(cfg.version)
-FROM cfg
-LEFT JOIN configs_values AS service_version
-ON service_version.config_id = cfg.id
-AND service_version.key = 'APP-INFO_VERSION'
-AND service_version.version = 'master'
-GROUP BY cfg.id
-HAVING COUNT(cfg.id) > 0 -- Ensures only non-empty results are returned
-		`
-
-	var versionsStr []byte
-	err := p.conn.QueryRowContext(ctx, q, name).
-		Scan(&versionsStr)
+	versionsRaw, err := p.querier.GetVersions(ctx, name)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting versions")
+		return nil, rerrors.Wrap(err, "error getting versions")
+	}
+
+	versionsStr, ok := versionsRaw.(string)
+	if !ok {
+		// sqlc might return []byte if it's not sure
+		if b, ok := versionsRaw.([]byte); ok {
+			versionsStr = string(b)
+		} else {
+			return nil, rerrors.New("unexpected type from GetVersions")
+		}
 	}
 
 	var versions []string
-	err = json.Unmarshal(versionsStr, &versions)
+	err = json.Unmarshal([]byte(versionsStr), &versions)
 	if err != nil {
-		return nil, errors.Wrap(err, "error unmarshalling versions from json ")
+		return nil, rerrors.Wrap(err, "error unmarshalling versions from json ")
 	}
 
 	return versions, nil

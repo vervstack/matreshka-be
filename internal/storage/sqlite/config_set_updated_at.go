@@ -4,17 +4,19 @@ import (
 	"context"
 	"time"
 
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
+
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
 func (p *Provider) SetUpdatedAt(ctx context.Context, serviceName string, updatedAt time.Time) error {
 	updatedAt = updatedAt.In(time.UTC)
-	_, err := p.conn.ExecContext(ctx, `
-		UPDATE configs
-		SET updated_at = $1
-		WHERE name = $2`, updatedAt, serviceName)
+	err := p.querier.SetUpdatedAt(ctx, config_queries.SetUpdatedAtParams{
+		UpdatedAt: updatedAt,
+		Name:      serviceName,
+	})
 	if err != nil {
-		return errors.Wrap(err, "error updating updated_at for config")
+		return rerrors.Wrap(err, "error updating updated_at for config")
 	}
 
 	return nil

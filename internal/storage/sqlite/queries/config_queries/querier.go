@@ -6,12 +6,24 @@ package config_queries
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
 	ClearValues(ctx context.Context, arg ClearValuesParams) error
 	CreateConfig(ctx context.Context, name string) (int64, error)
+	DeleteConfig(ctx context.Context, name string) error
+	DeleteValues(ctx context.Context, arg DeleteValuesParams) error
 	GetConfig(ctx context.Context, name string) (Config, error)
+	GetConfigNodes(ctx context.Context, arg GetConfigNodesParams) ([]GetConfigNodesRow, error)
+	GetIdByName(ctx context.Context, name string) (int64, error)
+	GetVersions(ctx context.Context, name string) (interface{}, error)
+	ListConfigs(ctx context.Context, dollar_1 sql.NullString) ([]ListConfigsRow, error)
+	ListConfigsCount(ctx context.Context, dollar_1 sql.NullString) (int64, error)
+	RenameConfig(ctx context.Context, arg RenameConfigParams) error
+	RenameValues(ctx context.Context, arg RenameValuesParams) error
+	SetUpdatedAt(ctx context.Context, arg SetUpdatedAtParams) error
+	UpsertValues(ctx context.Context, arg UpsertValuesParams) error
 }
 
 var _ Querier = (*Queries)(nil)

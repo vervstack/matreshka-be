@@ -3,9 +3,11 @@ package sqlite
 import (
 	"context"
 
-	errors "go.redsock.ru/rerrors"
+	"database/sql"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
 func (p *Provider) UpsertValues(ctx context.Context, req domain.PatchConfigRequest) error {
@@ -15,19 +17,21 @@ func (p *Provider) UpsertValues(ctx context.Context, req domain.PatchConfigReque
 
 	cfgId, err := p.getIdByName(ctx, req.ConfigName.Name())
 	if err != nil {
-		return errors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 
 	for _, b := range req.Upsert {
-		_, err := p.conn.ExecContext(ctx, `
-			INSERT INTO configs_values 
-					(config_id, key, value, version)
-			VALUES 	(       $1,  $2,    $3,      $4) 
-			ON CONFLICT (config_id, key, version) 
-			DO UPDATE SET value = excluded.value`,
-			cfgId, b.FieldName, b.FieldValue, req.ConfigVersion)
+		err := p.querier.UpsertValues(ctx, config_queries.UpsertValuesParams{
+			ConfigID: sql.NullInt64{
+				Int64: cfgId,
+				Valid: true,
+			},
+			Key:     b.FieldName,
+			Value:   b.FieldValue,
+			Version: req.ConfigVersion,
+		})
 		if err != nil {
-			return errors.Wrap(err, "error upserting config")
+			return rerrors.Wrap(err, "error upserting config")
 		}
 	}
 
@@ -35,14 +39,9 @@ func (p *Provider) UpsertValues(ctx context.Context, req domain.PatchConfigReque
 }
 
 func (p *Provider) getIdByName(ctx context.Context, name string) (cfgId int64, err error) {
-	err = p.conn.QueryRowContext(ctx, `
-		SELECT id 
-		FROM configs
-		WHERE name = $1
-		LIMIT 1`, name).
-		Scan(&cfgId)
+	cfgId, err = p.querier.GetIdByName(ctx, name)
 	if err != nil {
-		return 0, errors.Wrap(err, "error getting config id by name")
+		return 0, rerrors.Wrap(err, "error getting config id by name")
 	}
 
 	return cfgId, nil

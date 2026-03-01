@@ -3,9 +3,11 @@ package sqlite
 import (
 	"context"
 
-	errors "go.redsock.ru/rerrors"
+	"database/sql"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
 func (p *Provider) DeleteValues(ctx context.Context, req domain.PatchConfigRequest) error {
@@ -15,26 +17,20 @@ func (p *Provider) DeleteValues(ctx context.Context, req domain.PatchConfigReque
 
 	cfgId, err := p.getIdByName(ctx, req.ConfigName.Name())
 	if err != nil {
-		return errors.Wrap(err)
-	}
-
-	deleteQ, err := p.conn.PrepareContext(ctx, `
-		DELETE FROM configs_values
-		WHERE config_id = $1
-		AND (
-		    key = $2
-		    OR 
-		    key like $2 ||'_%'
-		    )
-		AND version = $3`)
-	if err != nil {
-		return errors.Wrap(err, "error preparing deleting values query")
+		return rerrors.Wrap(err)
 	}
 
 	for _, valueName := range req.Delete {
-		_, err = deleteQ.ExecContext(ctx, cfgId, valueName, req.ConfigVersion)
+		err = p.querier.DeleteValues(ctx, config_queries.DeleteValuesParams{
+			ConfigID: sql.NullInt64{
+				Int64: cfgId,
+				Valid: true,
+			},
+			Key:     valueName,
+			Version: req.ConfigVersion,
+		})
 		if err != nil {
-			return errors.Wrap(err, "error deleting value from db: "+valueName)
+			return rerrors.Wrap(err, "error deleting value from db: "+valueName)
 		}
 	}
 

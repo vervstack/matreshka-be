@@ -7,6 +7,8 @@ package config_queries
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
 
 const clearValues = `-- name: ClearValues :exec
@@ -42,6 +44,38 @@ func (q *Queries) CreateConfig(ctx context.Context, name string) (int64, error) 
 	return id, err
 }
 
+const deleteConfig = `-- name: DeleteConfig :exec
+DELETE FROM configs
+WHERE name = ?
+`
+
+func (q *Queries) DeleteConfig(ctx context.Context, name string) error {
+	_, err := q.db.ExecContext(ctx, deleteConfig, name)
+	return err
+}
+
+const deleteValues = `-- name: DeleteValues :exec
+DELETE FROM configs_values
+WHERE config_id = ?1
+  AND (
+    key = ?2
+        OR
+    key like ?2 ||'_%'
+    )
+  AND version = ?3
+`
+
+type DeleteValuesParams struct {
+	ConfigID sql.NullInt64
+	Key      string
+	Version  string
+}
+
+func (q *Queries) DeleteValues(ctx context.Context, arg DeleteValuesParams) error {
+	_, err := q.db.ExecContext(ctx, deleteValues, arg.ConfigID, arg.Key, arg.Version)
+	return err
+}
+
 const getConfig = `-- name: GetConfig :one
 SELECT id,
        name,
@@ -56,4 +90,251 @@ func (q *Queries) GetConfig(ctx context.Context, name string) (Config, error) {
 	var i Config
 	err := row.Scan(&i.ID, &i.Name, &i.UpdatedAt)
 	return i, err
+}
+
+const getConfigNodes = `-- name: GetConfigNodes :many
+SELECT
+    cv.key,
+    coalesce(topv.value, cv.value) as value
+FROM configs_values AS cv
+         INNER JOIN configs    AS c ON c.id = cv.config_id
+    AND 	  cv.version 	  = ?1
+         LEFT JOIN configs_values AS topv ON c.id = topv.config_id
+    AND topv.key = cv.key
+    AND topv.version = ?2
+WHERE c.name = ?3
+GROUP BY cv.key
+`
+
+type GetConfigNodesParams struct {
+	MasterVersion string
+	Version       string
+	Name          string
+}
+
+type GetConfigNodesRow struct {
+	Key   string
+	Value string
+}
+
+func (q *Queries) GetConfigNodes(ctx context.Context, arg GetConfigNodesParams) ([]GetConfigNodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getConfigNodes, arg.MasterVersion, arg.Version, arg.Name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetConfigNodesRow{}
+	for rows.Next() {
+		var i GetConfigNodesRow
+		if err := rows.Scan(&i.Key, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getIdByName = `-- name: GetIdByName :one
+SELECT id
+FROM configs
+WHERE name = ?
+LIMIT 1
+`
+
+func (q *Queries) GetIdByName(ctx context.Context, name string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getIdByName, name)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getVersions = `-- name: GetVersions :one
+WITH cfg AS (
+    SELECT
+        configs.id         AS id,
+        configs.updated_at AS updated_at,
+        configs.name       AS name,
+        cv.version     AS version
+    FROM configs
+             JOIN configs_values cv ON configs.id = cv.config_id
+    WHERE name = ?
+    GROUP BY configs.name, cv.version)
+SELECT json_group_array(cfg.version)
+FROM cfg
+         LEFT JOIN configs_values AS service_version
+                   ON service_version.config_id = cfg.id
+                       AND service_version.key = 'APP-INFO_VERSION'
+                       AND service_version.version = 'master'
+GROUP BY cfg.id
+HAVING COUNT(cfg.id) > 0
+`
+
+func (q *Queries) GetVersions(ctx context.Context, name string) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, getVersions, name)
+	var json_group_array interface{}
+	err := row.Scan(&json_group_array)
+	return json_group_array, err
+}
+
+const listConfigs = `-- name: ListConfigs :many
+WITH cfg AS (
+    SELECT
+        configs.id 			AS id,
+        configs.updated_at 	AS updated_at,
+        configs.name 		AS name
+    FROM configs
+    WHERE name LIKE '%'||?||'%'
+    GROUP BY configs.name
+),
+     versions AS (
+         SELECT
+             cv.config_id as config_id,
+             cv.version version
+         FROM configs_values cv
+                  INNER JOIN cfg c on c.id = cv.config_id
+         GROUP BY config_id, version
+         UNION ALL
+         SELECT
+             c.id,
+             'master'
+         FROM cfg c
+     )
+SELECT
+    cfg.name 						    AS config_name,
+    cfg.updated_at 					    AS last_updated_at,
+    json_group_array(versions.version)  AS config_versions
+FROM cfg
+         LEFT JOIN versions ON versions.config_id = cfg.id
+GROUP BY cfg.id
+HAVING COUNT(cfg.id) > 0
+`
+
+type ListConfigsRow struct {
+	ConfigName     string
+	LastUpdatedAt  time.Time
+	ConfigVersions interface{}
+}
+
+func (q *Queries) ListConfigs(ctx context.Context, dollar_1 sql.NullString) ([]ListConfigsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listConfigs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListConfigsRow{}
+	for rows.Next() {
+		var i ListConfigsRow
+		if err := rows.Scan(&i.ConfigName, &i.LastUpdatedAt, &i.ConfigVersions); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listConfigsCount = `-- name: ListConfigsCount :one
+SELECT
+    count(cfg.id)
+FROM configs cfg
+WHERE name LIKE '%'||?||'%'
+`
+
+func (q *Queries) ListConfigsCount(ctx context.Context, dollar_1 sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, listConfigsCount, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const renameConfig = `-- name: RenameConfig :exec
+UPDATE configs
+SET name = ?1 WHERE name = ?2
+`
+
+type RenameConfigParams struct {
+	NewName string
+	OldName string
+}
+
+func (q *Queries) RenameConfig(ctx context.Context, arg RenameConfigParams) error {
+	_, err := q.db.ExecContext(ctx, renameConfig, arg.NewName, arg.OldName)
+	return err
+}
+
+const renameValues = `-- name: RenameValues :exec
+UPDATE configs_values
+SET key = ?1
+WHERE config_id = ?2
+  AND   key = ?3
+  AND   version = ?4
+`
+
+type RenameValuesParams struct {
+	NewKey   string
+	ConfigID sql.NullInt64
+	OldKey   string
+	Version  string
+}
+
+func (q *Queries) RenameValues(ctx context.Context, arg RenameValuesParams) error {
+	_, err := q.db.ExecContext(ctx, renameValues,
+		arg.NewKey,
+		arg.ConfigID,
+		arg.OldKey,
+		arg.Version,
+	)
+	return err
+}
+
+const setUpdatedAt = `-- name: SetUpdatedAt :exec
+UPDATE configs
+SET updated_at = ?1
+WHERE name = ?2
+`
+
+type SetUpdatedAtParams struct {
+	UpdatedAt time.Time
+	Name      string
+}
+
+func (q *Queries) SetUpdatedAt(ctx context.Context, arg SetUpdatedAtParams) error {
+	_, err := q.db.ExecContext(ctx, setUpdatedAt, arg.UpdatedAt, arg.Name)
+	return err
+}
+
+const upsertValues = `-- name: UpsertValues :exec
+INSERT INTO configs_values
+    (config_id, key, value, version)
+VALUES 	(       ?,  ?,    ?,      ?)
+ON CONFLICT (config_id, key, version)
+    DO UPDATE SET value = excluded.value
+`
+
+type UpsertValuesParams struct {
+	ConfigID sql.NullInt64
+	Key      string
+	Value    string
+	Version  string
+}
+
+func (q *Queries) UpsertValues(ctx context.Context, arg UpsertValuesParams) error {
+	_, err := q.db.ExecContext(ctx, upsertValues,
+		arg.ConfigID,
+		arg.Key,
+		arg.Value,
+		arg.Version,
+	)
+	return err
 }

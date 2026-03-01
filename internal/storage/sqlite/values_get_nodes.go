@@ -4,49 +4,32 @@ import (
 	"context"
 
 	"go.redsock.ru/evon"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
 func (p *Provider) GetConfigNodes(ctx context.Context, serviceName string, version string) (*evon.Node, error) {
-	row, err := p.conn.QueryContext(ctx, `
-		SELECT
-			cv.key,
-			coalesce(topv.value, cv.value)
-		FROM configs_values AS cv
-		INNER JOIN configs    AS c ON c.id = cv.config_id
-		AND 	  cv.version 	  = $3
-		LEFT JOIN configs_values AS topv ON c.id = topv.config_id
-		AND topv.key = cv.key
-		AND topv.version = $2
-		WHERE c.name = $1
-		GROUP BY cv.key
-`, serviceName, version, domain.MasterVersion)
+	rows, err := p.querier.GetConfigNodes(ctx, config_queries.GetConfigNodesParams{
+		MasterVersion: domain.MasterVersion,
+		Version:       version,
+		Name:          serviceName,
+	})
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting config values")
-	}
-	defer row.Close()
-
-	var rootNodes []*evon.Node
-
-	for row.Next() {
-		var node evon.Node
-		err = row.Scan(&node.Name, &node.Value)
-		if err != nil {
-			return nil, errors.Wrap(err, "error scanning node")
-		}
-
-		rootNodes = append(rootNodes, &node)
+		return nil, rerrors.Wrap(err, "error getting config values")
 	}
 
-	if len(rootNodes) == 0 {
+	if len(rows) == 0 {
 		return nil, nil
 	}
 
 	ns := evon.NodesToStorage(nil)
-	for _, n := range rootNodes {
-		ns.AddNode(n)
+	for _, row := range rows {
+		ns.AddNode(&evon.Node{
+			Name:  row.Key,
+			Value: row.Value,
+		})
 	}
 	return ns[""], nil
 }
