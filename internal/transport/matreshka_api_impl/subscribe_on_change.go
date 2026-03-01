@@ -12,7 +12,7 @@ import (
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (s *Impl) SubscribeOnChanges(stream api.MatreshkaBeAPI_SubscribeOnChangesServer) error {
+func (s *Impl) SubscribeOnChanges(stream api.MatreshkaApi_SubscribeOnChangesServer) error {
 	sub := subscription.NewSubscriber()
 
 	defer s.subService.StopSubscription(sub)
@@ -51,7 +51,7 @@ func (s *Impl) SubscribeOnChanges(stream api.MatreshkaBeAPI_SubscribeOnChangesSe
 	}
 }
 
-func consumeSubscriberStream(stream api.MatreshkaBeAPI_SubscribeOnChangesServer) <-chan *api.SubscribeOnChanges_Request {
+func consumeSubscriberStream(stream api.MatreshkaApi_SubscribeOnChangesServer) <-chan *api.SubscribeOnChanges_Request {
 	subscriberEvents := make(chan *api.SubscribeOnChanges_Request, 1)
 
 	errorCount := 0

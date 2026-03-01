@@ -1,0 +1,30 @@
+.HomePageContainer {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    padding: 5em;
+    box-sizing: border-box;
+
+    justify-content: center;
+    align-items: center;
+
+    .CardWrapper {
+        max-width: 100%;
+        display: flex;
+        gap: 0.5em;
+        flex-wrap: wrap;
+
+        border-radius: var(--border-radius);
+        background: var(--element-border-color);
+
+        padding: 0.5em;
+
+        box-sizing: border-box;
+
+        * {
+            width: 12em;
+            height: 12em;
+        }
+    }
+}

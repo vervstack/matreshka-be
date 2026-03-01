@@ -180,7 +180,7 @@ export type DeleteConfigResponse = Record<string, never>;
 
 export type DeleteConfig = Record<string, never>;
 
-export class MatreshkaBeAPI {
+export class MatreshkaApi {
   static ApiVersion(this:void, req: ApiVersionRequest, initReq?: fm.InitReq): Promise<ApiVersionResponse> {
     return fm.fetchRequest<ApiVersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }

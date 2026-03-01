@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Header = "R-Auth"
+	Header = "Authorization"
 
 	passAuth = "Pass"
 )

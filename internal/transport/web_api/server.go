@@ -15,12 +15,12 @@ const (
 )
 
 type Server struct {
-	grpcApiServer api.MatreshkaBeAPIServer
+	grpcApiServer api.MatreshkaApiServer
 
 	mux http.ServeMux
 }
 
-func New(apiServer api.MatreshkaBeAPIServer) http.Handler {
+func New(apiServer api.MatreshkaApiServer) http.Handler {
 	s := Server{
 		grpcApiServer: apiServer,
 		mux:           http.ServeMux{},

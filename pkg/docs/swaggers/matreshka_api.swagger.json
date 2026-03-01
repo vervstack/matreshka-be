@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "MatreshkaBeAPI"
+      "name": "MatreshkaApi"
     }
   ],
   "consumes": [
@@ -18,7 +18,7 @@
   "paths": {
     "/api/config/list": {
       "post": {
-        "operationId": "MatreshkaBeAPI_ListConfigs",
+        "operationId": "MatreshkaApi_ListConfigs",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -44,13 +44,13 @@
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/nodes": {
       "post": {
-        "operationId": "MatreshkaBeAPI_GetConfigNodes",
+        "operationId": "MatreshkaApi_GetConfigNodes",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -76,13 +76,13 @@
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}": {
       "get": {
-        "operationId": "MatreshkaBeAPI_GetConfig",
+        "operationId": "MatreshkaApi_GetConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -124,13 +124,13 @@
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}/delete": {
       "post": {
-        "operationId": "MatreshkaBeAPI_DeleteConfig",
+        "operationId": "MatreshkaApi_DeleteConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -157,18 +157,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaBeAPIDeleteConfigBody"
+              "$ref": "#/definitions/matreshka_apiMatreshkaApiDeleteConfigBody"
             }
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}/new": {
       "post": {
-        "operationId": "MatreshkaBeAPI_CreateConfig",
+        "operationId": "MatreshkaApi_CreateConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -195,18 +195,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaBeAPICreateConfigBody"
+              "$ref": "#/definitions/matreshka_apiMatreshkaApiCreateConfigBody"
             }
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}/patch": {
       "post": {
-        "operationId": "MatreshkaBeAPI_PatchConfig",
+        "operationId": "MatreshkaApi_PatchConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -233,18 +233,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaBeAPIPatchConfigBody"
+              "$ref": "#/definitions/matreshka_apiMatreshkaApiPatchConfigBody"
             }
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}/rename/{newName}": {
       "post": {
-        "operationId": "MatreshkaBeAPI_RenameConfig",
+        "operationId": "MatreshkaApi_RenameConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -274,13 +274,13 @@
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/config/{configName}/store": {
       "post": {
-        "operationId": "MatreshkaBeAPI_StoreConfig",
+        "operationId": "MatreshkaApi_StoreConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -307,18 +307,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaBeAPIStoreConfigBody"
+              "$ref": "#/definitions/matreshka_apiMatreshkaApiStoreConfigBody"
             }
           }
         ],
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     },
     "/api/version": {
       "get": {
-        "operationId": "MatreshkaBeAPI_ApiVersion",
+        "operationId": "MatreshkaApi_ApiVersion",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -334,7 +334,7 @@
           }
         },
         "tags": [
-          "MatreshkaBeAPI"
+          "MatreshkaApi"
         ]
       }
     }
@@ -471,10 +471,10 @@
         }
       }
     },
-    "matreshka_apiMatreshkaBeAPICreateConfigBody": {
+    "matreshka_apiMatreshkaApiCreateConfigBody": {
       "type": "object"
     },
-    "matreshka_apiMatreshkaBeAPIDeleteConfigBody": {
+    "matreshka_apiMatreshkaApiDeleteConfigBody": {
       "type": "object",
       "properties": {
         "configVersion": {
@@ -482,7 +482,7 @@
         }
       }
     },
-    "matreshka_apiMatreshkaBeAPIPatchConfigBody": {
+    "matreshka_apiMatreshkaApiPatchConfigBody": {
       "type": "object",
       "properties": {
         "version": {
@@ -497,7 +497,7 @@
         }
       }
     },
-    "matreshka_apiMatreshkaBeAPIStoreConfigBody": {
+    "matreshka_apiMatreshkaApiStoreConfigBody": {
       "type": "object",
       "properties": {
         "format": {
@@ -577,25 +577,6 @@
     },
     "matreshka_apiStoreConfigResponse": {
       "type": "object"
-    },
-    "matreshka_apiSubscribeOnChangesResponse": {
-      "type": "object",
-      "properties": {
-        "configName": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "patches": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/PatchConfigPatch"
-          }
-        }
-      }
     },
     "protobufAny": {
       "type": "object",

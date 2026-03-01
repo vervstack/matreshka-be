@@ -8,7 +8,7 @@ import "npm.proto";
 option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
 option (npm_package) = "@vervstack/matreshka";
 
-service MatreshkaBeAPI {
+service MatreshkaApi {
   rpc ApiVersion(ApiVersion.Request) returns (ApiVersion.Response) {
     option (google.api.http) = {
       get: "/api/version"

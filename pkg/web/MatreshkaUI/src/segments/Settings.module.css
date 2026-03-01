@@ -1,0 +1,23 @@
+.SettingsContainer {
+    width: 60vw;
+    height: 60vh;
+    position: fixed;
+    top: 20vh;
+    left: 20vw;
+
+    background-color: var(--element-border-color-ligher);
+    border: 0.5em solid var(--element-border-color);
+    border-radius: var(--border-radius);
+
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 1em;
+    flex-direction: column;
+
+    padding: 1em;
+
+    &.hidden {
+        display: none;
+    }
+}

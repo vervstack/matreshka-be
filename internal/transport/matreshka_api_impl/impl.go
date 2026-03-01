@@ -19,7 +19,7 @@ type Impl struct {
 	evonConfigService service.EvonConfigService
 	subService        service.SubscriberService
 
-	matreshka_api.UnimplementedMatreshkaBeAPIServer
+	matreshka_api.UnimplementedMatreshkaApiServer
 }
 
 func NewServer(
@@ -34,13 +34,13 @@ func NewServer(
 }
 
 func (s *Impl) Register(srv grpc.ServiceRegistrar) {
-	matreshka_api.RegisterMatreshkaBeAPIServer(srv, s)
+	matreshka_api.RegisterMatreshkaApiServer(srv, s)
 }
 
 func (s *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
 	gwHttpMux := runtime.NewServeMux()
 
-	err := matreshka_api.RegisterMatreshkaBeAPIHandlerFromEndpoint(
+	err := matreshka_api.RegisterMatreshkaApiHandlerFromEndpoint(
 		ctx,
 		gwHttpMux,
 		endpoint,

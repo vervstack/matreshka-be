@@ -1,0 +1,18 @@
+.CardContainer {
+    width: 100%;
+    height: 100%;
+
+    border-radius: var(--border-radius);
+    background-color: var(--main-bg-color);
+
+    padding: 1em;
+    box-sizing: border-box;
+
+    cursor: pointer;
+
+    transition: background-color 0.125s ease;
+
+    &:hover {
+        background-color: var(--element-border-color-ligher);
+    }
+}

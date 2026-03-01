@@ -1,0 +1,39 @@
+@import url(https://fonts.googleapis.com/icon?family=Comfortaa);
+
+* {
+    font-family: 'Comfortaa', sans-serif;
+}
+
+html, root, body {
+    width: 100%;
+    height: 100%;
+}
+
+root, body {
+    margin: 0;
+    background: var(--main-bg-color);
+    color: var(--main-fg-color);
+    overflow-x: hidden;
+}
+
+:root {
+    --main-bg-color: rgb(66, 67, 69);
+    --main-fg-color: rgb(240, 241, 243);
+
+    --element-border-color: rgb(31, 34, 39);
+    --element-border-color-ligher: rgb(116, 117, 120);
+
+    --border-radius: 0.75em;
+}
+
+
+/*TODO: DO FOR different screen sizes*/
+* {
+    font-size: 16px;
+}
+
+
+:root {
+    --debug-mode-enabled: true;
+    --debug-mode-color: rgb(182, 12, 12);
+}
