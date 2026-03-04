@@ -1,8 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE SCHEMA IF NOT EXISTS matreshka;
-
-CREATE TYPE matreshka.config_type AS ENUM (
+CREATE TYPE config_type AS ENUM (
     'plain',
     'verv',
     'minio',
@@ -11,18 +9,18 @@ CREATE TYPE matreshka.config_type AS ENUM (
     'kv'
     );
 
-CREATE TABLE matreshka.configs
+CREATE TABLE configs
 (
     id         INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name       TEXT UNIQUE NOT NULL,
-    type       matreshka.config_type NOT NULL,
+    type       config_type NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE matreshka.configs_content
+CREATE TABLE configs_content
 (
-    config_id INTEGER REFERENCES matreshka.configs (id),
+    config_id INTEGER REFERENCES configs (id),
     version   TEXT NOT NULL,
     content   TEXT NOT NULL,
     UNIQUE (config_id, version)
@@ -32,6 +30,6 @@ CREATE TABLE matreshka.configs_content
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE matreshka.configs_content;
-DROP TABLE matreshka.configs;
+DROP TABLE configs_content;
+DROP TABLE configs;
 -- +goose StatementEnd

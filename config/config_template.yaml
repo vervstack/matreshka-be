@@ -3,9 +3,6 @@ app_info:
     version: v1.0.37
     startup_duration: 10s
 data_sources:
-    - resource_name: sqlite
-      path: ./matreshka-be.db
-      migrations_folder: ./migrations
     - resource_name: postgres
       migrations_folder: ./migrations
       host: localhost
