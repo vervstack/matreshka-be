@@ -6,33 +6,41 @@ import cls from '@/pages/HomePage.module.css';
 import Card from "@/components/home/Card.tsx";
 
 import {useApi} from "@/app/hooks/api/api.ts";
-import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+
+import LoaderWrapper from "@/segments/LoaderWrapper.tsx";
 
 export default function HomePage() {
     const {ListConfigs} = useApi()
-    const toaster = useToaster();
 
     const [list, setList] = useState<ListConfigsResponse | undefined>();
 
+    const [loadFunc, setLoadFunc] = useState<Promise<void> | undefined>(undefined);
+
     useEffect(() => {
         const req = {} as ListConfigsRequest;
-
-        ListConfigs(req)
-            .then(setList)
-            .catch(toaster.catchGrpc)
+        setLoadFunc(
+            ListConfigs(req)
+                .then(setList)
+        )
     }, []);
 
     return (
         <div className={cls.HomePageContainer}>
-            <div className={cls.CardWrapper}>
+            <LoaderWrapper
+                load={loadFunc}
+            >
                 {
-                    list?.configs?.map(config => {
-                        return (
-                            <Card cardTitle={config.name || ''}/>
-                        )
-                    })
+                    list?.configs ? <div className={cls.CardWrapper}>
+                        {
+                            list?.configs?.map(config => {
+                                return (
+                                    <Card cardTitle={config.name || ''}/>
+                                )
+                            })
+                        }
+					</div> : <div>No configs</div>
                 }
-            </div>
+            </LoaderWrapper>
         </div>
     )
 }
