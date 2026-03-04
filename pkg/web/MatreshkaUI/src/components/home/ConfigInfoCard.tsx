@@ -1,12 +1,12 @@
 import cls from '@/components/home/Card.module.css';
 
-interface CardProps {
+interface ConfigInfoCardProps {
     cardTitle: string
 
     size?: 'l' | 'm' | 's'
 }
 
-export default function Card({cardTitle}: CardProps) {
+export default function ConfigInfoCard({cardTitle}: ConfigInfoCardProps) {
     return (
         <div className={cls.CardContainer}>
             {cardTitle}

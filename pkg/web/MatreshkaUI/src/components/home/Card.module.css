@@ -2,6 +2,8 @@
     width: 100%;
     height: 100%;
 
+    display: flex;
+
     border-radius: var(--border-radius);
     background-color: var(--main-bg-color);
 
@@ -14,5 +16,23 @@
 
     &:hover {
         background-color: var(--element-border-color-ligher);
+    }
+
+    &.NewConfigCard {
+        justify-content: center;
+        align-items: center;
+
+        gap: 0.5em;
+
+        background-color: var(--accent-bg-color);
+
+        &:hover {
+            background-color: var(--accent-bg-color-ligher);
+        }
+    }
+
+    .NewIcon {
+        width: 1em;
+        height: 1em;
     }
 }

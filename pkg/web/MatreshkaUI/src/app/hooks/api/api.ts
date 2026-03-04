@@ -1,8 +1,9 @@
 import {create} from "zustand";
 import {
-    MatreshkaApi,
+    MatreshkaApi,InitReq,
+
     ListConfigsRequest, ListConfigsResponse,
-    InitReq
+    CreateConfigRequest, CreateConfigResponse,
 } from "@vervstack/matreshka";
 
 export interface Api {
@@ -14,6 +15,8 @@ export interface Api {
     initReq(): InitReq
 
     ListConfigs(req: ListConfigsRequest): Promise<ListConfigsResponse>;
+
+    CreateConfig(req: CreateConfigRequest): Promise<CreateConfigResponse>;
 }
 
 
@@ -37,9 +40,14 @@ export const useApi = create<Api>(
         ListConfigs(req: ListConfigsRequest): Promise<ListConfigsResponse> {
             const {initReq} = get();
             const ir = initReq();
-            console.log(ir);
 
             return MatreshkaApi.ListConfigs(req, ir)
+        },
+        CreateConfig(req: CreateConfigRequest) : Promise<CreateConfigResponse> {
+            const {initReq} = get();
+            const ir = initReq();
+
+            return MatreshkaApi.CreateConfig(req, ir)
         },
 
         initReq(): InitReq {

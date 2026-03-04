@@ -3,6 +3,8 @@ import {Outlet} from "react-router-dom";
 import Toaster from "@/segments/Toaster.tsx";
 import Settings from "@/segments/Settings.tsx";
 
+import Dialog from "@/segments/Dialog.tsx";
+
 export default function MainLayout() {
     return (
         <div
@@ -14,6 +16,8 @@ export default function MainLayout() {
             <Outlet/>
             <Toaster/>
             <Settings/>
+
+            <Dialog/>
         </div>
     )
 }

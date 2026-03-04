@@ -23,6 +23,9 @@ root, body {
     --element-border-color: rgb(31, 34, 39);
     --element-border-color-ligher: rgb(116, 117, 120);
 
+    --accent-bg-color: rgb(31, 47, 80);
+    --accent-bg-color-ligher: rgb(55, 66, 81);
+
     --border-radius: 0.75em;
 }
 

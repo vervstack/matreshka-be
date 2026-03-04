@@ -3,11 +3,12 @@ import {ListConfigsRequest, ListConfigsResponse} from "@vervstack/matreshka";
 
 import cls from '@/pages/HomePage.module.css';
 
-import Card from "@/components/home/Card.tsx";
+import ConfigInfoCard from "@/components/home/ConfigInfoCard.tsx";
 
 import {useApi} from "@/app/hooks/api/api.ts";
 
 import LoaderWrapper from "@/segments/LoaderWrapper.tsx";
+import NewConfigCard from "@/components/home/NewConfigCard.tsx";
 
 export default function HomePage() {
     const {ListConfigs} = useApi()
@@ -29,17 +30,21 @@ export default function HomePage() {
             <LoaderWrapper
                 load={loadFunc}
             >
-                {
-                    list?.configs ? <div className={cls.CardWrapper}>
-                        {
-                            list?.configs?.map(config => {
-                                return (
-                                    <Card cardTitle={config.name || ''}/>
-                                )
-                            })
-                        }
-					</div> : <div>No configs</div>
-                }
+                <div className={cls.CardWrapper}>
+
+                    {
+                        list?.configs &&
+                        list?.configs?.map(config => {
+                            return (
+                                <ConfigInfoCard cardTitle={config.name || ''}/>
+                            )
+                        })
+                    }
+
+                    <NewConfigCard/>
+                </div>
+
+
             </LoaderWrapper>
         </div>
     )

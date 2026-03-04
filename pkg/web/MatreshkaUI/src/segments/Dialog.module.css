@@ -1,0 +1,19 @@
+.DialogContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ConfigCreateDialogContainer {
+    width: 30vw;
+    height: 20vh;
+
+    background-color: red;
+
+    position: fixed;
+
+    top: 50%;
+    right: 2%;
+}
