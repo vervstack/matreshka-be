@@ -6,7 +6,6 @@ import (
 	"context"
 
 	"go.vervstack.ru/matreshka/internal/domain"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type Services interface {
@@ -17,7 +16,7 @@ type Services interface {
 }
 
 type ConfigService interface {
-	Create(ctx context.Context, req *api.CreateConfig_Request) error
+	Create(ctx context.Context, req domain.CreateConfigRequest) error
 }
 
 type EvonConfigService interface {

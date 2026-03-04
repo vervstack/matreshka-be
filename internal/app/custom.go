@@ -9,7 +9,6 @@ import (
 	"go.vervstack.ru/matreshka/internal/service/v1"
 	"go.vervstack.ru/matreshka/internal/storage"
 	"go.vervstack.ru/matreshka/internal/storage/pg"
-	"go.vervstack.ru/matreshka/internal/storage/sqlite"
 	"go.vervstack.ru/matreshka/internal/storage/tx_manager"
 	"go.vervstack.ru/matreshka/internal/transport/matreshka_api_impl"
 	"go.vervstack.ru/matreshka/internal/transport/web"
@@ -30,9 +29,8 @@ type Custom struct {
 
 func (c *Custom) Init(a *App) (err error) {
 	// Repository, Service logic, transport registration happens here
-	c.DataProvider = sqlite.New(a.Sqlite)
 
-	txManager := tx_manager.New(a.Sqlite)
+	txManager := tx_manager.New(a.Postgres)
 
 	c.ConfigStorage = pg.New(a.Postgres)
 	c.Service = v1.New(c.DataProvider, c.ConfigStorage, txManager)

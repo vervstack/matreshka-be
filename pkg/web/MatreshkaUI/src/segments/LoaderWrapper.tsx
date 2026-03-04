@@ -52,17 +52,17 @@ export default function LoaderWrapper({load, children, onClickTryAgain}: LoaderW
 
     return (
         <div className={cls.LoaderContainer}>
-            {isLoading && <div className={cls.Spinner}/>}
-            {err ?
-                <div className={cls.ErrorMessageBox}>
-                    <div>{err.message}</div>
-                    {onClickTryAgain && <ActionButton
+            {isLoading ? <div className={cls.Spinner}/> :
+                err ?
+                    <div className={cls.ErrorMessageBox}>
+                        <div>{err.message}</div>
+                        {onClickTryAgain && <ActionButton
 
-                        onClick={onClickTryAgainLocal}
-                        iconPath={RetryIcon}/>}
-                </div>
+							onClick={onClickTryAgainLocal}
+							iconPath={RetryIcon}/>}
+                    </div>
 
-             : children}
+                    : children}
 
 
         </div>

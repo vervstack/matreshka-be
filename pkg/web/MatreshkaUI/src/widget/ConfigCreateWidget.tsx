@@ -18,6 +18,8 @@ export default function ConfigCreateWidget() {
 
     const [func, setFunc] = useState<Promise<void> | undefined>();
 
+    const [isCreating, setIsCreating] = useState(false);
+
     const {CreateConfig} = useApi();
 
     function create() {
@@ -25,9 +27,11 @@ export default function ConfigCreateWidget() {
             configName: name,
             configType: type,
         } as CreateConfigRequest;
-
+        setIsCreating(true)
         setFunc(CreateConfig(req)
-            .then())
+            .finally(() => {
+                setIsCreating(false)
+            }).then())
     }
 
     function clear() {
@@ -64,7 +68,7 @@ export default function ConfigCreateWidget() {
                             tooltip={'Create new config'}
                             iconPath={ConfigFile}
                             alt={'Create'}
-                            onClick={create}
+                            onClick={isCreating ? undefined : create}
                         />
                     </div>
                 </div>
