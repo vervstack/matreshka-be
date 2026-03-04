@@ -6,6 +6,14 @@ data_sources:
     - resource_name: sqlite
       path: ./data/matreshka-be.db
       migrations_folder: ./migrations
+    - resource_name: postgres
+      migrations_folder: ./migrations
+      host: localhost
+      port: 5432
+      user: matreshka
+      pwd: ""
+      name: matreshka
+      ssl_mode: ""
 servers:
     50049:
         /{FS}:

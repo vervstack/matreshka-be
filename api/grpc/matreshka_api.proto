@@ -5,7 +5,7 @@ package matreshka_api;
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
+option go_package = "matreshka_api";
 option (npm_package) = "@vervstack/matreshka";
 
 service MatreshkaApi {
@@ -176,10 +176,6 @@ message CreateConfig {
   }
 
   message Response {
-    // name based on provided config_name and type.
-    // e.g. for Verv configuration with name "matreshka"
-    // unique name identifier will be verv_matreshka
-    string name = 1;
   }
 }
 

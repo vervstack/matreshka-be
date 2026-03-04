@@ -1,32 +1,37 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE SCHEMA IF NOT EXISTS matreshka;
 
-CREATE TABLE configs
+CREATE TYPE matreshka.config_type AS ENUM (
+    'plain',
+    'verv',
+    'minio',
+    'pg',
+    'nginx',
+    'kv'
+    );
+
+CREATE TABLE matreshka.configs
 (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    id         INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name       TEXT UNIQUE NOT NULL,
-    updated_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    type       matreshka.config_type NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE configs_values
+CREATE TABLE matreshka.configs_content
 (
-    config_id INTEGER REFERENCES configs (id),
-    key       TEXT DEFAULT '' NOT NULL,
-    value     TEXT DEFAULT '' NOT NULL,
-    version   TEXT DEFAULT '' NOT NULL,
-    UNIQUE (config_id, key, version)
+    config_id INTEGER REFERENCES matreshka.configs (id),
+    version   TEXT NOT NULL,
+    content   TEXT NOT NULL,
+    UNIQUE (config_id, version)
 );
 
-CREATE TABLE binary_configs
-(
-    config_id INTEGER REFERENCES configs (id),
-    data      BLOB NOT NULL,
-    version   TEXT NOT NULL
-);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE configs_values;
-DROP TABLE configs;
+DROP TABLE matreshka.configs_content;
+DROP TABLE matreshka.configs;
 -- +goose StatementEnd

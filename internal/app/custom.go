@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/matreshka/internal/service"
 	"go.vervstack.ru/matreshka/internal/service/v1"
 	"go.vervstack.ru/matreshka/internal/storage"
+	"go.vervstack.ru/matreshka/internal/storage/pg"
 	"go.vervstack.ru/matreshka/internal/storage/sqlite"
 	"go.vervstack.ru/matreshka/internal/storage/tx_manager"
 	"go.vervstack.ru/matreshka/internal/transport/matreshka_api_impl"
@@ -18,7 +19,8 @@ import (
 )
 
 type Custom struct {
-	DataProvider storage.Data
+	DataProvider  storage.Data
+	ConfigStorage pg.ConfigStorage
 
 	Service service.Services
 
@@ -32,7 +34,8 @@ func (c *Custom) Init(a *App) (err error) {
 
 	txManager := tx_manager.New(a.Sqlite)
 
-	c.Service = v1.New(c.DataProvider, txManager)
+	c.ConfigStorage = pg.New(a.Postgres)
+	c.Service = v1.New(c.DataProvider, c.ConfigStorage, txManager)
 
 	c.GrpcImpl = matreshka_api_impl.NewServer(a.Cfg, c.Service)
 	c.WebApiImpl = web_api.New(c.GrpcImpl)

@@ -8,7 +8,12 @@ import (
 	"go.redsock.ru/evon"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 )
+
+type ConfigStorage interface {
+	config_queries.Querier
+}
 
 type Data interface {
 	// GetConfigNodes returns root node of parsed config

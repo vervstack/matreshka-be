@@ -5,7 +5,7 @@ package app
 import (
 	"context"
 	"database/sql"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
@@ -20,7 +20,8 @@ type App struct {
 	Stop func()
 	Cfg  config.Config
 	/* Data source connection */
-	Sqlite *sql.DB
+	Sqlite   *sql.DB
+	Postgres *sql.DB
 	/* Servers managers */
 	ServerMaster *transport.ServersManager
 
@@ -28,7 +29,7 @@ type App struct {
 }
 
 func New() (app App, err error) {
-	logrus.Println("starting app")
+	log.Info().Msg("starting app")
 
 	err = app.InitConfig()
 	if err != nil {
@@ -86,11 +87,15 @@ func (a *App) Start() (err error) {
 
 	select {
 	case err := <-errC:
-		logrus.Println("error during application startup: ", err)
+		if err != nil {
+			log.Error().Err(err).Msg("error during application startup")
+		} else {
+			log.Info().Msg("All jobs are done")
+		}
 	case <-interaptedC:
-		logrus.Println("received interrupt signal")
+		log.Info().Msg("received interrupt signal")
 	}
-	logrus.Println("shutting down the app")
+	log.Info().Msg("shutting down the app")
 
 	err = closer.Close()
 	if err != nil {

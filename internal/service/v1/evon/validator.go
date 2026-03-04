@@ -1,4 +1,4 @@
-package config
+package evon
 
 import (
 	"strings"

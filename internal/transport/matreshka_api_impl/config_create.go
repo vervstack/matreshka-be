@@ -8,22 +8,11 @@ import (
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (s *Impl) CreateConfig(
-	ctx context.Context,
-	req *api.CreateConfig_Request) (
-	*api.CreateConfig_Response, error) {
-
-	name := fromName(req.ConfigName)
-
-	var resp api.CreateConfig_Response
-	var err error
-
-	aboutConfig, err := s.evonConfigService.Create(ctx, name)
+func (s *Impl) CreateConfig(ctx context.Context, req *api.CreateConfig_Request) (*api.CreateConfig_Response, error) {
+	err := s.configService.Create(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err)
 	}
 
-	resp.Name = aboutConfig.Name
-
-	return &resp, nil
+	return &api.CreateConfig_Response{}, nil
 }

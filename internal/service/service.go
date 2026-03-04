@@ -6,17 +6,26 @@ import (
 	"context"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type Services interface {
-	ConfigService() EvonConfigService
+	ConfigService() ConfigService
+	// EvonService deprecated
+	EvonService() EvonConfigService
 	PubSubService() PubSubService
 }
 
+type ConfigService interface {
+	Create(ctx context.Context, req *api.CreateConfig_Request) error
+}
+
 type EvonConfigService interface {
+	Create(ctx context.Context, name domain.ConfigName) (domain.AboutConfig, error)
+
 	Replace(ctx context.Context, req domain.ReplaceConfigReq) error
 	Patch(ctx context.Context, configPatch domain.PatchConfigRequest) error
-	Create(ctx context.Context, name domain.ConfigName) (domain.AboutConfig, error)
+
 	Rename(ctx context.Context, oldName, newName domain.ConfigName) error
 
 	GetConfigWithNodes(ctx context.Context, name domain.ConfigName, version string) (domain.ConfigWithNodes, error)

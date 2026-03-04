@@ -16,6 +16,8 @@ import (
 type Impl struct {
 	version string
 
+	configService service.ConfigService
+
 	evonConfigService service.EvonConfigService
 	subService        service.SubscriberService
 
@@ -24,12 +26,15 @@ type Impl struct {
 
 func NewServer(
 	cfg config.Config,
-	service service.Services,
+	srv service.Services,
 ) *Impl {
 	return &Impl{
-		version:           cfg.AppInfo.Version,
-		evonConfigService: service.ConfigService(),
-		subService:        service.PubSubService(),
+		version: cfg.AppInfo.Version,
+
+		configService: srv.ConfigService(),
+		subService:    srv.PubSubService(),
+
+		evonConfigService: srv.EvonService(),
 	}
 }
 
