@@ -28,7 +28,7 @@ type PatchConfigSuite struct {
 func (s *PatchConfigSuite) SetupTest() {
 	s.ctx = context.Background()
 
-	s.configName = matreshka_api.ConfigTypePrefix_verv.String() + "_" + getServiceNameFromTest(s.T())
+	s.configName = matreshka_api.ConfigType_verv.String() + "_" + getServiceNameFromTest(s.T())
 	testEnv.createWithName(s.T(), s.configName)
 
 	s.cfg = getFullConfig(s.T())

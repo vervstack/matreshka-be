@@ -193,7 +193,7 @@ func normalizeConfigName(configName string) string {
 	pref, _ := matreshka_api_impl.ParseConfigName(configName)
 
 	if pref == nil {
-		configName = matreshka_api.ConfigTypePrefix_kv.String() + "_" + configName
+		configName = matreshka_api.ConfigType_kv.String() + "_" + configName
 	}
 
 	return configName

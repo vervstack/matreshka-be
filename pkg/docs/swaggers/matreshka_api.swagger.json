@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/config/create": {
+      "post": {
+        "operationId": "MatreshkaApi_CreateConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/matreshka_apiCreateConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/matreshka_apiCreateConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MatreshkaApi"
+        ]
+      }
+    },
     "/api/config/list": {
       "post": {
         "operationId": "MatreshkaApi_ListConfigs",
@@ -158,44 +190,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/matreshka_apiMatreshkaApiDeleteConfigBody"
-            }
-          }
-        ],
-        "tags": [
-          "MatreshkaApi"
-        ]
-      }
-    },
-    "/api/config/{configName}/new": {
-      "post": {
-        "operationId": "MatreshkaApi_CreateConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/matreshka_apiCreateConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "configName",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaApiCreateConfigBody"
             }
           }
         ],
@@ -386,6 +380,30 @@
         }
       }
     },
+    "matreshka_apiConfigType": {
+      "type": "string",
+      "enum": [
+        "plain",
+        "verv",
+        "minio",
+        "pg",
+        "nginx",
+        "kv"
+      ],
+      "default": "plain",
+      "title": "- plain: Plain text blob config - saved and configured externally by user\nNot recommended to use - unstructured and cannot be validated.\nSimply a text storage\n - verv: Matreshka's configuration for application\n - minio: Configuration for object storage (Minio)\n - pg: Configuration for Postgresql Database\n - nginx: Configuration for Nginx/Angie web server\n - kv: Basically a key-value configuration"
+    },
+    "matreshka_apiCreateConfigRequest": {
+      "type": "object",
+      "properties": {
+        "configName": {
+          "type": "string"
+        },
+        "configType": {
+          "$ref": "#/definitions/matreshka_apiConfigType"
+        }
+      }
+    },
     "matreshka_apiCreateConfigResponse": {
       "type": "object",
       "properties": {
@@ -470,9 +488,6 @@
           "format": "int64"
         }
       }
-    },
-    "matreshka_apiMatreshkaApiCreateConfigBody": {
-      "type": "object"
     },
     "matreshka_apiMatreshkaApiDeleteConfigBody": {
       "type": "object",

@@ -15,6 +15,22 @@ service MatreshkaApi {
     };
   };
 
+  rpc ListConfigs(ListConfigs.Request) returns (ListConfigs.Response) {
+    option (google.api.http) = {
+      post: "/api/config/list",
+      body: "*"
+    };
+  }
+
+  rpc CreateConfig(CreateConfig.Request) returns (CreateConfig.Response) {
+    option (google.api.http) = {
+      post: "/api/config/create",
+      body: "*"
+    };
+  }
+
+  // TODO rework handles below
+
   rpc GetConfig(GetConfig.Request) returns (GetConfig.Response) {
     option (google.api.http) = {
       get: "/api/config/{config_name}",
@@ -26,19 +42,7 @@ service MatreshkaApi {
       body: "*"
     };
   }
-  rpc ListConfigs(ListConfigs.Request) returns (ListConfigs.Response) {
-    option (google.api.http) = {
-      post: "/api/config/list",
-      body: "*"
-    };
-  }
 
-  rpc CreateConfig(CreateConfig.Request) returns (CreateConfig.Response) {
-    option (google.api.http) = {
-      post: "/api/config/{config_name}/new",
-      body: "*"
-    };
-  }
 
   rpc PatchConfig(PatchConfig.Request) returns (PatchConfig.Response) {
     option (google.api.http) = {
@@ -168,6 +172,7 @@ message GetConfigNode {
 message CreateConfig {
   message Request {
     string config_name = 1;
+    ConfigType config_type = 2;
   }
 
   message Response {
@@ -212,7 +217,7 @@ message SubscribeOnChanges {
   }
 }
 
-enum ConfigTypePrefix {
+enum ConfigType {
   // Plain text blob config - saved and configured externally by user
   // Not recommended to use - unstructured and cannot be validated.
   // Simply a text storage

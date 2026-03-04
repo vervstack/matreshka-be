@@ -28,6 +28,8 @@ root, body {
 
     --border-radius: 0.75em;
 
+    --warning-color: rgb(193, 145, 115);
+
     --action-button-size: 2em;
 }
 

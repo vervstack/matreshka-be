@@ -22,7 +22,7 @@ func (c *CfgService) GetConfigWithNodes(ctx context.Context, configName domain.C
 	}
 
 	switch configName.Prefix() {
-	case api.ConfigTypePrefix_pg:
+	case api.ConfigType_pg:
 		toSnake(nodes)
 	}
 

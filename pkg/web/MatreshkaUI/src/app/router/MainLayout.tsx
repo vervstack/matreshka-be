@@ -14,10 +14,10 @@ export default function MainLayout() {
             }}
         >
             <Outlet/>
-            <Toaster/>
             <Settings/>
 
             <Dialog/>
+            <Toaster/>
         </div>
     )
 }

@@ -7,6 +7,12 @@ export enum DialogType {
 export interface DialogManager {
     CurrentDialog: DialogType | null;
 
+    IsClickOffClosesDialog: boolean;
+
+    LockClosing(): void;
+
+    UnlockClosing(): void;
+
     OpenDialog(d: DialogType): void;
 
     CloseDialog(): void;
@@ -14,14 +20,25 @@ export interface DialogManager {
 
 
 export const useDialog =
-    create<DialogManager>((set, _) => ({
+    create<DialogManager>((set, get) => ({
         CurrentDialog: null,
+        IsClickOffClosesDialog: true,
+
+        LockClosing() {
+            set({IsClickOffClosesDialog: false})
+        },
+        UnlockClosing() {
+            set({IsClickOffClosesDialog: true})
+        },
 
         OpenDialog(d: DialogType) {
             set({CurrentDialog: d});
         },
 
         CloseDialog() {
-            set({CurrentDialog: null})
+            const {IsClickOffClosesDialog} = get()
+            if (IsClickOffClosesDialog) {
+                set({CurrentDialog: null})
+            }
         }
     }))

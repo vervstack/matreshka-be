@@ -17,7 +17,7 @@ type OneOf<T> =
         : never
       : never);
 
-export enum ConfigTypePrefix {
+export enum ConfigType {
   plain = "plain",
   verv = "verv",
   minio = "minio",
@@ -134,6 +134,7 @@ export type GetConfigNode = Record<string, never>;
 
 export type CreateConfigRequest = {
   configName?: string;
+  configType?: ConfigType;
 };
 
 export type CreateConfigResponse = {
@@ -184,17 +185,17 @@ export class MatreshkaApi {
   static ApiVersion(this:void, req: ApiVersionRequest, initReq?: fm.InitReq): Promise<ApiVersionResponse> {
     return fm.fetchRequest<ApiVersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
+  static ListConfigs(this:void, req: ListConfigsRequest, initReq?: fm.InitReq): Promise<ListConfigsResponse> {
+    return fm.fetchRequest<ListConfigsResponse>(`/api/config/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static CreateConfig(this:void, req: CreateConfigRequest, initReq?: fm.InitReq): Promise<CreateConfigResponse> {
+    return fm.fetchRequest<CreateConfigResponse>(`/api/config/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
   static GetConfig(this:void, req: GetConfigRequest, initReq?: fm.InitReq): Promise<GetConfigResponse> {
     return fm.fetchRequest<GetConfigResponse>(`/api/config/${req.configName}?${fm.renderURLSearchParams(req, ["configName"])}`, {...initReq, method: "GET"});
   }
   static GetConfigNodes(this:void, req: GetConfigNodeRequest, initReq?: fm.InitReq): Promise<GetConfigNodeResponse> {
     return fm.fetchRequest<GetConfigNodeResponse>(`/api/config/nodes`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
-  }
-  static ListConfigs(this:void, req: ListConfigsRequest, initReq?: fm.InitReq): Promise<ListConfigsResponse> {
-    return fm.fetchRequest<ListConfigsResponse>(`/api/config/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
-  }
-  static CreateConfig(this:void, req: CreateConfigRequest, initReq?: fm.InitReq): Promise<CreateConfigResponse> {
-    return fm.fetchRequest<CreateConfigResponse>(`/api/config/${req.configName}/new`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static PatchConfig(this:void, req: PatchConfigRequest, initReq?: fm.InitReq): Promise<PatchConfigResponse> {
     return fm.fetchRequest<PatchConfigResponse>(`/api/config/${req.configName}/patch`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

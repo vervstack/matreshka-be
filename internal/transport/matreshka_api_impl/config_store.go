@@ -18,15 +18,15 @@ import (
 func (s *Impl) StoreConfig(ctx context.Context, req *api.StoreConfig_Request) (
 	*api.StoreConfig_Response, error) {
 
-	parsedConfigTypePrefix, name := ParseConfigName(req.ConfigName)
+	parsedConfigType, name := ParseConfigName(req.ConfigName)
 
-	configTypePrefix := api.ConfigTypePrefix_plain
+	ConfigType := api.ConfigType_plain
 
-	if parsedConfigTypePrefix != nil {
-		configTypePrefix = *parsedConfigTypePrefix
+	if parsedConfigType != nil {
+		ConfigType = *parsedConfigType
 	}
 
-	cfgName := domain.NewConfigName(configTypePrefix, name)
+	cfgName := domain.NewConfigName(ConfigType, name)
 
 	_, err := s.evonConfigService.Create(ctx, cfgName)
 	if err != nil {
@@ -45,8 +45,8 @@ func (s *Impl) StoreConfig(ctx context.Context, req *api.StoreConfig_Request) (
 	case api.Format_env:
 		replaceReq.Config, err = fromEvon(req.Config)
 	default:
-		switch configTypePrefix {
-		case api.ConfigTypePrefix_verv:
+		switch ConfigType {
+		case api.ConfigType_verv:
 			replaceReq.Config, err = fromVervYamlToEvon(req.Config)
 		default:
 			replaceReq.Config, err = fromPlainYamlToEvon(req.Config)

@@ -8,9 +8,6 @@
 
     cursor: pointer;
     transition: scale 0.2s ease;
-
-    border: var(--element-border-color) 1px solid;
-    border-radius: var(--border-radius);
 }
 
 .AddButton:hover {

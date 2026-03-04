@@ -54,15 +54,15 @@ func fromPatch(req *api.PatchConfig_Request) (domain.PatchConfigRequest, error) 
 	return out, nil
 }
 
-func ParseConfigName(name string) (*api.ConfigTypePrefix, string) {
+func ParseConfigName(name string) (*api.ConfigType, string) {
 	nameSplited := strings.Split(name, "_")
 	if len(nameSplited) < 2 {
 		return nil, name
 	}
 
-	pref, ok := api.ConfigTypePrefix_value[nameSplited[0]]
+	pref, ok := api.ConfigType_value[nameSplited[0]]
 	if ok {
-		return toolbox.ToPtr(api.ConfigTypePrefix(pref)), strings.Join(nameSplited[1:], "_")
+		return toolbox.ToPtr(api.ConfigType(pref)), strings.Join(nameSplited[1:], "_")
 	}
 
 	return nil, name
@@ -72,15 +72,15 @@ func fromName(name string) domain.ConfigName {
 	nameSplited := strings.Split(name, "_")
 
 	if len(nameSplited) < 2 {
-		return domain.NewConfigName(api.ConfigTypePrefix_plain, name)
+		return domain.NewConfigName(api.ConfigType_plain, name)
 	}
 
-	pref, ok := api.ConfigTypePrefix_value[nameSplited[0]]
+	pref, ok := api.ConfigType_value[nameSplited[0]]
 	if !ok {
-		pref = int32(api.ConfigTypePrefix_plain)
+		pref = int32(api.ConfigType_plain)
 	} else {
 		name = strings.Join(nameSplited[1:], "_")
 	}
 
-	return domain.NewConfigName(api.ConfigTypePrefix(pref), name)
+	return domain.NewConfigName(api.ConfigType(pref), name)
 }

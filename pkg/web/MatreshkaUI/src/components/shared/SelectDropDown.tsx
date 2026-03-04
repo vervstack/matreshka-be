@@ -2,6 +2,7 @@ import {useState, useRef, useEffect} from "react";
 import cn from "classnames";
 import cls from "@/components/shared/SelectDropDown.module.css";
 import ChevronDown from "@/assets/icons/ChevronDown.svg";
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
 interface SelectDropDownProps {
     label?: string;
@@ -11,6 +12,8 @@ interface SelectDropDownProps {
 }
 
 export default function SelectDropDown({label, options, selectedOption, onSelected}: SelectDropDownProps) {
+    const {LockClosing, UnlockClosing} = useDialog()
+
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +33,14 @@ export default function SelectDropDown({label, options, selectedOption, onSelect
         onSelected?.(option);
         setIsOpen(false);
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            LockClosing()
+        } else {
+            UnlockClosing()
+        }
+    }, [isOpen]);
 
     return (
         <div className={cls.SelectDropDownContainer} ref={containerRef}>

@@ -29,7 +29,7 @@ func (s *ListSuite) SetupTest() {
 	s.ctx = context.Background()
 
 	s.start = time.Now().Add(-time.Minute).UTC()
-	s.serviceName = matreshka_api.ConfigTypePrefix_kv.String() + "_" + getServiceNameFromTest(s.T())
+	s.serviceName = matreshka_api.ConfigType_kv.String() + "_" + getServiceNameFromTest(s.T())
 }
 
 func (s *ListSuite) Test_ListOneServiceWithOneVersion() {

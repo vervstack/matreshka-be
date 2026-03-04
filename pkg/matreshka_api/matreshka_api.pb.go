@@ -23,28 +23,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ConfigTypePrefix int32
+type ConfigType int32
 
 const (
 	// Plain text blob config - saved and configured externally by user
 	// Not recommended to use - unstructured and cannot be validated.
 	// Simply a text storage
-	ConfigTypePrefix_plain ConfigTypePrefix = 0
+	ConfigType_plain ConfigType = 0
 	// Matreshka's configuration for application
-	ConfigTypePrefix_verv ConfigTypePrefix = 1
+	ConfigType_verv ConfigType = 1
 	// Configuration for object storage (Minio)
-	ConfigTypePrefix_minio ConfigTypePrefix = 2
+	ConfigType_minio ConfigType = 2
 	// Configuration for Postgresql Database
-	ConfigTypePrefix_pg ConfigTypePrefix = 3
+	ConfigType_pg ConfigType = 3
 	// Configuration for Nginx/Angie web server
-	ConfigTypePrefix_nginx ConfigTypePrefix = 4
+	ConfigType_nginx ConfigType = 4
 	// Basically a key-value configuration
-	ConfigTypePrefix_kv ConfigTypePrefix = 5
+	ConfigType_kv ConfigType = 5
 )
 
-// Enum value maps for ConfigTypePrefix.
+// Enum value maps for ConfigType.
 var (
-	ConfigTypePrefix_name = map[int32]string{
+	ConfigType_name = map[int32]string{
 		0: "plain",
 		1: "verv",
 		2: "minio",
@@ -52,7 +52,7 @@ var (
 		4: "nginx",
 		5: "kv",
 	}
-	ConfigTypePrefix_value = map[string]int32{
+	ConfigType_value = map[string]int32{
 		"plain": 0,
 		"verv":  1,
 		"minio": 2,
@@ -62,30 +62,30 @@ var (
 	}
 )
 
-func (x ConfigTypePrefix) Enum() *ConfigTypePrefix {
-	p := new(ConfigTypePrefix)
+func (x ConfigType) Enum() *ConfigType {
+	p := new(ConfigType)
 	*p = x
 	return p
 }
 
-func (x ConfigTypePrefix) String() string {
+func (x ConfigType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (ConfigTypePrefix) Descriptor() protoreflect.EnumDescriptor {
+func (ConfigType) Descriptor() protoreflect.EnumDescriptor {
 	return file_matreshka_api_proto_enumTypes[0].Descriptor()
 }
 
-func (ConfigTypePrefix) Type() protoreflect.EnumType {
+func (ConfigType) Type() protoreflect.EnumType {
 	return &file_matreshka_api_proto_enumTypes[0]
 }
 
-func (x ConfigTypePrefix) Number() protoreflect.EnumNumber {
+func (x ConfigType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use ConfigTypePrefix.Descriptor instead.
-func (ConfigTypePrefix) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use ConfigType.Descriptor instead.
+func (ConfigType) EnumDescriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{0}
 }
 
@@ -1486,6 +1486,7 @@ func (x *GetConfigNode_Response) GetVersions() []string {
 type CreateConfig_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConfigName    string                 `protobuf:"bytes,1,opt,name=config_name,json=configName,proto3" json:"config_name,omitempty"`
+	ConfigType    ConfigType             `protobuf:"varint,2,opt,name=config_type,json=configType,proto3,enum=matreshka_api.ConfigType" json:"config_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1525,6 +1526,13 @@ func (x *CreateConfig_Request) GetConfigName() string {
 		return x.ConfigName
 	}
 	return ""
+}
+
+func (x *CreateConfig_Request) GetConfigType() ConfigType {
+	if x != nil {
+		return x.ConfigType
+	}
+	return ConfigType_plain
 }
 
 type CreateConfig_Response struct {
@@ -1948,11 +1956,13 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x1aO\n" +
 	"\bResponse\x12'\n" +
 	"\x04root\x18\x01 \x01(\v2\x13.matreshka_api.NodeR\x04root\x12\x1a\n" +
-	"\bversions\x18\x02 \x03(\tR\bversions\"Z\n" +
-	"\fCreateConfig\x1a*\n" +
+	"\bversions\x18\x02 \x03(\tR\bversions\"\x96\x01\n" +
+	"\fCreateConfig\x1af\n" +
 	"\aRequest\x12\x1f\n" +
 	"\vconfig_name\x18\x01 \x01(\tR\n" +
-	"configName\x1a\x1e\n" +
+	"configName\x12:\n" +
+	"\vconfig_type\x18\x02 \x01(\x0e2\x19.matreshka_api.ConfigTypeR\n" +
+	"configType\x1a\x1e\n" +
 	"\bResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"|\n" +
 	"\fRenameConfig\x1aE\n" +
@@ -1985,8 +1995,9 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\x0econfig_version\x18\x02 \x01(\tH\x00R\rconfigVersion\x88\x01\x01B\x11\n" +
 	"\x0f_config_version\x1a\n" +
 	"\n" +
-	"\bResponse*M\n" +
-	"\x10ConfigTypePrefix\x12\t\n" +
+	"\bResponse*G\n" +
+	"\n" +
+	"ConfigType\x12\t\n" +
 	"\x05plain\x10\x00\x12\b\n" +
 	"\x04verv\x10\x01\x12\t\n" +
 	"\x05minio\x10\x02\x12\x06\n" +
@@ -1995,14 +2006,14 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\x02kv\x10\x05*\x1b\n" +
 	"\x06Format\x12\b\n" +
 	"\x04yaml\x10\x00\x12\a\n" +
-	"\x03env\x10\x012\xfd\t\n" +
+	"\x03env\x10\x012\xf1\t\n" +
 	"\fMatreshkaApi\x12i\n" +
 	"\n" +
 	"ApiVersion\x12!.matreshka_api.ApiVersion.Request\x1a\".matreshka_api.ApiVersion.Response\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/version\x12s\n" +
+	"\vListConfigs\x12\".matreshka_api.ListConfigs.Request\x1a#.matreshka_api.ListConfigs.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/config/list\x12x\n" +
+	"\fCreateConfig\x12#.matreshka_api.CreateConfig.Request\x1a$.matreshka_api.CreateConfig.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/config/create\x12s\n" +
 	"\tGetConfig\x12 .matreshka_api.GetConfig.Request\x1a!.matreshka_api.GetConfig.Response\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/config/{config_name}\x12{\n" +
-	"\x0eGetConfigNodes\x12$.matreshka_api.GetConfigNode.Request\x1a%.matreshka_api.GetConfigNode.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/config/nodes\x12s\n" +
-	"\vListConfigs\x12\".matreshka_api.ListConfigs.Request\x1a#.matreshka_api.ListConfigs.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/config/list\x12\x83\x01\n" +
-	"\fCreateConfig\x12#.matreshka_api.CreateConfig.Request\x1a$.matreshka_api.CreateConfig.Response\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/config/{config_name}/new\x12\x82\x01\n" +
+	"\x0eGetConfigNodes\x12$.matreshka_api.GetConfigNode.Request\x1a%.matreshka_api.GetConfigNode.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/config/nodes\x12\x82\x01\n" +
 	"\vPatchConfig\x12\".matreshka_api.PatchConfig.Request\x1a#.matreshka_api.PatchConfig.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/config/{config_name}/patch\x12\x82\x01\n" +
 	"\vStoreConfig\x12\".matreshka_api.StoreConfig.Request\x1a#.matreshka_api.StoreConfig.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/config/{config_name}/store\x12\x8e\x01\n" +
 	"\fRenameConfig\x12#.matreshka_api.RenameConfig.Request\x1a$.matreshka_api.RenameConfig.Response\"3\x82\xd3\xe4\x93\x02-\"+/api/config/{config_name}/rename/{new_name}\x12\x86\x01\n" +
@@ -2024,7 +2035,7 @@ func file_matreshka_api_proto_rawDescGZIP() []byte {
 var file_matreshka_api_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_matreshka_api_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_matreshka_api_proto_goTypes = []any{
-	(ConfigTypePrefix)(0),               // 0: matreshka_api.ConfigTypePrefix
+	(ConfigType)(0),                     // 0: matreshka_api.ConfigType
 	(Format)(0),                         // 1: matreshka_api.Format
 	(Sort_Type)(0),                      // 2: matreshka_api.Sort.Type
 	(*Config)(nil),                      // 3: matreshka_api.Config
@@ -2073,32 +2084,33 @@ var file_matreshka_api_proto_depIdxs = []int32{
 	14, // 6: matreshka_api.ListConfigs.Request.sort:type_name -> matreshka_api.Sort
 	3,  // 7: matreshka_api.ListConfigs.Response.configs:type_name -> matreshka_api.Config
 	10, // 8: matreshka_api.GetConfigNode.Response.root:type_name -> matreshka_api.Node
-	23, // 9: matreshka_api.SubscribeOnChanges.Response.patches:type_name -> matreshka_api.PatchConfig.Patch
-	17, // 10: matreshka_api.MatreshkaApi.ApiVersion:input_type -> matreshka_api.ApiVersion.Request
-	19, // 11: matreshka_api.MatreshkaApi.GetConfig:input_type -> matreshka_api.GetConfig.Request
-	28, // 12: matreshka_api.MatreshkaApi.GetConfigNodes:input_type -> matreshka_api.GetConfigNode.Request
-	26, // 13: matreshka_api.MatreshkaApi.ListConfigs:input_type -> matreshka_api.ListConfigs.Request
-	30, // 14: matreshka_api.MatreshkaApi.CreateConfig:input_type -> matreshka_api.CreateConfig.Request
-	21, // 15: matreshka_api.MatreshkaApi.PatchConfig:input_type -> matreshka_api.PatchConfig.Request
-	24, // 16: matreshka_api.MatreshkaApi.StoreConfig:input_type -> matreshka_api.StoreConfig.Request
-	32, // 17: matreshka_api.MatreshkaApi.RenameConfig:input_type -> matreshka_api.RenameConfig.Request
-	36, // 18: matreshka_api.MatreshkaApi.DeleteConfig:input_type -> matreshka_api.DeleteConfig.Request
-	34, // 19: matreshka_api.MatreshkaApi.SubscribeOnChanges:input_type -> matreshka_api.SubscribeOnChanges.Request
-	18, // 20: matreshka_api.MatreshkaApi.ApiVersion:output_type -> matreshka_api.ApiVersion.Response
-	20, // 21: matreshka_api.MatreshkaApi.GetConfig:output_type -> matreshka_api.GetConfig.Response
-	29, // 22: matreshka_api.MatreshkaApi.GetConfigNodes:output_type -> matreshka_api.GetConfigNode.Response
-	27, // 23: matreshka_api.MatreshkaApi.ListConfigs:output_type -> matreshka_api.ListConfigs.Response
-	31, // 24: matreshka_api.MatreshkaApi.CreateConfig:output_type -> matreshka_api.CreateConfig.Response
-	22, // 25: matreshka_api.MatreshkaApi.PatchConfig:output_type -> matreshka_api.PatchConfig.Response
-	25, // 26: matreshka_api.MatreshkaApi.StoreConfig:output_type -> matreshka_api.StoreConfig.Response
-	33, // 27: matreshka_api.MatreshkaApi.RenameConfig:output_type -> matreshka_api.RenameConfig.Response
-	37, // 28: matreshka_api.MatreshkaApi.DeleteConfig:output_type -> matreshka_api.DeleteConfig.Response
-	35, // 29: matreshka_api.MatreshkaApi.SubscribeOnChanges:output_type -> matreshka_api.SubscribeOnChanges.Response
-	20, // [20:30] is the sub-list for method output_type
-	10, // [10:20] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0,  // 9: matreshka_api.CreateConfig.Request.config_type:type_name -> matreshka_api.ConfigType
+	23, // 10: matreshka_api.SubscribeOnChanges.Response.patches:type_name -> matreshka_api.PatchConfig.Patch
+	17, // 11: matreshka_api.MatreshkaApi.ApiVersion:input_type -> matreshka_api.ApiVersion.Request
+	26, // 12: matreshka_api.MatreshkaApi.ListConfigs:input_type -> matreshka_api.ListConfigs.Request
+	30, // 13: matreshka_api.MatreshkaApi.CreateConfig:input_type -> matreshka_api.CreateConfig.Request
+	19, // 14: matreshka_api.MatreshkaApi.GetConfig:input_type -> matreshka_api.GetConfig.Request
+	28, // 15: matreshka_api.MatreshkaApi.GetConfigNodes:input_type -> matreshka_api.GetConfigNode.Request
+	21, // 16: matreshka_api.MatreshkaApi.PatchConfig:input_type -> matreshka_api.PatchConfig.Request
+	24, // 17: matreshka_api.MatreshkaApi.StoreConfig:input_type -> matreshka_api.StoreConfig.Request
+	32, // 18: matreshka_api.MatreshkaApi.RenameConfig:input_type -> matreshka_api.RenameConfig.Request
+	36, // 19: matreshka_api.MatreshkaApi.DeleteConfig:input_type -> matreshka_api.DeleteConfig.Request
+	34, // 20: matreshka_api.MatreshkaApi.SubscribeOnChanges:input_type -> matreshka_api.SubscribeOnChanges.Request
+	18, // 21: matreshka_api.MatreshkaApi.ApiVersion:output_type -> matreshka_api.ApiVersion.Response
+	27, // 22: matreshka_api.MatreshkaApi.ListConfigs:output_type -> matreshka_api.ListConfigs.Response
+	31, // 23: matreshka_api.MatreshkaApi.CreateConfig:output_type -> matreshka_api.CreateConfig.Response
+	20, // 24: matreshka_api.MatreshkaApi.GetConfig:output_type -> matreshka_api.GetConfig.Response
+	29, // 25: matreshka_api.MatreshkaApi.GetConfigNodes:output_type -> matreshka_api.GetConfigNode.Response
+	22, // 26: matreshka_api.MatreshkaApi.PatchConfig:output_type -> matreshka_api.PatchConfig.Response
+	25, // 27: matreshka_api.MatreshkaApi.StoreConfig:output_type -> matreshka_api.StoreConfig.Response
+	33, // 28: matreshka_api.MatreshkaApi.RenameConfig:output_type -> matreshka_api.RenameConfig.Response
+	37, // 29: matreshka_api.MatreshkaApi.DeleteConfig:output_type -> matreshka_api.DeleteConfig.Response
+	35, // 30: matreshka_api.MatreshkaApi.SubscribeOnChanges:output_type -> matreshka_api.SubscribeOnChanges.Response
+	21, // [21:31] is the sub-list for method output_type
+	11, // [11:21] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_matreshka_api_proto_init() }

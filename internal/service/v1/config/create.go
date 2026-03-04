@@ -110,7 +110,7 @@ func (c *CfgService) convertConfigToPatch(cfg *evon.Node) ([]domain.PatchUpdate,
 
 func (c *CfgService) initNewConfig(serviceName domain.ConfigName) (*evon.Node, error) {
 	switch serviceName.Prefix() {
-	case matreshka_api.ConfigTypePrefix_verv:
+	case matreshka_api.ConfigType_verv:
 		newCfg := matreshka.NewEmptyConfig()
 		newCfg.AppInfo = matreshka.AppInfo{
 			Name:            serviceName.Name(),
@@ -122,7 +122,7 @@ func (c *CfgService) initNewConfig(serviceName domain.ConfigName) (*evon.Node, e
 			return nil, errors.Wrap(err, "error marshalling config")
 		}
 		return nodes, nil
-	case matreshka_api.ConfigTypePrefix_pg:
+	case matreshka_api.ConfigType_pg:
 		return &evon.Node{
 			InnerNodes: []*evon.Node{
 				{

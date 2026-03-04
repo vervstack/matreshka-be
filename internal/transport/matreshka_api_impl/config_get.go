@@ -33,7 +33,7 @@ func (s *Impl) GetConfig(ctx context.Context, req *api.GetConfig_Request) (*api.
 		resp.Config = evon.Marshal(cfg.Nodes.InnerNodes)
 	default:
 		switch configName.Prefix() {
-		case api.ConfigTypePrefix_verv:
+		case api.ConfigType_verv:
 			resp.Config, err = vervToYaml(cfg.Nodes)
 		default:
 			resp.Config, err = kvToYaml(cfg.Nodes)

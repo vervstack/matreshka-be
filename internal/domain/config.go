@@ -14,11 +14,11 @@ type ConfigWithNodes struct {
 }
 
 type ConfigName struct {
-	prefix api.ConfigTypePrefix
+	prefix api.ConfigType
 	name   string
 }
 
-func NewConfigName(prefix api.ConfigTypePrefix, name string) ConfigName {
+func NewConfigName(prefix api.ConfigType, name string) ConfigName {
 	return ConfigName{
 		prefix: prefix,
 		name:   name,
@@ -30,13 +30,13 @@ func (c ConfigName) PlainName() string {
 }
 
 func (c ConfigName) Name() string {
-	if c.prefix == api.ConfigTypePrefix_plain {
+	if c.prefix == api.ConfigType_plain {
 		return c.name
 	}
 
 	return c.prefix.String() + "_" + c.name
 }
 
-func (c ConfigName) Prefix() api.ConfigTypePrefix {
+func (c ConfigName) Prefix() api.ConfigType {
 	return c.prefix
 }

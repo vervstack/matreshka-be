@@ -4,12 +4,11 @@
     justify-content: center;
     align-items: center;
 
-    padding: 5em 0 5em 0;
     height: 100%;
     width: 100%;
 
 
-    .Text {
+    .ErrorMessageBox {
         padding: 2.5em;
         display: flex;
 
@@ -20,7 +19,7 @@
 
         border-bottom: 4px var(--warning-color) solid;
         border-radius: var(--border-radius);
-        background-color: var(--secondary-accent-bg-color);
+        background-color: var(--accent-bg-color-ligher);
     }
 }
 

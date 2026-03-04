@@ -74,7 +74,7 @@ func (c *CfgService) validatePatch(originalConfig *evon.Node, patch *domain.Patc
 	}
 
 	switch patch.ConfigName.Prefix() {
-	case api.ConfigTypePrefix_verv:
+	case api.ConfigType_verv:
 		validationRes := c.validator.AsVerv(originalConfig, patch)
 		if len(validationRes.Invalid) != 0 {
 			return rerrors.New("error during patch validation: %v", validationRes.Invalid)
