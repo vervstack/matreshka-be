@@ -34,7 +34,7 @@
 }
 
 .InputContainer:not(.Borderless) input {
-    border: 1px solid var(--main-bg-color);
+    border: 1px solid var(--element-border-color);
     border-radius: 4px;
     transition: border-color 0.2s;
 }

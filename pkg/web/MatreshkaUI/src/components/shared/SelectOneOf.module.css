@@ -1,0 +1,41 @@
+.SelectOneOfContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    width: 100%;
+}
+
+.Label {
+    font-size: 14px;
+    color: #999;
+}
+
+.OptionsWrapper {
+    display: flex;
+    gap: 4px;
+    border: 1px solid var(--element-border-color);
+    border-radius: 4px;
+    padding: 2px;
+    background: var(--main-bg-color);
+}
+
+.Option {
+    flex: 1;
+    padding: 0.5em 12px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: var(--main-fg-color);
+    user-select: none;
+}
+
+.Option:hover:not(.Selected) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.Option.Selected {
+    background: var(--element-border-color-ligher);
+    color: var(--main-fg-color);
+}

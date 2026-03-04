@@ -27,8 +27,9 @@ root, body {
     --accent-bg-color-ligher: rgb(55, 66, 81);
 
     --border-radius: 0.75em;
-}
 
+    --action-button-size: 2em;
+}
 
 /*TODO: DO FOR different screen sizes*/
 * {

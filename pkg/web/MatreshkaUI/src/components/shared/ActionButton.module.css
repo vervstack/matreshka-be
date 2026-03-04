@@ -1,0 +1,18 @@
+.AddButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--action-button-size);
+    height: var(--action-button-size);
+
+    cursor: pointer;
+    transition: scale 0.2s ease;
+
+    border: var(--element-border-color) 1px solid;
+    border-radius: var(--border-radius);
+}
+
+.AddButton:hover {
+    scale: 1.05;
+}
