@@ -10,6 +10,7 @@ import ActionButton from "@/components/shared/ActionButton.tsx";
 import SelectDropDown from "@/components/shared/SelectDropDown.tsx";
 import {useApi} from "@/app/hooks/api/api.ts";
 import LoaderWrapper from "@/segments/LoaderWrapper.tsx";
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
 
 export default function ConfigCreateWidget() {
@@ -21,6 +22,7 @@ export default function ConfigCreateWidget() {
     const [isCreating, setIsCreating] = useState(false);
 
     const {CreateConfig} = useApi();
+    const {CloseDialog} = useDialog();
 
     function create() {
         const req = {
@@ -29,9 +31,8 @@ export default function ConfigCreateWidget() {
         } as CreateConfigRequest;
         setIsCreating(true)
         setFunc(CreateConfig(req)
-            .finally(() => {
-                setIsCreating(false)
-            }).then())
+            .finally(() => setIsCreating(false))
+            .then(CloseDialog))
     }
 
     function clear() {

@@ -72,10 +72,10 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 	}
 	defer rows.Close()
 
-	out.List = make([]domain.AboutConfig, 0, req.Paging.Limit)
+	out.List = make([]domain.ConfigBase, 0, req.Paging.Limit)
 
 	for rows.Next() {
-		var item domain.AboutConfig
+		var item domain.ConfigBase
 		var versionsJSON string
 		err = rows.Scan(
 			&item.Name,

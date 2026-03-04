@@ -18,6 +18,8 @@ type Config struct {
 	DataSources DataSourcesConfig
 	Environment EnvironmentConfig
 	Overrides   matreshka.ServiceDiscovery
+
+	MatreshkaConfig matreshka.AppConfig
 }
 
 var defaultConfig Config
@@ -27,7 +29,7 @@ const (
 	prodConfigPath = "./config/config.yaml"
 )
 
-func Load() (Config, error) {
+func Init() (Config, error) {
 	if defaultConfig.AppInfo.Name != "" {
 		return defaultConfig, ErrAlreadyLoaded
 	}
@@ -39,31 +41,48 @@ func Load() (Config, error) {
 	flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
 	flag.Parse()
 
-	if cfgPath == "" {
-		if isDevBuild {
-			cfgPath = devConfigPath
-		} else {
-			cfgPath = prodConfigPath
-		}
+	var configsPaths []string
+
+	if cfgPath != "" {
+		configsPaths = append(configsPaths, cfgPath)
 	}
 
-	rootConfig, err := matreshka.ReadConfigs(cfgPath)
+	if isDevBuild {
+		configsPaths = append(configsPaths, devConfigPath)
+	}
+	configsPaths = append(configsPaths, prodConfigPath)
+
+	var err error
+	defaultConfig, err = Load(configsPaths...)
+	if err != nil {
+		return defaultConfig, rerrors.Wrap(err, "error loading config")
+	}
+
+	return defaultConfig, nil
+}
+
+func Load(configsPaths ...string) (Config, error) {
+	var err error
+	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
-	defaultConfig.AppInfo = rootConfig.AppInfo
-	defaultConfig.Overrides = rootConfig.ServiceDiscovery
+	defaultConfig.AppInfo = defaultConfig.MatreshkaConfig.AppInfo
+	defaultConfig.Overrides = defaultConfig.MatreshkaConfig.ServiceDiscovery
 
-	err = rootConfig.Servers.ParseToStruct(&defaultConfig.Servers)
+	err = defaultConfig.MatreshkaConfig.Servers.
+		ParseToStruct(&defaultConfig.Servers)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
 	}
-	err = rootConfig.DataSources.ParseToStruct(&defaultConfig.DataSources)
+	err = defaultConfig.MatreshkaConfig.DataSources.
+		ParseToStruct(&defaultConfig.DataSources)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error parsing data sources to struct")
 	}
-	err = rootConfig.Environment.ParseToStruct(&defaultConfig.Environment)
+	err = defaultConfig.MatreshkaConfig.Environment.
+		ParseToStruct(&defaultConfig.Environment)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error parsing environment config")
 	}

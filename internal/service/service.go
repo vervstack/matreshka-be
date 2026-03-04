@@ -17,18 +17,17 @@ type Services interface {
 
 type ConfigService interface {
 	Create(ctx context.Context, req domain.CreateConfigRequest) error
+	List(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 }
 
 type EvonConfigService interface {
-	Create(ctx context.Context, name domain.ConfigName) (domain.AboutConfig, error)
-
 	Replace(ctx context.Context, req domain.ReplaceConfigReq) error
 	Patch(ctx context.Context, configPatch domain.PatchConfigRequest) error
 
 	Rename(ctx context.Context, oldName, newName domain.ConfigName) error
 
 	GetConfigWithNodes(ctx context.Context, name domain.ConfigName, version string) (domain.ConfigWithNodes, error)
-	ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
+
 	Delete(ctx context.Context, name domain.ConfigName, version string) error
 }
 

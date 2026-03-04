@@ -16,13 +16,19 @@ type ListConfigsRequest struct {
 }
 
 type ListConfigsResponse struct {
-	List         []AboutConfig
+	List         []ConfigInfo
 	TotalRecords uint32
 }
 
-type AboutConfig struct {
-	Name           string
-	UpdatedAt      time.Time
+type ConfigBase struct {
+	Id        int
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type ConfigInfo struct {
+	ConfigBase
 	ConfigVersions []string
 }
 

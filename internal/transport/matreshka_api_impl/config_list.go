@@ -25,7 +25,7 @@ func (s *Impl) ListConfigs(ctx context.Context, req *api.ListConfigs_Request) (*
 		SearchPattern: req.GetSearchPattern(),
 	}
 
-	configs, err := s.evonConfigService.ListConfigs(ctx, listReq)
+	configs, err := s.configService.List(ctx, listReq)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

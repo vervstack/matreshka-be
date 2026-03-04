@@ -4,6 +4,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
+	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
@@ -29,4 +30,8 @@ func fromConfigType(configType api.ConfigType) (config_queries.MatreshkaConfigTy
 		return "", ErrUnknownConfigType
 	}
 	return tp, nil
+}
+
+func toConfig(response domain.ConfigInfo) api.Config {
+
 }

@@ -17,7 +17,7 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) (domain.AboutConfig, error) {
+func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) (domain.ConfigBase, error) {
 	err := c.txManager.Execute(func(tx *sql.Tx) (err error) {
 		err = c.createConfig(ctx, c.configStorage.WithTx(tx), serviceName)
 		if err != nil {
@@ -27,7 +27,7 @@ func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) 
 		return nil
 	})
 	if err != nil {
-		return domain.AboutConfig{}, errors.Wrap(err)
+		return domain.ConfigBase{}, errors.Wrap(err)
 	}
 
 	var listReq domain.ListConfigsRequest
@@ -35,11 +35,11 @@ func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) 
 
 	list, err := c.configStorage.ListConfigs(ctx, listReq)
 	if err != nil {
-		return domain.AboutConfig{}, errors.Wrap(err)
+		return domain.ConfigBase{}, errors.Wrap(err)
 	}
 
 	if len(list.List) == 0 {
-		return domain.AboutConfig{},
+		return domain.ConfigBase{},
 			errors.NewUserError("Config was created but couldn't be retrieved.", codes.Internal)
 	}
 
