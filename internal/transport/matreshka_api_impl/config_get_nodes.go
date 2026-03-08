@@ -13,10 +13,9 @@ import (
 )
 
 func (s *Impl) GetConfigNodes(ctx context.Context, req *api.GetConfigNode_Request) (*api.GetConfigNode_Response, error) {
-	name := fromName(req.ConfigName)
 	ver := toolbox.Coalesce(req.Version, domain.MasterVersion)
 
-	cfg, err := s.evonConfigService.GetConfigWithNodes(ctx, name, ver)
+	cfg, err := s.configService.GetConfigWithNodes(ctx, req.ConfigName, ver)
 	if err != nil {
 		return nil, errors.Wrap(err)
 	}

@@ -1,4 +1,4 @@
-package evon
+package cfg_service
 
 import (
 	"context"

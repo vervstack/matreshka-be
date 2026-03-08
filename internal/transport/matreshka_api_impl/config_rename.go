@@ -9,10 +9,7 @@ import (
 )
 
 func (s *Impl) RenameConfig(ctx context.Context, req *api.RenameConfig_Request) (*api.RenameConfig_Response, error) {
-	oldName := fromName(req.ConfigName)
-	newName := fromName(req.NewName)
-
-	err := s.evonConfigService.Rename(ctx, oldName, newName)
+	err := s.configService.Rename(ctx, req.ConfigName, req.NewName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error renaming config")
 	}

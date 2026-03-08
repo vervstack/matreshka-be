@@ -14,10 +14,9 @@ import (
 )
 
 func (s *Impl) GetConfig(ctx context.Context, req *api.GetConfig_Request) (*api.GetConfig_Response, error) {
-	configName := fromName(req.ConfigName)
 	ver := toolbox.Coalesce(toolbox.FromPtr(req.Version), domain.MasterVersion)
 
-	cfg, err := s.evonConfigService.GetConfigWithNodes(ctx, configName, ver)
+	cfg, err := s.configService.GetConfigWithNodes(ctx, req.ConfigName, ver)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
@@ -32,7 +31,7 @@ func (s *Impl) GetConfig(ctx context.Context, req *api.GetConfig_Request) (*api.
 	case api.Format_env:
 		resp.Config = evon.Marshal(cfg.Nodes.InnerNodes)
 	default:
-		switch configName.Prefix() {
+		switch cfg.Type {
 		case api.ConfigType_verv:
 			resp.Config, err = vervToYaml(cfg.Nodes)
 		default:

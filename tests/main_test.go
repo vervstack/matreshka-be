@@ -25,17 +25,17 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-type Env struct {
-	matreshkaApi matreshka_api.MatreshkaBeAPIClient
+type AppEnv struct {
+	matreshkaApi matreshka_api.MatreshkaApiClient
 
-	a          app.App
+	app        app.App
 	HttpServer *httptest.Server
 }
 
 //go:embed config/test.config.yaml
 var fullConfigBytes []byte
 
-var testEnv Env
+var testEnv AppEnv
 
 func TestMain(m *testing.M) {
 	defer closer.Close()
@@ -50,13 +50,26 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+func getAppEnvironment(t *testing.T) (appEnv AppEnv) {
+	var err error
+	appEnv.app, err = app.New()
+	require.NoError(t, err)
+
+	testEnv.HttpServer = httptest.NewServer(testEnv.app.Custom.WebApiImpl)
+	closer.Add(func() error {
+		testEnv.HttpServer.Close()
+		return nil
+	})
+	return nil
+}
+
 func initApp() (err error) {
-	testEnv.a, err = app.New()
+	testEnv.app, err = app.New()
 	if err != nil {
 		return errors.Wrap(err, "error initializing config")
 	}
 
-	_, err = testEnv.a.Sqlite.Exec(`
+	_, err = testEnv.app.Sqlite.Exec(`
 		DELETE 
 		FROM configs 	   
 	    WHERE true;
@@ -72,7 +85,7 @@ func initApp() (err error) {
 	lis := bufconn.Listen(bufSize)
 
 	serv := grpc.NewServer()
-	matreshka_api.RegisterMatreshkaBeAPIServer(serv, testEnv.a.Custom.GrpcImpl)
+	matreshka_api.RegisterMatreshkaApiServer(serv, testEnv.app.Custom.GrpcImpl)
 	go func() {
 		if err := serv.Serve(lis); err != nil {
 			logrus.Fatalf("error serving grpc server for tests %s", err)
@@ -83,7 +96,7 @@ func initApp() (err error) {
 		return lis.Dial()
 	}
 
-	conn, err := grpc.NewClient("[::]:"+testEnv.a.Cfg.Servers.MASTER.Port,
+	conn, err := grpc.NewClient("[::]:"+testEnv.app.Cfg.Servers.MASTER.Port,
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -91,9 +104,9 @@ func initApp() (err error) {
 		logrus.Fatalf("error connecting to test grpc server: %s ", err)
 	}
 
-	testEnv.matreshkaApi = matreshka_api.NewMatreshkaBeAPIClient(conn)
+	testEnv.matreshkaApi = matreshka_api.NewMatreshkaApiClient(conn)
 
-	ping, err := testEnv.matreshkaApi.ApiVersion(testEnv.a.Ctx, &matreshka_api.ApiVersion_Request{})
+	ping, err := testEnv.matreshkaApi.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
 	if err != nil {
 		logrus.Fatalf("error pingin test server: %s", err)
 	}
@@ -102,7 +115,7 @@ func initApp() (err error) {
 		logrus.Fatalf("error pingin test server")
 	}
 
-	testEnv.HttpServer = httptest.NewServer(testEnv.a.Custom.WebApiImpl)
+	testEnv.HttpServer = httptest.NewServer(testEnv.app.Custom.WebApiImpl)
 	closer.Add(func() error {
 		testEnv.HttpServer.Close()
 		return nil
@@ -110,14 +123,26 @@ func initApp() (err error) {
 	return nil
 }
 
-func (e *Env) create(t *testing.T) string {
+func (e *AppEnv) purge(t *testing.T) {
+	_, err := testEnv.app.Sqlite.Exec(`
+		DELETE 
+		FROM configs 	   
+	    WHERE true;
+		
+		DELETE 
+		FROM configs_values
+		WHERE true;`)
+	require.NoError(t, err)
+}
+
+func (e *AppEnv) create(t *testing.T) string {
 	configName := normalizeConfigName(t.Name())
 	e.createWithName(t, configName)
 
 	return configName
 }
 
-func (e *Env) createWithName(t *testing.T, configName string) {
+func (e *AppEnv) createWithName(t *testing.T, configName string) {
 	createReq := &matreshka_api.CreateConfig_Request{
 		ConfigName: configName,
 	}
@@ -128,7 +153,7 @@ func (e *Env) createWithName(t *testing.T, configName string) {
 	require.NotNil(t, postResp)
 }
 
-func (e *Env) updateConfigValues(t *testing.T, cfg matreshka.AppConfig) {
+func (e *AppEnv) updateConfigValues(t *testing.T, cfg matreshka.AppConfig) {
 	req := &matreshka_api.PatchConfig_Request{
 		ConfigName: cfg.ModuleName(),
 	}
@@ -141,9 +166,9 @@ func (e *Env) updateConfigValues(t *testing.T, cfg matreshka.AppConfig) {
 	for k, v := range storage {
 		if v.Value != nil {
 			req.Patches = append(req.Patches,
-				&matreshka_api.PatchConfig_Patch{
+				&matreshka_api.Patch{
 					FieldName: k,
-					Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+					Patch: &matreshka_api.Patch_UpdateValue{
 						UpdateValue: fmt.Sprint(v.Value),
 					},
 				})
@@ -156,7 +181,7 @@ func (e *Env) updateConfigValues(t *testing.T, cfg matreshka.AppConfig) {
 	require.NoError(t, err)
 }
 
-func (e *Env) get(t *testing.T, configName string) matreshka.AppConfig {
+func (e *AppEnv) get(t *testing.T, configName string) matreshka.AppConfig {
 	ctx := context.Background()
 	getReq := &matreshka_api.GetConfig_Request{
 		ConfigName: configName,
@@ -197,4 +222,32 @@ func normalizeConfigName(configName string) string {
 	}
 
 	return configName
+}
+
+func dialInMemory(t *testing.T) {
+	const bufSize = 1024 * 1024
+	lis := bufconn.Listen(bufSize)
+
+	serv := grpc.NewServer()
+	bufDialer := func(context.Context, string) (net.Conn, error) {
+		return lis.Dial()
+	}
+
+	matreshka_api.RegisterMatreshkaApiServer(serv, testEnv.app.Custom.GrpcImpl)
+	go func() {
+		err := serv.Serve(lis)
+		require.NoError(t, err)
+	}()
+
+	conn, err := grpc.NewClient("[::]:"+testEnv.app.Cfg.Servers.MASTER.Port,
+		grpc.WithContextDialer(bufDialer),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	require.NoError(t, err)
+
+	testEnv.matreshkaApi = matreshka_api.NewMatreshkaApiClient(conn)
+
+	ping, err := testEnv.matreshkaApi.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
+	require.NoError(t, err)
+	require.NotNil(t, ping)
 }

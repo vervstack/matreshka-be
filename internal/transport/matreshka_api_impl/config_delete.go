@@ -18,9 +18,7 @@ func (s *Impl) DeleteConfig(ctx context.Context,
 		req.ConfigVersion,
 		toolbox.ToPtr(domain.MasterVersion))
 
-	name := fromName(req.ConfigName)
-
-	err := s.evonConfigService.Delete(ctx, name, *vers)
+	err := s.configService.Delete(ctx, req.ConfigName, *vers)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error deleting config")
 	}

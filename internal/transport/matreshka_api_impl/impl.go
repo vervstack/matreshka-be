@@ -16,10 +16,9 @@ import (
 type Impl struct {
 	version string
 
-	configService service.BinaryConfigService
+	configService service.ConfigService
 
-	evonConfigService service.EvonConfigService
-	subService        service.SubscriberService
+	subService service.SubscriberService
 
 	matreshka_api.UnimplementedMatreshkaApiServer
 }
@@ -33,8 +32,6 @@ func NewServer(
 
 		configService: srv.ConfigService(),
 		subService:    srv.PubSubService(),
-
-		evonConfigService: srv.EvonService(),
 	}
 }
 

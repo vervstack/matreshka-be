@@ -20,8 +20,7 @@ import (
 )
 
 type Custom struct {
-	DataProvider  storage.Data
-	ConfigStorage storage.ConfigStorage
+	SqliteData storage.Data
 
 	Service service.Services
 
@@ -30,12 +29,10 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	// Repository, Service logic, transport registration happens here
+	txManager := tx_manager.New(a.Sqlite)
+	c.SqliteData = sqlite.New(a.Sqlite)
 
-	txManager := tx_manager.New(a.Postgres)
-
-	c.ConfigStorage = sqlite.New(a.Sqlite)
-	c.Service = v1.New(c.DataProvider, c.ConfigStorage, txManager)
+	c.Service = v1.New(c.SqliteData, txManager)
 
 	c.GrpcImpl = matreshka_api_impl.NewServer(a.Cfg, c.Service)
 	c.WebApiImpl = web_api.New(c.GrpcImpl)

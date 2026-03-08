@@ -2,8 +2,8 @@ package sqlite
 
 import (
 	"context"
-
 	"database/sql"
+
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/matreshka/internal/domain"
@@ -15,7 +15,7 @@ func (p *Provider) UpsertValues(ctx context.Context, req domain.PatchConfigReque
 		return nil
 	}
 
-	cfgId, err := p.getIdByName(ctx, req.ConfigName.Name())
+	cfgId, err := p.getIdByName(ctx, req.ConfigName)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

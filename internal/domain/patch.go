@@ -2,14 +2,18 @@ package domain
 
 import (
 	"go.redsock.ru/evon"
+
+	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type PatchConfigRequest struct {
-	ConfigName    ConfigName
+	ConfigName    string
+	ConfigType    api.ConfigType
 	ConfigVersion string
-	Upsert        []PatchUpdate
-	RenameTo      []PatchRename
-	Delete        []string
+
+	Upsert   []PatchUpdate
+	RenameTo []PatchRename
+	Delete   []string
 }
 
 type PatchUpdate struct {
@@ -23,7 +27,7 @@ type PatchRename struct {
 }
 
 type ReplaceConfigReq struct {
-	Name    ConfigName
+	Name    string
 	Version string
 	Config  *evon.Node
 }

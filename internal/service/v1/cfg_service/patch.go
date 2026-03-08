@@ -1,4 +1,4 @@
-package evon
+package cfg_service
 
 import (
 	"context"
@@ -47,7 +47,7 @@ func (c *CfgService) Patch(ctx context.Context, req domain.PatchConfigRequest) e
 func (c *CfgService) getOrCreateConfig(ctx context.Context, dataStorage storage.Data, req domain.PatchConfigRequest) (*evon.Node, error) {
 	ver := toolbox.Coalesce(req.ConfigVersion, domain.MasterVersion)
 
-	cfgNodes, err := dataStorage.GetConfigNodes(ctx, req.ConfigName.Name(), ver)
+	cfgNodes, err := dataStorage.GetConfigNodes(ctx, req.ConfigName, ver)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting nodes")
 	}
@@ -56,7 +56,7 @@ func (c *CfgService) getOrCreateConfig(ctx context.Context, dataStorage storage.
 		return cfgNodes, nil
 	}
 
-	err = c.createConfig(ctx, dataStorage, req.ConfigName)
+	err = c.createEvonConfigTx(ctx, dataStorage, req.ConfigName, req.ConfigType)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating config to patch to")
 	}
@@ -73,7 +73,7 @@ func (c *CfgService) validatePatch(originalConfig *evon.Node, patch *domain.Patc
 		return rerrors.Wrap(err, "failed to validate EVON format")
 	}
 
-	switch patch.ConfigName.Prefix() {
+	switch patch.ConfigType {
 	case api.ConfigType_verv:
 		validationRes := c.validator.AsVerv(originalConfig, patch)
 		if len(validationRes.Invalid) != 0 {
@@ -95,7 +95,7 @@ func (c *CfgService) patch(ctx context.Context, configStorage storage.Data, patc
 		return rerrors.Wrap(err, "error patching config in data storage")
 	}
 
-	err = configStorage.SetUpdatedAt(ctx, patch.ConfigName.Name(), time.Now())
+	err = configStorage.SetUpdatedAt(ctx, patch.ConfigName, time.Now())
 	if err != nil {
 		return rerrors.Wrap(err, "error updating time")
 	}

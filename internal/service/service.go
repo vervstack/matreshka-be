@@ -9,26 +9,22 @@ import (
 )
 
 type Services interface {
-	ConfigService() BinaryConfigService
-	// EvonService deprecated
-	EvonService() EvonConfigService
+	ConfigService() ConfigService
 	PubSubService() PubSubService
 }
 
-type BinaryConfigService interface {
+type ConfigService interface {
 	Create(ctx context.Context, req domain.CreateConfigRequest) error
-	List(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
-}
 
-type EvonConfigService interface {
 	Replace(ctx context.Context, req domain.ReplaceConfigReq) error
 	Patch(ctx context.Context, configPatch domain.PatchConfigRequest) error
 
-	Rename(ctx context.Context, oldName, newName domain.ConfigName) error
+	Rename(ctx context.Context, oldName, newName string) error
 
-	GetConfigWithNodes(ctx context.Context, name domain.ConfigName, version string) (domain.ConfigWithNodes, error)
+	List(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
+	GetConfigWithNodes(ctx context.Context, name string, version string) (domain.ConfigWithNodes, error)
 
-	Delete(ctx context.Context, name domain.ConfigName, version string) error
+	Delete(ctx context.Context, name string, version string) error
 }
 
 type PlainConfigService interface {

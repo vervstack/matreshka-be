@@ -1,4 +1,4 @@
-package evon
+package cfg_service
 
 import (
 	"context"
@@ -8,11 +8,10 @@ import (
 	errors "go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/matreshka/internal/domain"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (c *CfgService) GetConfigWithNodes(ctx context.Context, configName domain.ConfigName, ver string) (domain.ConfigWithNodes, error) {
-	nodes, err := c.configStorage.GetConfigNodes(ctx, configName.Name(), ver)
+func (c *CfgService) GetConfigWithNodes(ctx context.Context, configName string, ver string) (domain.ConfigWithNodes, error) {
+	nodes, err := c.configStorage.GetConfigNodes(ctx, configName, ver)
 	if err != nil {
 		return domain.ConfigWithNodes{}, errors.Wrap(err)
 	}
@@ -21,12 +20,12 @@ func (c *CfgService) GetConfigWithNodes(ctx context.Context, configName domain.C
 		return domain.ConfigWithNodes{}, nil
 	}
 
-	switch configName.Prefix() {
-	case api.ConfigType_pg:
-		toSnake(nodes)
-	}
+	//switch configType {
+	//case api.ConfigType_pg:
+	//	toSnake(nodes)
+	//}
 
-	versions, err := c.configStorage.GetVersions(ctx, configName.Name())
+	versions, err := c.configStorage.GetVersions(ctx, configName)
 	if err != nil {
 		return domain.ConfigWithNodes{}, errors.Wrap(err, "error getting config by name")
 	}

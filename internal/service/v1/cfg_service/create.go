@@ -1,4 +1,4 @@
-package evon
+package cfg_service
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
@@ -17,58 +16,44 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) (domain.ConfigBase, error) {
-	err := c.txManager.Execute(func(tx *sql.Tx) (err error) {
-		err = c.createConfig(ctx, c.configStorage.WithTx(tx), serviceName)
-		if err != nil {
-			return errors.Wrap(err, "error creating config")
-		}
+func (c *CfgService) Create(ctx context.Context, req domain.CreateConfigRequest) error {
+	err := c.txManager.Execute(
+		func(tx *sql.Tx) (err error) {
+			err = c.createEvonConfigTx(ctx, c.configStorage.WithTx(tx), req.Name, req.Type)
+			if err != nil {
+				return errors.Wrap(err, "error creating config")
+			}
 
-		return nil
-	})
-	if err != nil {
-		return domain.ConfigBase{}, errors.Wrap(err)
-	}
-
-	var listReq domain.ListConfigsRequest
-	listReq.SearchPattern = serviceName.Name()
-
-	list, err := c.configStorage.ListConfigs(ctx, listReq)
-	if err != nil {
-		return domain.ConfigBase{}, errors.Wrap(err)
-	}
-
-	if len(list.Configs) == 0 {
-		return domain.ConfigBase{},
-			errors.NewUserError("Config was created but couldn't be retrieved.", codes.Internal)
-	}
-
-	//return list.Configs[0], nil
-	return domain.ConfigBase{}, nil
-}
-
-func (c *CfgService) createConfig(ctx context.Context, dataStorage storage.Data, serviceName domain.ConfigName) error {
-	err := c.validator.IsConfigNameValid(serviceName)
+			return nil
+		})
 	if err != nil {
 		return errors.Wrap(err)
 	}
 
-	nodes, err := dataStorage.GetConfigNodes(ctx, serviceName.Name(), domain.MasterVersion)
+	return nil
+}
+
+func (c *CfgService) createEvonConfigTx(ctx context.Context, dataStorage storage.Data, name string, cfgType matreshka_api.ConfigType) error {
+	err := c.validator.IsConfigNameValid(name)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+
+	nodes, err := dataStorage.GetConfigNodes(ctx, name, domain.MasterVersion)
 	if err != nil {
 		return errors.Wrap(err, "error reading config from storage")
 	}
 
 	if nodes != nil {
-		return errors.Wrap(user_errors.ErrAlreadyExists,
-			"Name \""+serviceName.Name()+"\" is already taken")
+		return errors.Wrap(user_errors.ErrAlreadyExists)
 	}
 
-	_, err = dataStorage.Create(ctx, serviceName.Name())
+	_, err = dataStorage.Create(ctx, name)
 	if err != nil {
 		return errors.Wrap(err, "error saving config")
 	}
 
-	newCfg, err := c.initNewConfig(serviceName)
+	newCfg, err := initNewConfig(name, cfgType)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -79,7 +64,7 @@ func (c *CfgService) createConfig(ctx context.Context, dataStorage storage.Data,
 	}
 
 	patchReq := domain.PatchConfigRequest{
-		ConfigName:    serviceName,
+		ConfigName:    name,
 		Upsert:        newCfgPatch,
 		ConfigVersion: domain.MasterVersion,
 	}
@@ -109,12 +94,12 @@ func (c *CfgService) convertConfigToPatch(cfg *evon.Node) ([]domain.PatchUpdate,
 	return cfgPatch, nil
 }
 
-func (c *CfgService) initNewConfig(serviceName domain.ConfigName) (*evon.Node, error) {
-	switch serviceName.Prefix() {
+func initNewConfig(configName string, configType matreshka_api.ConfigType) (*evon.Node, error) {
+	switch configType {
 	case matreshka_api.ConfigType_verv:
 		newCfg := matreshka.NewEmptyConfig()
 		newCfg.AppInfo = matreshka.AppInfo{
-			Name:            serviceName.Name(),
+			Name:            configName,
 			Version:         "v0.0.1",
 			StartupDuration: time.Second * 5,
 		}

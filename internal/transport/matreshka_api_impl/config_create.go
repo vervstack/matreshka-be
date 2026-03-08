@@ -10,11 +10,10 @@ import (
 )
 
 func (s *Impl) CreateConfig(ctx context.Context, req *api.CreateConfig_Request) (*api.CreateConfig_Response, error) {
-	cfgType := req.GetConfigType().String()
 
 	domainReq := domain.CreateConfigRequest{
 		Name: req.GetConfigName(),
-		Type: cfgType,
+		Type: req.GetConfigType(),
 	}
 
 	err := s.configService.Create(ctx, domainReq)

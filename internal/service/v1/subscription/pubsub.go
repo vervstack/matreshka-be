@@ -22,7 +22,7 @@ func (s *PubSubService) Publish(patch domain.PatchConfigRequest) {
 	s.m.RLock()
 	defer s.m.RUnlock()
 
-	for c := range s.serviceNameToSubscribers[patch.ConfigName.Name()] {
+	for c := range s.serviceNameToSubscribers[patch.ConfigName] {
 		c.Consume(patch)
 	}
 }

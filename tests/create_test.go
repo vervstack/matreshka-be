@@ -15,7 +15,7 @@ type CreateSuite struct {
 	suite.Suite
 
 	ctx context.Context
-	api matreshka_api.MatreshkaBeAPIClient
+	api matreshka_api.MatreshkaApiClient
 }
 
 func (s *CreateSuite) SetupSuite() {

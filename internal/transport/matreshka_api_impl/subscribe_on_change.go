@@ -34,7 +34,7 @@ func (s *Impl) SubscribeOnChanges(stream api.MatreshkaApi_SubscribeOnChangesServ
 
 		case updates := <-sub.GetUpdateChan():
 			patch := &api.SubscribeOnChanges_Response{
-				ConfigName: updates.ConfigName.Name(),
+				ConfigName: updates.ConfigName,
 				Timestamp:  uint32(time.Now().UTC().Unix()),
 				Patches:    toPatches(updates),
 			}

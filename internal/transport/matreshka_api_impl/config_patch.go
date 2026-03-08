@@ -17,7 +17,7 @@ func (s *Impl) PatchConfig(ctx context.Context, req *api.PatchConfig_Request) (*
 		return nil, errors.Wrap(err)
 	}
 
-	err = s.evonConfigService.Patch(ctx, patch)
+	err = s.configService.Patch(ctx, patch)
 	if err != nil {
 		return nil, errors.Wrap(err)
 	}
@@ -30,7 +30,7 @@ func fromPatch(req *api.PatchConfig_Request) (domain.PatchConfigRequest, error) 
 		ConfigVersion: toolbox.Coalesce(toolbox.FromPtr(req.Version), domain.MasterVersion),
 	}
 
-	out.ConfigName = fromName(req.GetConfigName())
+	out.ConfigName = req.ConfigName
 
 	for _, patch := range req.Patches {
 
@@ -67,20 +67,4 @@ func ParseConfigName(name string) (*api.ConfigType, string) {
 
 	return nil, name
 
-}
-func fromName(name string) domain.ConfigName {
-	nameSplited := strings.Split(name, "_")
-
-	if len(nameSplited) < 2 {
-		return domain.NewConfigName(api.ConfigType_plain, name)
-	}
-
-	pref, ok := api.ConfigType_value[nameSplited[0]]
-	if !ok {
-		pref = int32(api.ConfigType_plain)
-	} else {
-		name = strings.Join(nameSplited[1:], "_")
-	}
-
-	return domain.NewConfigName(api.ConfigType(pref), name)
 }

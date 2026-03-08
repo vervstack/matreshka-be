@@ -1,4 +1,4 @@
-package evon
+package cfg_service
 
 import (
 	"context"
@@ -9,8 +9,7 @@ import (
 	"go.vervstack.ru/matreshka/internal/domain"
 )
 
-func (c *CfgService) Delete(ctx context.Context,
-	name domain.ConfigName, version string) error {
+func (c *CfgService) Delete(ctx context.Context, name string, version string) error {
 
 	var versionToDeleteIn *string
 	if version != domain.MasterVersion {
