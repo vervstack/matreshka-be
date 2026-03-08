@@ -136,7 +136,11 @@ func (v *Variable) UnmarshalYAML(node *yaml.Node) error {
 		}
 	}
 
-	val, err := mapVariableTypeToYamlNodeParser[v.Type](value)
+	parser, exists := mapVariableTypeToYamlNodeParser[v.Type]
+	if !exists {
+		return ErrUnknownEnvVariableType
+	}
+	val, err := parser(value)
 	if err != nil {
 		return errors.Wrap(err, "error parsing yaml value node")
 	}

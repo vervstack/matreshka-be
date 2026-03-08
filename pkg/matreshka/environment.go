@@ -96,8 +96,14 @@ func (a *Environment) ParseToStruct(dst any) error {
 			return errors.Wrap(ErrNotFound, "field with name "+name+" can't be found in target struct")
 		}
 
-		v.Set(reflect.ValueOf(env.Value.Value()))
-
+		val := reflect.ValueOf(env.Value.Value())
+		if val.Type().AssignableTo(v.Type()) {
+			v.Set(val)
+		} else if val.Type().ConvertibleTo(v.Type()) {
+			v.Set(val.Convert(v.Type()))
+		} else {
+			return errors.Wrapf(ErrUnexpectedType, "field %s has type %s but value has type %s", name, v.Type(), val.Type())
+		}
 	}
 
 	return nil
