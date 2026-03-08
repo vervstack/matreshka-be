@@ -24,8 +24,12 @@ func Swagger() (p string, handler http.HandlerFunc) {
 	mux.Handle(BasePath, swaggerui.NewHandler(
 		swaggerui.WithBasePath(BasePath),
 		swaggerui.WithHTMLTitle("Swagger"),
-		swaggerui.WithSpecURLs("MatreshkaApi",
+		swaggerui.WithSpecURLs("MatreshkaCommon",
 			[]swaggerui.SpecURL{
+				{
+					Name: "MatreshkaCommon",
+					URL:  path.Join(swaggerPath, "matreshka_common.swagger.json"),
+				},
 				{
 					Name: "MatreshkaApi",
 					URL:  path.Join(swaggerPath, "matreshka_api.swagger.json"),

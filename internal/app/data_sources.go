@@ -8,7 +8,7 @@ import (
 )
 
 func (a *App) InitDataSources() (err error) {
-	a.Postgres, err = sqldb.New(a.Cfg.DataSources.Postgres)
+	a.Sqlite, err = sqldb.New(a.Cfg.DataSources.Sqlite)
 	if err != nil {
 		return rerrors.Wrap(err, "error during sql connection initialization")
 	}

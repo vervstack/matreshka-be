@@ -10,7 +10,7 @@ import (
 )
 
 type Services struct {
-	configService service.ConfigService
+	configService service.BinaryConfigService
 
 	evonService   *evon.CfgService
 	pubSubService *subscription.PubSubService
@@ -34,6 +34,6 @@ func (s *Services) EvonService() service.EvonConfigService {
 func (s *Services) PubSubService() service.PubSubService {
 	return s.pubSubService
 }
-func (s *Services) ConfigService() service.ConfigService {
+func (s *Services) ConfigService() service.BinaryConfigService {
 	return s.configService
 }

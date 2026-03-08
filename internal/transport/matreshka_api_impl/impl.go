@@ -16,7 +16,7 @@ import (
 type Impl struct {
 	version string
 
-	configService service.ConfigService
+	configService service.BinaryConfigService
 
 	evonConfigService service.EvonConfigService
 	subService        service.SubscriberService

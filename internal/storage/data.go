@@ -8,11 +8,11 @@ import (
 	"go.redsock.ru/evon"
 
 	"go.vervstack.ru/matreshka/internal/domain"
-	"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
+	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 )
 
 type ConfigStorage interface {
-	config_queries.Querier
+	//config_queries.Querier
 
 	ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 }

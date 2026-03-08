@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package matreshka_api;
+
+import "npm.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
+option (npm_package) = "@vervstack/matreshka";
+
+message Paging {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+
+message Sort {
+  Type type = 1;
+  bool desc = 2;
+  enum Type {
+    default = 0;
+    by_name = 1;
+    by_updated_at = 2;
+  }
+}
+
+enum ConfigType {
+  // Plain text blob config - saved and configured externally by user
+  // Not recommended to use - unstructured and cannot be validated.
+  // Simply a text storage
+  plain = 0;
+  // Matreshka's configuration for application
+  verv = 1;
+  // Configuration for object storage (Minio)
+  minio = 2;
+  // Configuration for Postgresql Database
+  pg = 3;
+  // Configuration for Nginx/Angie web server
+  nginx = 4;
+  // Basically a key-value configuration
+  kv = 5;
+}
+
+enum Format {
+  yaml = 0; // Default
+  env = 1;
+}
+
+message Node {
+  string name = 1;
+  optional string value = 2;
+  repeated Node   inner_nodes = 3;
+}
+
+message ConfigBase {
+  uint32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  repeated string versions = 5;
+}
+
+message Patch {
+  string field_name = 1;
+  oneof patch {
+    string rename = 2;
+    string update_value = 3;
+    bool delete = 4;
+  }
+}
+

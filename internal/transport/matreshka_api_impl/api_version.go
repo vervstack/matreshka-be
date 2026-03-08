@@ -6,8 +6,8 @@ import (
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func (s *Impl) ApiVersion(_ context.Context, _ *api.ApiVersion_Request) (*api.ApiVersion_Response, error) {
-	resp := &api.ApiVersion_Response{
+func (s *Impl) Version(_ context.Context, _ *api.Version_Request) (*api.Version_Response, error) {
+	resp := &api.Version_Response{
 		Version: s.version,
 	}
 

@@ -35,18 +35,18 @@ func fromPatch(req *api.PatchConfig_Request) (domain.PatchConfigRequest, error) 
 	for _, patch := range req.Patches {
 
 		switch v := patch.GetPatch().(type) {
-		case *api.PatchConfig_Patch_Rename:
+		case *api.Patch_Rename:
 			out.RenameTo = append(out.RenameTo,
 				domain.PatchRename{
 					OldName: patch.FieldName,
 					NewName: v.Rename,
 				})
-		case *api.PatchConfig_Patch_UpdateValue:
+		case *api.Patch_UpdateValue:
 			out.Upsert = append(out.Upsert, domain.PatchUpdate{
 				FieldName:  patch.FieldName,
 				FieldValue: v.UpdateValue,
 			})
-		case *api.PatchConfig_Patch_Delete:
+		case *api.Patch_Delete:
 			out.Delete = append(out.Delete, patch.FieldName)
 		}
 	}

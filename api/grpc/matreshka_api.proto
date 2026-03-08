@@ -4,12 +4,13 @@ package matreshka_api;
 
 import "google/api/annotations.proto";
 import "npm.proto";
+import "matreshka_common.proto";
 
 option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
 option (npm_package) = "@vervstack/matreshka";
 
 service MatreshkaApi {
-  rpc ApiVersion(ApiVersion.Request) returns (ApiVersion.Response) {
+  rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
       get: "/api/version"
     };
@@ -43,14 +44,12 @@ service MatreshkaApi {
     };
   }
 
-
   rpc PatchConfig(PatchConfig.Request) returns (PatchConfig.Response) {
     option (google.api.http) = {
       post: "/api/config/{config_name}/patch",
       body: "*"
     };
   }
-
   rpc StoreConfig(StoreConfig.Request) returns (StoreConfig.Response) {
     option (google.api.http) = {
       post: "/api/config/{config_name}/store",
@@ -74,23 +73,34 @@ service MatreshkaApi {
   rpc SubscribeOnChanges(stream SubscribeOnChanges.Request) returns (stream SubscribeOnChanges.Response) {}
 }
 
-message Config {
-  uint32 id = 1;
-  string name = 2;
-  int64 created_at_utc_timestamp = 3;
-  int64 updated_at_utc_timestamp = 4;
-  repeated string versions = 5;
-}
-
-message Paging {
-  uint64 limit = 1;
-  uint64 offset = 2;
-}
-
-message ApiVersion {
+message Version {
   message Request {}
   message Response {
     string version = 1;
+  }
+}
+
+message ListConfigs {
+  message Request {
+    Paging paging = 1;
+    Sort sort = 2;
+
+    optional string search_pattern = 3;
+  }
+
+  message Response {
+    repeated ConfigBase configs = 1;
+    uint64 total_records = 2;
+  }
+}
+
+message CreateConfig {
+  message Request {
+    string config_name = 1;
+    ConfigType config_type = 2;
+  }
+
+  message Response {
   }
 }
 
@@ -114,15 +124,6 @@ message PatchConfig {
   }
 
   message Response {}
-
-  message Patch {
-    string field_name = 1;
-    oneof patch {
-      string rename = 2;
-      string update_value = 3;
-      bool delete = 4;
-    }
-  }
 }
 
 message StoreConfig {
@@ -139,25 +140,6 @@ message StoreConfig {
   }
 }
 
-message ListConfigs {
-  message Request {
-    Paging paging = 1;
-    string search_pattern = 2;
-    optional Sort sort = 3;
-  }
-
-  message Response {
-    repeated Config configs = 1;
-    uint64 total_records = 2;
-  }
-}
-
-message Node {
-  string name = 1;
-  optional string value = 2;
-  repeated Node   inner_nodes = 3;
-}
-
 message GetConfigNode {
   message Request {
     string config_name = 1;
@@ -167,16 +149,6 @@ message GetConfigNode {
   message Response {
     Node root = 1;
     repeated string versions = 2;
-  }
-}
-
-message CreateConfig {
-  message Request {
-    string config_name = 1;
-    ConfigType config_type = 2;
-  }
-
-  message Response {
   }
 }
 
@@ -190,16 +162,6 @@ message RenameConfig {
   }
 }
 
-message Sort {
-  Type type = 1;
-  bool desc = 2;
-  enum Type {
-    default = 0;
-    by_name = 1;
-    by_updated_at = 2;
-  }
-}
-
 message SubscribeOnChanges {
   message Request {
     repeated string subscribe_config_names = 1;
@@ -210,30 +172,8 @@ message SubscribeOnChanges {
     string config_name = 1;
     uint32 timestamp = 2;
 
-    repeated PatchConfig.Patch patches = 3;
+    repeated Patch patches = 3;
   }
-}
-
-enum ConfigType {
-  // Plain text blob config - saved and configured externally by user
-  // Not recommended to use - unstructured and cannot be validated.
-  // Simply a text storage
-  plain = 0;
-  // Matreshka's configuration for application
-  verv = 1;
-  // Configuration for object storage (Minio)
-  minio = 2;
-  // Configuration for Postgresql Database
-  pg = 3;
-  // Configuration for Nginx/Angie web server
-  nginx = 4;
-  // Basically a key-value configuration
-  kv = 5;
-}
-
-enum Format {
-  yaml = 0; // Default
-  env = 1;
 }
 
 message DeleteConfig {

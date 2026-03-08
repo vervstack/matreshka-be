@@ -7,5 +7,5 @@ import (
 )
 
 type DataSourcesConfig struct {
-	Postgres *resources.Postgres
+	Sqlite *resources.Sqlite
 }

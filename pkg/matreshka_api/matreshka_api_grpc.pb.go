@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MatreshkaApi_ApiVersion_FullMethodName         = "/matreshka_api.MatreshkaApi/ApiVersion"
+	MatreshkaApi_Version_FullMethodName            = "/matreshka_api.MatreshkaApi/Version"
 	MatreshkaApi_ListConfigs_FullMethodName        = "/matreshka_api.MatreshkaApi/ListConfigs"
 	MatreshkaApi_CreateConfig_FullMethodName       = "/matreshka_api.MatreshkaApi/CreateConfig"
 	MatreshkaApi_GetConfig_FullMethodName          = "/matreshka_api.MatreshkaApi/GetConfig"
@@ -35,7 +35,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MatreshkaApiClient interface {
-	ApiVersion(ctx context.Context, in *ApiVersion_Request, opts ...grpc.CallOption) (*ApiVersion_Response, error)
+	Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error)
 	ListConfigs(ctx context.Context, in *ListConfigs_Request, opts ...grpc.CallOption) (*ListConfigs_Response, error)
 	CreateConfig(ctx context.Context, in *CreateConfig_Request, opts ...grpc.CallOption) (*CreateConfig_Response, error)
 	GetConfig(ctx context.Context, in *GetConfig_Request, opts ...grpc.CallOption) (*GetConfig_Response, error)
@@ -55,10 +55,10 @@ func NewMatreshkaApiClient(cc grpc.ClientConnInterface) MatreshkaApiClient {
 	return &matreshkaApiClient{cc}
 }
 
-func (c *matreshkaApiClient) ApiVersion(ctx context.Context, in *ApiVersion_Request, opts ...grpc.CallOption) (*ApiVersion_Response, error) {
+func (c *matreshkaApiClient) Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ApiVersion_Response)
-	err := c.cc.Invoke(ctx, MatreshkaApi_ApiVersion_FullMethodName, in, out, cOpts...)
+	out := new(Version_Response)
+	err := c.cc.Invoke(ctx, MatreshkaApi_Version_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ type MatreshkaApi_SubscribeOnChangesClient = grpc.BidiStreamingClient[SubscribeO
 // All implementations must embed UnimplementedMatreshkaApiServer
 // for forward compatibility.
 type MatreshkaApiServer interface {
-	ApiVersion(context.Context, *ApiVersion_Request) (*ApiVersion_Response, error)
+	Version(context.Context, *Version_Request) (*Version_Response, error)
 	ListConfigs(context.Context, *ListConfigs_Request) (*ListConfigs_Response, error)
 	CreateConfig(context.Context, *CreateConfig_Request) (*CreateConfig_Response, error)
 	GetConfig(context.Context, *GetConfig_Request) (*GetConfig_Response, error)
@@ -182,8 +182,8 @@ type MatreshkaApiServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMatreshkaApiServer struct{}
 
-func (UnimplementedMatreshkaApiServer) ApiVersion(context.Context, *ApiVersion_Request) (*ApiVersion_Response, error) {
-	return nil, status.Error(codes.Unimplemented, "method ApiVersion not implemented")
+func (UnimplementedMatreshkaApiServer) Version(context.Context, *Version_Request) (*Version_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method Version not implemented")
 }
 func (UnimplementedMatreshkaApiServer) ListConfigs(context.Context, *ListConfigs_Request) (*ListConfigs_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListConfigs not implemented")
@@ -233,20 +233,20 @@ func RegisterMatreshkaApiServer(s grpc.ServiceRegistrar, srv MatreshkaApiServer)
 	s.RegisterService(&MatreshkaApi_ServiceDesc, srv)
 }
 
-func _MatreshkaApi_ApiVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ApiVersion_Request)
+func _MatreshkaApi_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Version_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MatreshkaApiServer).ApiVersion(ctx, in)
+		return srv.(MatreshkaApiServer).Version(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MatreshkaApi_ApiVersion_FullMethodName,
+		FullMethod: MatreshkaApi_Version_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatreshkaApiServer).ApiVersion(ctx, req.(*ApiVersion_Request))
+		return srv.(MatreshkaApiServer).Version(ctx, req.(*Version_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,8 +410,8 @@ var MatreshkaApi_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MatreshkaApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ApiVersion",
-			Handler:    _MatreshkaApi_ApiVersion_Handler,
+			MethodName: "Version",
+			Handler:    _MatreshkaApi_Version_Handler,
 		},
 		{
 			MethodName: "ListConfigs",

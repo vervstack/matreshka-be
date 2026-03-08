@@ -9,13 +9,13 @@ import (
 )
 
 type Services interface {
-	ConfigService() ConfigService
+	ConfigService() BinaryConfigService
 	// EvonService deprecated
 	EvonService() EvonConfigService
 	PubSubService() PubSubService
 }
 
-type ConfigService interface {
+type BinaryConfigService interface {
 	Create(ctx context.Context, req domain.CreateConfigRequest) error
 	List(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 }

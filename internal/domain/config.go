@@ -3,7 +3,7 @@ package domain
 import (
 	"go.redsock.ru/evon"
 
-	"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
+	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
@@ -44,5 +44,5 @@ func (c ConfigName) Prefix() api.ConfigType {
 
 type CreateConfigRequest struct {
 	Name string
-	Type config_queries.MatreshkaConfigType
+	Type string
 }

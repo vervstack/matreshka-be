@@ -82,31 +82,31 @@ func consumeSubscriberStream(stream api.MatreshkaApi_SubscribeOnChangesServer) <
 
 }
 
-func toPatches(req domain.PatchConfigRequest) []*api.PatchConfig_Patch {
-	out := make([]*api.PatchConfig_Patch, 0, len(req.Upsert)+len(req.Delete)+len(req.RenameTo))
+func toPatches(req domain.PatchConfigRequest) []*api.Patch {
+	out := make([]*api.Patch, 0, len(req.Upsert)+len(req.Delete)+len(req.RenameTo))
 
 	for _, up := range req.Upsert {
-		out = append(out, &api.PatchConfig_Patch{
+		out = append(out, &api.Patch{
 			FieldName: up.FieldName,
-			Patch: &api.PatchConfig_Patch_UpdateValue{
+			Patch: &api.Patch_UpdateValue{
 				UpdateValue: up.FieldValue,
 			},
 		})
 	}
 
 	for _, fieldName := range req.Delete {
-		out = append(out, &api.PatchConfig_Patch{
+		out = append(out, &api.Patch{
 			FieldName: fieldName,
-			Patch: &api.PatchConfig_Patch_Delete{
+			Patch: &api.Patch_Delete{
 				Delete: true,
 			},
 		})
 	}
 
 	for _, rp := range req.RenameTo {
-		out = append(out, &api.PatchConfig_Patch{
+		out = append(out, &api.Patch{
 			FieldName: rp.OldName,
-			Patch: &api.PatchConfig_Patch_Rename{
+			Patch: &api.Patch_Rename{
 				Rename: rp.NewName,
 			},
 		})

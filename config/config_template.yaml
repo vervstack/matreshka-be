@@ -3,14 +3,9 @@ app_info:
     version: v1.0.37
     startup_duration: 10s
 data_sources:
-    - resource_name: postgres
+    - resource_name: sqlite
+      path: ./data/matreshka-be.db
       migrations_folder: ./migrations
-      host: localhost
-      port: 5432
-      user: matreshka
-      pwd: ""
-      name: matreshka
-      ssl_mode: ""
 servers:
     50049:
         /{FS}:

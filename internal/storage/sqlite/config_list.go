@@ -17,14 +17,16 @@ import (
 const defaultPageSize = 20
 
 func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (out domain.ListConfigsResponse, err error) {
-	totalRecords, err := p.querier.ListConfigsCount(ctx, sql.NullString{
+	pattern := sql.NullString{
 		String: req.SearchPattern,
 		Valid:  true,
-	})
+	}
+
+	totalRecords, err := p.querier.ListConfigsCount(ctx, pattern)
 	if err != nil {
 		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error scanning total amount of configs")
 	}
-	out.TotalRecords = uint32(totalRecords)
+	out.TotalRecords = uint64(totalRecords)
 
 	q := `
 		WITH cfg AS (
@@ -72,10 +74,10 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 	}
 	defer rows.Close()
 
-	out.Configs = make([]domain.ConfigBase, 0, req.Paging.Limit)
+	out.Configs = make([]domain.ConfigInfo, 0, req.Paging.Limit)
 
 	for rows.Next() {
-		var item domain.ConfigBase
+		var item domain.ConfigInfo
 		var versionsJSON string
 		err = rows.Scan(
 			&item.Name,

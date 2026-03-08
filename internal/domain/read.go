@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/evon"
 
-	"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
+	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
@@ -22,9 +22,9 @@ type ListConfigsResponse struct {
 }
 
 type ConfigBase struct {
-	Id        uint32
-	Name      string
-	Type      config_queries.MatreshkaConfigType
+	Id   uint32
+	Name string
+	//Type      config_queries.MatreshkaConfigType
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

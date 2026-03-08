@@ -9,7 +9,7 @@ type Service struct {
 	configStorage storage.ConfigStorage
 }
 
-func New(configStorage storage.ConfigStorage) service.ConfigService {
+func New(configStorage storage.ConfigStorage) service.BinaryConfigService {
 	return &Service{
 		configStorage: configStorage,
 	}
