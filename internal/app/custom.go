@@ -4,11 +4,14 @@ import (
 	"context"
 	"net/http"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/matreshka/internal/middleware"
 	"go.vervstack.ru/matreshka/internal/service"
 	"go.vervstack.ru/matreshka/internal/service/v1"
 	"go.vervstack.ru/matreshka/internal/storage"
 	"go.vervstack.ru/matreshka/internal/storage/sqlite"
+	"go.vervstack.ru/matreshka/internal/transport"
 
 	//"go.vervstack.ru/matreshka/internal/storage/pg"
 	"go.vervstack.ru/matreshka/internal/storage/tx_manager"
@@ -24,6 +27,8 @@ type Custom struct {
 
 	Service service.Services
 
+	ServerMaster *transport.ServersManager
+
 	GrpcImpl   *matreshka_api_impl.Impl
 	WebApiImpl http.Handler
 }
@@ -37,20 +42,25 @@ func (c *Custom) Init(a *App) (err error) {
 	c.GrpcImpl = matreshka_api_impl.NewServer(a.Cfg, c.Service)
 	c.WebApiImpl = web_api.New(c.GrpcImpl)
 
-	a.ServerMaster.AddImplementation(c.GrpcImpl)
-
-	if a.Cfg.Environment.Pass != "" {
-		a.ServerMaster.AddServerOption(auth.Interceptor(a.Cfg.Environment.Pass))
+	c.ServerMaster, err = transport.NewServerManager(a.Ctx, a.MASTER)
+	if err != nil {
+		return rerrors.Wrap(err)
 	}
 
-	a.ServerMaster.AddServerOption(
+	c.ServerMaster.AddImplementation(c.GrpcImpl)
+
+	if a.Cfg.Environment.Pass != "" {
+		c.ServerMaster.AddServerOption(auth.Interceptor(a.Cfg.Environment.Pass))
+	}
+
+	c.ServerMaster.AddServerOption(
 		middleware.PanicInterceptor(),
 		middleware.LogInterceptor(),
 	)
 
-	a.ServerMaster.AddHttpHandler("/web_api/", c.WebApiImpl)
-	a.ServerMaster.AddHttpHandler("/", web.NewServer())
-	a.ServerMaster.AddHttpHandler(docs.Swagger())
+	c.ServerMaster.AddHttpHandler("/web_api/", c.WebApiImpl)
+	c.ServerMaster.AddHttpHandler("/", web.NewServer())
+	c.ServerMaster.AddHttpHandler(docs.Swagger())
 
 	return nil
 }

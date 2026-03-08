@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"database/sql"
 	_ "embed"
 	"fmt"
 	"net"
@@ -10,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/evon"
@@ -18,7 +20,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
+	_ "modernc.org/sqlite"
 
+	"go.vervstack.ru/matreshka/internal/config"
 	"go.vervstack.ru/matreshka/internal/transport/matreshka_api_impl"
 	"go.vervstack.ru/matreshka/pkg/app"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
@@ -50,17 +54,38 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func getAppEnvironment(t *testing.T) (appEnv AppEnv) {
-	var err error
-	appEnv.app, err = app.New()
+func InitAppEnvironment(t *testing.T) AppEnv {
+	ctx := t.Context()
+
+	stopFunc := func() {}
+
+	inMemoryListener := initInMemoryListener()
+	sqliteDb := initInMemorySqldb(t)
+
+	applicationBase := app.App{
+		Ctx:    ctx,
+		Stop:   stopFunc,
+		Cfg:    config.Config{},
+		Sqlite: sqliteDb,
+		MASTER: inMemoryListener,
+		Custom: app.CustomApp{},
+	}
+
+	err := applicationBase.Custom.Init(&applicationBase)
 	require.NoError(t, err)
 
-	testEnv.HttpServer = httptest.NewServer(testEnv.app.Custom.WebApiImpl)
-	closer.Add(func() error {
-		testEnv.HttpServer.Close()
-		return nil
+	httpServer := httptest.NewServer(applicationBase.Custom.WebApiImpl)
+	t.Cleanup(func() {
+		httpServer.Close()
 	})
-	return nil
+
+	matreshkaClient := initClient(t, inMemoryListener, applicationBase.Custom.GrpcImpl)
+
+	return AppEnv{
+		matreshkaApi: matreshkaClient,
+		HttpServer:   httpServer,
+		app:          applicationBase,
+	}
 }
 
 func initApp() (err error) {
@@ -224,30 +249,54 @@ func normalizeConfigName(configName string) string {
 	return configName
 }
 
-func dialInMemory(t *testing.T) {
+func initInMemoryListener() *bufconn.Listener {
 	const bufSize = 1024 * 1024
 	lis := bufconn.Listen(bufSize)
 
+	return lis
+}
+
+func initInMemorySqldb(t *testing.T) *sql.DB {
+	const dialect = "sqlite"
+	db, err := sql.Open("sqlite", ":memory:")
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		err = db.Close()
+		require.NoError(t, err)
+	})
+
+	err = goose.SetDialect(dialect)
+	require.NoError(t, err)
+
+	err = goose.Up(db, "./migrations")
+	require.NoError(t, err)
+
+	return db
+}
+
+func initClient(t *testing.T, lis *bufconn.Listener, grpcImpl matreshka_api.MatreshkaApiServer) matreshka_api.MatreshkaApiClient {
 	serv := grpc.NewServer()
 	bufDialer := func(context.Context, string) (net.Conn, error) {
 		return lis.Dial()
 	}
 
-	matreshka_api.RegisterMatreshkaApiServer(serv, testEnv.app.Custom.GrpcImpl)
+	matreshka_api.RegisterMatreshkaApiServer(serv, grpcImpl)
 	go func() {
 		err := serv.Serve(lis)
 		require.NoError(t, err)
 	}()
 
-	conn, err := grpc.NewClient("[::]:"+testEnv.app.Cfg.Servers.MASTER.Port,
+	conn, err := grpc.NewClient("[::]:50051",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	require.NoError(t, err)
 
-	testEnv.matreshkaApi = matreshka_api.NewMatreshkaApiClient(conn)
+	matreshkaClient := matreshka_api.NewMatreshkaApiClient(conn)
 
-	ping, err := testEnv.matreshkaApi.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
+	ping, err := matreshkaClient.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
 	require.NoError(t, err)
 	require.NotNil(t, ping)
+
+	return matreshkaClient
 }

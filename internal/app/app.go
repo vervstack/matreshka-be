@@ -9,8 +9,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
-	"go.vervstack.ru/matreshka/internal/transport"
 	"golang.org/x/sync/errgroup"
+	"net"
 
 	"go.vervstack.ru/matreshka/internal/config"
 )
@@ -22,7 +22,7 @@ type App struct {
 	/* Data source connection */
 	Sqlite *sql.DB
 	/* Servers network listeners */
-	MASTER net.Listener
+	MASTERListener net.Listener
 
 	Custom Custom
 }

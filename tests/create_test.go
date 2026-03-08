@@ -19,7 +19,10 @@ type CreateSuite struct {
 }
 
 func (s *CreateSuite) SetupSuite() {
-	s.api = testEnv.matreshkaApi
+	t := s.T()
+	appEnv := InitAppEnvironment(t)
+
+	s.api = appEnv.matreshkaApi
 }
 
 func (s *CreateSuite) SetupTest() {
