@@ -19,7 +19,7 @@ import (
 
 type Custom struct {
 	DataProvider  storage.Data
-	ConfigStorage *pg.ConfigStorage
+	ConfigStorage storage.ConfigStorage
 
 	Service service.Services
 

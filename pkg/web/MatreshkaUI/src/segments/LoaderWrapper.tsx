@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import cls from "@/segments/Loader.module.css";
 import RetryIcon from "@/assets/icons/Retry.svg";
 
-import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import ActionButton from "@/components/shared/ActionButton.tsx";
 
 
@@ -18,13 +17,6 @@ interface LoaderWrapperProps {
 export default function LoaderWrapper({load, children, onClickTryAgain}: LoaderWrapperProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [err, setErr] = useState<Error | undefined>();
-    const toaster = useToaster()
-
-    useEffect(() => {
-        if (err) {
-            toaster.catchGrpc(err)
-        }
-    }, [err]);
 
     function onClickTryAgainLocal() {
         if (!onClickTryAgain) return

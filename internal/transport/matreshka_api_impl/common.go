@@ -32,6 +32,21 @@ func fromConfigType(configType api.ConfigType) (config_queries.MatreshkaConfigTy
 	return tp, nil
 }
 
-func toConfig(response domain.ConfigInfo) api.Config {
+func toConfigList(configs []domain.ConfigInfo) []*api.Config {
+	out := make([]*api.Config, 0, len(configs))
+	for _, c := range configs {
+		out = append(out, toConfig(c))
+	}
 
+	return out
+}
+
+func toConfig(cfg domain.ConfigInfo) *api.Config {
+	return &api.Config{
+		Id:                    cfg.Id,
+		Name:                  cfg.Name,
+		CreatedAtUtcTimestamp: cfg.CreatedAt.UTC().Unix(),
+		UpdatedAtUtcTimestamp: cfg.UpdatedAt.UTC().Unix(),
+		Versions:              cfg.ConfigVersions,
+	}
 }

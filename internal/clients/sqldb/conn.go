@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"github.com/pressly/goose/v3"
@@ -30,6 +31,8 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error setting dialect")
 	}
+
+	goose.SetTableName("__migrations")
 
 	mig := cfg.MigrationFolder()
 	if mig == "" {

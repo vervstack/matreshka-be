@@ -38,15 +38,16 @@ export enum SortType {
 }
 
 export type Config = {
+  id?: number;
   name?: string;
-  version?: string;
+  createdAtUtcTimestamp?: string;
   updatedAtUtcTimestamp?: string;
   versions?: string[];
 };
 
 export type Paging = {
-  limit?: number;
-  offset?: number;
+  limit?: string;
+  offset?: string;
 };
 
 export type ApiVersionRequest = Record<string, never>;
@@ -109,7 +110,7 @@ export type ListConfigsRequest = {
 
 export type ListConfigsResponse = {
   configs?: Config[];
-  totalRecords?: number;
+  totalRecords?: string;
 };
 
 export type ListConfigs = Record<string, never>;
@@ -137,9 +138,7 @@ export type CreateConfigRequest = {
   configType?: ConfigType;
 };
 
-export type CreateConfigResponse = {
-  name?: string;
-};
+export type CreateConfigResponse = Record<string, never>;
 
 export type CreateConfig = Record<string, never>;
 

@@ -26,3 +26,6 @@ WITH config_id AS (SELECT id
 DELETE
 FROM matreshka.configs
 WHERE id = config_id.id;
+
+
+-- name :Store

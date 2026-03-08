@@ -362,11 +362,16 @@
     "matreshka_apiConfig": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "name": {
           "type": "string"
         },
-        "version": {
-          "type": "string"
+        "createdAtUtcTimestamp": {
+          "type": "string",
+          "format": "int64"
         },
         "updatedAtUtcTimestamp": {
           "type": "string",
@@ -405,13 +410,7 @@
       }
     },
     "matreshka_apiCreateConfigResponse": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "title": "name based on provided config_name and type.\ne.g. for Verv configuration with name \"matreshka\"\nunique name identifier will be verv_matreshka"
-        }
-      }
+      "type": "object"
     },
     "matreshka_apiDeleteConfigResponse": {
       "type": "object"
@@ -484,8 +483,8 @@
           }
         },
         "totalRecords": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -550,12 +549,12 @@
       "type": "object",
       "properties": {
         "limit": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string",
+          "format": "uint64"
         },
         "offset": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string",
+          "format": "uint64"
         }
       }
     },

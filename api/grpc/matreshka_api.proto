@@ -5,7 +5,7 @@ package matreshka_api;
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "matreshka_api";
+option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
 option (npm_package) = "@vervstack/matreshka";
 
 service MatreshkaApi {
@@ -83,8 +83,8 @@ message Config {
 }
 
 message Paging {
-  uint32 limit = 1;
-  uint32 offset = 2;
+  uint64 limit = 1;
+  uint64 offset = 2;
 }
 
 message ApiVersion {
@@ -148,7 +148,7 @@ message ListConfigs {
 
   message Response {
     repeated Config configs = 1;
-    uint32 total_records = 2;
+    uint64 total_records = 2;
   }
 }
 

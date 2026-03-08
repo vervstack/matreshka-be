@@ -186,10 +186,11 @@ func (Sort_Type) EnumDescriptor() ([]byte, []int) {
 
 type Config struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	Name                  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Version               string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	UpdatedAtUtcTimestamp int64                  `protobuf:"varint,3,opt,name=updated_at_utc_timestamp,json=updatedAtUtcTimestamp,proto3" json:"updated_at_utc_timestamp,omitempty"`
-	Versions              []string               `protobuf:"bytes,4,rep,name=versions,proto3" json:"versions,omitempty"`
+	Id                    uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CreatedAtUtcTimestamp int64                  `protobuf:"varint,3,opt,name=created_at_utc_timestamp,json=createdAtUtcTimestamp,proto3" json:"created_at_utc_timestamp,omitempty"`
+	UpdatedAtUtcTimestamp int64                  `protobuf:"varint,4,opt,name=updated_at_utc_timestamp,json=updatedAtUtcTimestamp,proto3" json:"updated_at_utc_timestamp,omitempty"`
+	Versions              []string               `protobuf:"bytes,5,rep,name=versions,proto3" json:"versions,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -224,6 +225,13 @@ func (*Config) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Config) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
 func (x *Config) GetName() string {
 	if x != nil {
 		return x.Name
@@ -231,11 +239,11 @@ func (x *Config) GetName() string {
 	return ""
 }
 
-func (x *Config) GetVersion() string {
+func (x *Config) GetCreatedAtUtcTimestamp() int64 {
 	if x != nil {
-		return x.Version
+		return x.CreatedAtUtcTimestamp
 	}
-	return ""
+	return 0
 }
 
 func (x *Config) GetUpdatedAtUtcTimestamp() int64 {
@@ -254,8 +262,8 @@ func (x *Config) GetVersions() []string {
 
 type Paging struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         uint32                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        uint32                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,14 +298,14 @@ func (*Paging) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Paging) GetLimit() uint32 {
+func (x *Paging) GetLimit() uint64 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *Paging) GetOffset() uint32 {
+func (x *Paging) GetOffset() uint64 {
 	if x != nil {
 		return x.Offset
 	}
@@ -1330,7 +1338,7 @@ func (x *ListConfigs_Request) GetSort() *Sort {
 type ListConfigs_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Configs       []*Config              `protobuf:"bytes,1,rep,name=configs,proto3" json:"configs,omitempty"`
-	TotalRecords  uint32                 `protobuf:"varint,2,opt,name=total_records,json=totalRecords,proto3" json:"total_records,omitempty"`
+	TotalRecords  uint64                 `protobuf:"varint,2,opt,name=total_records,json=totalRecords,proto3" json:"total_records,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1372,7 +1380,7 @@ func (x *ListConfigs_Response) GetConfigs() []*Config {
 	return nil
 }
 
-func (x *ListConfigs_Response) GetTotalRecords() uint32 {
+func (x *ListConfigs_Response) GetTotalRecords() uint64 {
 	if x != nil {
 		return x.TotalRecords
 	}
@@ -1536,11 +1544,7 @@ func (x *CreateConfig_Request) GetConfigType() ConfigType {
 }
 
 type CreateConfig_Response struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// name based on provided config_name and type.
-	// e.g. for Verv configuration with name "matreshka"
-	// unique name identifier will be verv_matreshka
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1573,13 +1577,6 @@ func (x *CreateConfig_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateConfig_Response.ProtoReflect.Descriptor instead.
 func (*CreateConfig_Response) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{9, 1}
-}
-
-func (x *CreateConfig_Response) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 type RenameConfig_Request struct {
@@ -1882,15 +1879,16 @@ var File_matreshka_api_proto protoreflect.FileDescriptor
 
 const file_matreshka_api_proto_rawDesc = "" +
 	"\n" +
-	"\x13matreshka_api.proto\x12\rmatreshka_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"\x8b\x01\n" +
-	"\x06Config\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\x127\n" +
-	"\x18updated_at_utc_timestamp\x18\x03 \x01(\x03R\x15updatedAtUtcTimestamp\x12\x1a\n" +
-	"\bversions\x18\x04 \x03(\tR\bversions\"6\n" +
+	"\x13matreshka_api.proto\x12\rmatreshka_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"\xba\x01\n" +
+	"\x06Config\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
+	"\x18created_at_utc_timestamp\x18\x03 \x01(\x03R\x15createdAtUtcTimestamp\x127\n" +
+	"\x18updated_at_utc_timestamp\x18\x04 \x01(\x03R\x15updatedAtUtcTimestamp\x12\x1a\n" +
+	"\bversions\x18\x05 \x03(\tR\bversions\"6\n" +
 	"\x06Paging\x12\x14\n" +
-	"\x05limit\x18\x01 \x01(\rR\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\rR\x06offset\"=\n" +
+	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"=\n" +
 	"\n" +
 	"ApiVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
@@ -1942,7 +1940,7 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\x05_sort\x1a`\n" +
 	"\bResponse\x12/\n" +
 	"\aconfigs\x18\x01 \x03(\v2\x15.matreshka_api.ConfigR\aconfigs\x12#\n" +
-	"\rtotal_records\x18\x02 \x01(\rR\ftotalRecords\"u\n" +
+	"\rtotal_records\x18\x02 \x01(\x04R\ftotalRecords\"u\n" +
 	"\x04Node\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01\x124\n" +
@@ -1956,15 +1954,15 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x1aO\n" +
 	"\bResponse\x12'\n" +
 	"\x04root\x18\x01 \x01(\v2\x13.matreshka_api.NodeR\x04root\x12\x1a\n" +
-	"\bversions\x18\x02 \x03(\tR\bversions\"\x96\x01\n" +
+	"\bversions\x18\x02 \x03(\tR\bversions\"\x82\x01\n" +
 	"\fCreateConfig\x1af\n" +
 	"\aRequest\x12\x1f\n" +
 	"\vconfig_name\x18\x01 \x01(\tR\n" +
 	"configName\x12:\n" +
 	"\vconfig_type\x18\x02 \x01(\x0e2\x19.matreshka_api.ConfigTypeR\n" +
-	"configType\x1a\x1e\n" +
-	"\bResponse\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"|\n" +
+	"configType\x1a\n" +
+	"\n" +
+	"\bResponse\"|\n" +
 	"\fRenameConfig\x1aE\n" +
 	"\aRequest\x12\x1f\n" +
 	"\vconfig_name\x18\x01 \x01(\tR\n" +

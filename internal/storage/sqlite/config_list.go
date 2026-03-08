@@ -72,7 +72,7 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 	}
 	defer rows.Close()
 
-	out.List = make([]domain.ConfigBase, 0, req.Paging.Limit)
+	out.Configs = make([]domain.ConfigBase, 0, req.Paging.Limit)
 
 	for rows.Next() {
 		var item domain.ConfigBase
@@ -103,7 +103,7 @@ func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsReques
 			}
 		}
 
-		out.List = append(out.List, item)
+		out.Configs = append(out.Configs, item)
 	}
 
 	return out, nil

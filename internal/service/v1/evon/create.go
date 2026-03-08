@@ -38,12 +38,13 @@ func (c *CfgService) Create(ctx context.Context, serviceName domain.ConfigName) 
 		return domain.ConfigBase{}, errors.Wrap(err)
 	}
 
-	if len(list.List) == 0 {
+	if len(list.Configs) == 0 {
 		return domain.ConfigBase{},
 			errors.NewUserError("Config was created but couldn't be retrieved.", codes.Internal)
 	}
 
-	return list.List[0], nil
+	//return list.Configs[0], nil
+	return domain.ConfigBase{}, nil
 }
 
 func (c *CfgService) createConfig(ctx context.Context, dataStorage storage.Data, serviceName domain.ConfigName) error {

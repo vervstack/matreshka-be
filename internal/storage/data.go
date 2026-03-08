@@ -13,6 +13,8 @@ import (
 
 type ConfigStorage interface {
 	config_queries.Querier
+
+	ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 }
 
 type Data interface {
