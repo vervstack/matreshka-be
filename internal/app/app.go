@@ -22,7 +22,7 @@ type App struct {
 	/* Data source connection */
 	Sqlite *sql.DB
 	/* Servers network listeners */
-	MASTERListener net.Listener
+	MASTER net.Listener
 
 	Custom Custom
 }
