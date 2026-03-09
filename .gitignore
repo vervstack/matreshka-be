@@ -18,10 +18,11 @@ config/dev.yaml
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea
-proto_deps
 /data
 
 # Web interface ignores
 dist
 node_modules
+proto_modules
+proto_deps
 *.local

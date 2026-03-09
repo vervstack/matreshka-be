@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+
+    "proto:download": "EASYPPATH=proto_modules easyp m download",
   },
   "dependencies": {
     "@vervstack/matreshka": "workspace:*",
