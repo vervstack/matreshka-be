@@ -56,7 +56,6 @@ message ConfigBase {
   string name = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
-  repeated string versions = 5;
 }
 
 message Patch {

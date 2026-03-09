@@ -12,11 +12,9 @@ import (
 	"testing"
 
 	"github.com/pressly/goose/v3"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	"go.redsock.ru/toolbox/closer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -88,66 +86,6 @@ func InitAppEnvironment(t *testing.T) AppEnv {
 	}
 }
 
-func initApp() (err error) {
-	testEnv.app, err = app.New()
-	if err != nil {
-		return errors.Wrap(err, "error initializing config")
-	}
-
-	_, err = testEnv.app.Sqlite.Exec(`
-		DELETE 
-		FROM configs 	   
-	    WHERE true;
-		
-		DELETE 
-		FROM configs_values
-		WHERE true;`)
-	if err != nil {
-		return errors.Wrap(err, "error db clean up")
-	}
-
-	const bufSize = 1024 * 1024
-	lis := bufconn.Listen(bufSize)
-
-	serv := grpc.NewServer()
-	matreshka_api.RegisterMatreshkaApiServer(serv, testEnv.app.Custom.GrpcImpl)
-	go func() {
-		if err := serv.Serve(lis); err != nil {
-			logrus.Fatalf("error serving grpc server for tests %s", err)
-		}
-	}()
-
-	bufDialer := func(context.Context, string) (net.Conn, error) {
-		return lis.Dial()
-	}
-
-	conn, err := grpc.NewClient("[::]:"+testEnv.app.Cfg.Servers.MASTER.Port,
-		grpc.WithContextDialer(bufDialer),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		logrus.Fatalf("error connecting to test grpc server: %s ", err)
-	}
-
-	testEnv.matreshkaApi = matreshka_api.NewMatreshkaApiClient(conn)
-
-	ping, err := testEnv.matreshkaApi.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
-	if err != nil {
-		logrus.Fatalf("error pingin test server: %s", err)
-	}
-
-	if ping == nil {
-		logrus.Fatalf("error pingin test server")
-	}
-
-	testEnv.HttpServer = httptest.NewServer(testEnv.app.Custom.WebApiImpl)
-	closer.Add(func() error {
-		testEnv.HttpServer.Close()
-		return nil
-	})
-	return nil
-}
-
 func (e *AppEnv) purge(t *testing.T) {
 	_, err := testEnv.app.Sqlite.Exec(`
 		DELETE 
@@ -174,6 +112,18 @@ func (e *AppEnv) createWithName(t *testing.T, configName string) {
 	ctx := context.Background()
 
 	postResp, err := testEnv.matreshkaApi.CreateConfig(ctx, createReq)
+	require.NoError(t, err)
+	require.NotNil(t, postResp)
+}
+
+func (e *AppEnv) createEmptyService(t *testing.T, name string, configType matreshka_api.ConfigType) {
+	createReq := &matreshka_api.CreateConfig_Request{
+		ConfigName: name,
+		ConfigType: configType,
+	}
+	ctx := t.Context()
+
+	postResp, err := e.matreshkaApi.CreateConfig(ctx, createReq)
 	require.NoError(t, err)
 	require.NotNil(t, postResp)
 }
@@ -258,7 +208,7 @@ func initInMemoryListener() *bufconn.Listener {
 
 func initInMemorySqldb(t *testing.T) *sql.DB {
 	const dialect = "sqlite"
-	//"./"+getConfigNameFromTest(t)+".db"
+	//db, err := sql.Open("sqlite", "./"+getConfigNameFromTest(t)+".db")
 	db, err := sql.Open("sqlite", ":memory:")
 	require.NoError(t, err)
 	t.Cleanup(func() {

@@ -351,12 +351,6 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "versions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       }
     },

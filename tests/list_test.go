@@ -3,103 +3,142 @@ package tests
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"go.redsock.ru/toolbox"
-	"google.golang.org/protobuf/proto"
 
-	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+)
+
+const (
+	listService1 = "service_a"
+	listService2 = "service_c"
+	listService3 = "service_b"
 )
 
 type ListSuite struct {
 	suite.Suite
 
-	ctx         context.Context
-	serviceName string
-	start       time.Time
-
-	req      *matreshka_api.ListConfigs_Request
-	expected *matreshka_api.ListConfigs_Response
+	ctx context.Context
+	app AppEnv
 }
 
 func (s *ListSuite) SetupTest() {
 	s.ctx = context.Background()
+	s.app = InitAppEnvironment(s.T())
 
-	s.start = time.Now().Add(-time.Minute).UTC()
-	s.serviceName = matreshka_api.ConfigType_kv.String() + "_" + getConfigNameFromTest(s.T())
+	s.app.createEmptyService(s.T(), listService1, matreshka_api.ConfigType_verv)
+	s.app.createEmptyService(s.T(), listService2, matreshka_api.ConfigType_verv)
+	s.app.createEmptyService(s.T(), listService3, matreshka_api.ConfigType_verv)
 }
 
-func (s *ListSuite) Test_ListOneServiceWithOneVersion() {
-	testEnv.createWithName(s.T(), s.serviceName)
+func (s *ListSuite) Test_List() {
+	type testCase struct {
+		pattern string
+		paging  *matreshka_api.Paging
+		sorting *matreshka_api.Sort
 
-	s.req = &matreshka_api.ListConfigs_Request{
-		SearchPattern: &s.serviceName,
+		namesOrder []string
+		total      uint64
 	}
 
-	s.expected = &matreshka_api.ListConfigs_Response{
-		Configs: []*matreshka_api.ConfigBase{{
-			Name:     s.serviceName,
-			Versions: []string{domain.MasterVersion},
-		}},
-		TotalRecords: 1,
-	}
-}
-
-func (s *ListSuite) Test_ListOneServiceWithTwoVersion() {
-	testEnv.createWithName(s.T(), s.serviceName)
-
-	patchReq := &matreshka_api.PatchConfig_Request{
-		ConfigName: s.serviceName,
-		Patches: []*matreshka_api.Patch{
-			{
-				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE",
-				Patch: &matreshka_api.Patch_UpdateValue{
-					UpdateValue: "true",
-				},
-			},
-			{
-				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE_TYPE",
-				Patch: &matreshka_api.Patch_UpdateValue{
-					UpdateValue: "bool",
-				},
-			},
+	testCases := map[string]testCase{
+		"default": {
+			namesOrder: []string{listService1, listService2, listService3},
+			total:      3,
 		},
-		Version: toolbox.ToPtr("VERV-137"),
+
+		"order_by_name": {
+			sorting: &matreshka_api.Sort{
+				Type: matreshka_api.Sort_by_name,
+			},
+			namesOrder: []string{listService1, listService3, listService2},
+			total:      3,
+		},
+		"order_by_name_desc": {
+			sorting: &matreshka_api.Sort{
+				Type: matreshka_api.Sort_by_name,
+				Desc: true,
+			},
+			namesOrder: []string{listService2, listService3, listService1},
+			total:      3,
+		},
+
+		"order_by_updated_at": {
+			sorting: &matreshka_api.Sort{
+				Type: matreshka_api.Sort_by_updated_at,
+			},
+			namesOrder: []string{listService1, listService2, listService3},
+			total:      3,
+		},
+		"order_by_updated_at_desc": {
+			sorting: &matreshka_api.Sort{
+				Type: matreshka_api.Sort_by_updated_at,
+			},
+			namesOrder: []string{listService1, listService2, listService3},
+			total:      3,
+		},
+
+		"filter_by_name_one_to_one": {
+			pattern:    listService2,
+			namesOrder: []string{listService2},
+			total:      1,
+		},
+
+		"filter_by_name_part": {
+			pattern:    listService2[len(listService2)-2:],
+			namesOrder: []string{listService2},
+			total:      1,
+		},
+
+		"paging_limit": {
+			paging: &matreshka_api.Paging{
+				Limit:  1,
+				Offset: 0,
+			},
+			namesOrder: []string{listService1},
+			total:      3,
+		},
+		"paging_limit_offset": {
+			paging: &matreshka_api.Paging{
+				Limit:  1,
+				Offset: 1,
+			},
+			namesOrder: []string{listService2},
+			total:      3,
+		},
 	}
 
-	_, err := testEnv.matreshkaApi.PatchConfig(s.ctx, patchReq)
-	require.NoError(s.T(), err)
+	for name, tc := range testCases {
+		s.T().Run(name, func(t *testing.T) {
+			req := &matreshka_api.ListConfigs_Request{
+				Paging:        tc.paging,
+				Sort:          tc.sorting,
+				SearchPattern: &tc.pattern,
+			}
 
-	s.req = &matreshka_api.ListConfigs_Request{
-		SearchPattern: &s.serviceName,
+			resp, err := s.app.matreshkaApi.ListConfigs(s.ctx, req)
+			require.NoError(t, err)
+
+			s.verifyOrder(t, resp, tc.namesOrder)
+
+			require.Equal(t, tc.total, resp.TotalRecords)
+		})
+
 	}
 
-	s.expected = &matreshka_api.ListConfigs_Response{
-		Configs: []*matreshka_api.ConfigBase{{
-			Name:     s.serviceName,
-			Versions: []string{domain.MasterVersion, "VERV-137"},
-		}},
-		TotalRecords: 1,
-	}
 }
 
-func (s *ListSuite) TearDownTest() {
-	resp, err := testEnv.matreshkaApi.ListConfigs(s.ctx, s.req)
-	require.NoError(s.T(), err)
+func (s *ListSuite) verifyOrder(t *testing.T, resp *matreshka_api.ListConfigs_Response, namesOrder []string) {
+	actualNames := make([]string, 0, len(namesOrder))
 
-	tm := resp.Configs[0].UpdatedAt.AsTime()
-	require.WithinRange(s.T(), tm, s.start, time.Now().UTC())
-	resp.Configs[0].UpdatedAt = nil
-
-	if !proto.Equal(s.expected, resp) {
-		require.Equal(s.T(), s.expected, resp)
+	for idx := range resp.Configs {
+		actualNames = append(actualNames, resp.Configs[idx].Name)
 	}
+
+	require.Equal(t, namesOrder, actualNames)
 }
+
 func Test_List(t *testing.T) {
-	t.Skip("REWORK IN PROGRESS")
-
 	suite.Run(t, new(ListSuite))
 }

@@ -354,7 +354,6 @@ type ConfigBase struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Versions      []string               `protobuf:"bytes,5,rep,name=versions,proto3" json:"versions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -413,13 +412,6 @@ func (x *ConfigBase) GetCreatedAt() *timestamppb.Timestamp {
 func (x *ConfigBase) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
-	}
-	return nil
-}
-
-func (x *ConfigBase) GetVersions() []string {
-	if x != nil {
-		return x.Versions
 	}
 	return nil
 }
@@ -550,7 +542,7 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01\x124\n" +
 	"\vinner_nodes\x18\x03 \x03(\v2\x13.matreshka_api.NodeR\n" +
 	"innerNodesB\b\n" +
-	"\x06_value\"\xc2\x01\n" +
+	"\x06_value\"\xa6\x01\n" +
 	"\n" +
 	"ConfigBase\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
@@ -558,8 +550,7 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1a\n" +
-	"\bversions\x18\x05 \x03(\tR\bversions\"\x88\x01\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x88\x01\n" +
 	"\x05Patch\x12\x1d\n" +
 	"\n" +
 	"field_name\x18\x01 \x01(\tR\tfieldName\x12\x18\n" +

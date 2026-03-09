@@ -17,14 +17,14 @@ type ListConfigsRequest struct {
 }
 
 type ListConfigsResponse struct {
-	Configs      []ConfigInfo
+	Configs      []ConfigBase
 	TotalRecords uint64
 }
 
 type ConfigBase struct {
-	Id   uint32
-	Name string
-	//Type      config_queries.MatreshkaConfigType
+	Id        uint32
+	Name      string
+	Type      api.ConfigType
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

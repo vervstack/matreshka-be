@@ -8,7 +8,7 @@ import (
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
-func toConfigList(configs []domain.ConfigInfo) []*api.ConfigBase {
+func toConfigList(configs []domain.ConfigBase) []*api.ConfigBase {
 	out := make([]*api.ConfigBase, 0, len(configs))
 	for _, c := range configs {
 		out = append(out, toConfig(c))
@@ -17,12 +17,11 @@ func toConfigList(configs []domain.ConfigInfo) []*api.ConfigBase {
 	return out
 }
 
-func toConfig(cfg domain.ConfigInfo) *api.ConfigBase {
+func toConfig(cfg domain.ConfigBase) *api.ConfigBase {
 	return &api.ConfigBase{
 		Id:        cfg.Id,
 		Name:      cfg.Name,
 		CreatedAt: timestamppb.New(cfg.CreatedAt),
 		UpdatedAt: timestamppb.New(cfg.UpdatedAt),
-		Versions:  cfg.ConfigVersions,
 	}
 }

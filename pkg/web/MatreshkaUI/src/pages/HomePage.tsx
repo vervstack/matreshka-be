@@ -34,9 +34,11 @@ export default function HomePage() {
 
                     {
                         list?.configs &&
-                        list?.configs?.map(config => {
+                        list?.configs?.map((config, idx) => {
                             return (
-                                <ConfigInfoCard cardTitle={config.name || ''}/>
+                                <ConfigInfoCard
+                                    key={idx}
+                                    cardTitle={config.name || ''}/>
                             )
                         })
                     }

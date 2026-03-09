@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {ConfigTypePrefix, CreateConfigRequest} from "@vervstack/matreshka";
+import {useEffect, useState} from "react";
+import {ConfigType, CreateConfigRequest} from "@vervstack/matreshka";
 
 import cls from "@/widget/ConfigCreateWidget.module.css";
 import ConfigFile from "@/assets/icons/ConfigFile.svg";
@@ -15,7 +15,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
 export default function ConfigCreateWidget() {
     const [name, setName] = useState('');
-    const [type, setType] = useState<ConfigTypePrefix>(ConfigTypePrefix.verv);
+    const [type, setType] = useState<ConfigType>(ConfigType.verv);
 
     const [func, setFunc] = useState<Promise<void> | undefined>();
 
@@ -25,12 +25,17 @@ export default function ConfigCreateWidget() {
     const {CloseDialog} = useDialog();
 
     function create() {
+        if (isCreating) return
+
         const req = {
             configName: name,
             configType: type,
         } as CreateConfigRequest;
+
         setIsCreating(true)
-        setFunc(CreateConfig(req)
+
+        setFunc(
+            CreateConfig(req)
             .finally(() => setIsCreating(false))
             .then(CloseDialog))
     }
@@ -39,6 +44,24 @@ export default function ConfigCreateWidget() {
         setName("")
         setFunc(undefined)
     }
+
+    function handleNameChange(s: string) {
+        s = s.replace(" ", "_")
+        setName(s)
+    }
+
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                create();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, []);
 
     return (
         <div className={cls.ConfigCreateWidgetContainer}>
@@ -51,17 +74,17 @@ export default function ConfigCreateWidget() {
                     <Input
                         label={'Name'}
                         inputValue={name}
-                        onChange={setName}
+                        onChange={handleNameChange}
                     />
 
                     <SelectDropDown
                         label={'Type'}
                         options={[
-                            ConfigTypePrefix.plain, ConfigTypePrefix.verv, ConfigTypePrefix.minio,
-                            ConfigTypePrefix.pg, ConfigTypePrefix.nginx, ConfigTypePrefix.kv,
+                            ConfigType.plain, ConfigType.verv, ConfigType.minio,
+                            ConfigType.pg, ConfigType.nginx, ConfigType.kv,
                         ]}
                         selectedOption={type}
-                        onSelected={(s: string) => setType(s as ConfigTypePrefix)}
+                        onSelected={(s: string) => setType(s as ConfigType)}
                     />
 
                     <div className={cls.ButtonsWrapper}>

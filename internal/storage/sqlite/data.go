@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	log "github.com/rs/zerolog/log"
 	"modernc.org/sqlite"
 	_ "modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
@@ -12,6 +13,11 @@ import (
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
 	"go.vervstack.ru/matreshka/internal/storage"
 	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
+)
+
+const (
+	ascSort  = "ASC"
+	descSort = "DESC"
 )
 
 type Provider struct {
@@ -45,4 +51,14 @@ func wrapError(err error) error {
 	}
 
 	return err
+}
+
+func closeRows(rows *sql.Rows) {
+	err := rows.Close()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Stack().
+			Msg("closing rows failed")
+	}
 }

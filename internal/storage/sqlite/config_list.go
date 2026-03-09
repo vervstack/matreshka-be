@@ -2,14 +2,13 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"fmt"
-	"sort"
+	"strings"
 
+	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
-	"go.redsock.ru/toolbox"
 
+	"go.vervstack.ru/matreshka/internal/clients/sqldb"
 	"go.vervstack.ru/matreshka/internal/domain"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
@@ -17,92 +16,50 @@ import (
 const defaultPageSize = 20
 
 func (p *Provider) ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (out domain.ListConfigsResponse, err error) {
-	pattern := sql.NullString{
-		String: req.SearchPattern,
-		Valid:  true,
+	q := sq.Select().
+		From("configs")
+
+	if req.SearchPattern != "" {
+		req.SearchPattern = strings.ReplaceAll(req.SearchPattern, "_", "\\_")
+
+		q = q.Where(sq.Expr("name LIKE ? ESCAPE '\\'", "%"+req.SearchPattern+"%"))
 	}
 
-	totalRecords, err := p.querier.ListConfigsCount(ctx, pattern)
+	totalRecords, err := p.countItems(ctx, q)
 	if err != nil {
 		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error scanning total amount of configs")
 	}
+
 	out.TotalRecords = uint64(totalRecords)
 
-	q := `
-		WITH cfg AS (
-			SELECT
-				configs.id 			AS id,
-				configs.updated_at 	AS updated_at,
-				configs.name 		AS name
-			FROM configs
-			WHERE name LIKE '%'||$1||'%'
-			GROUP BY configs.name
-		),
-		versions AS (
-			SELECT
-				cv.config_id as config_id,
-				cv.version version
-			FROM configs_values cv
-			INNER JOIN cfg c on c.id = cv.config_id
-			GROUP BY config_id, version
-			UNION ALL
-			SELECT
-			    c.id,
-			    'master'
-			FROM cfg c
-		)
-		SELECT
-			cfg.name 						    AS config_name,
-			cfg.updated_at 					    AS last_updated_at,
-			json_group_array(versions.version) AS config_versions
-		FROM cfg
-		LEFT JOIN versions ON versions.config_id = cfg.id
+	q = q.Columns(
+		"id",
+		"name",
+		"type_name",
+		"created_at",
+		"updated_at",
+	)
+	q = applySorting(q, req.Sort)
+	q = applyPaging(q, req.Paging)
 
-		GROUP BY cfg.id
-		HAVING COUNT(cfg.id) > 0  -- Ensures only non-empty results are returned
-		`
-	args := []any{req.SearchPattern}
+	query, args, err := q.ToSql()
+	if err != nil {
+		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error building query")
+	}
 
-	q += "\nORDER BY " + extractSort(req.Sort)
-	q += fmt.Sprintf("\nLIMIT %d OFFSET %d",
-		toolbox.Coalesce(req.Paging.Limit, defaultPageSize),
-		req.Paging.Offset)
-
-	rows, err := p.conn.QueryContext(ctx, q, args...)
+	rows, err := p.conn.QueryContext(ctx, query, args...)
 	if err != nil {
 		return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error listing configs")
 	}
-	defer rows.Close()
+	defer closeRows(rows)
 
-	out.Configs = make([]domain.ConfigInfo, 0, req.Paging.Limit)
+	out.Configs = make([]domain.ConfigBase, 0, req.Paging.Limit)
 
 	for rows.Next() {
-		var item domain.ConfigInfo
-		var versionsJSON string
-		err = rows.Scan(
-			&item.Name,
-			&item.UpdatedAt,
-			&versionsJSON,
-		)
+		var item domain.ConfigBase
+		item, err = scanConfigBase(rows)
 		if err != nil {
-			return out, rerrors.Wrap(err, "error scanning row")
-		}
-
-		err = json.Unmarshal([]byte(versionsJSON), &item.ConfigVersions)
-		if err != nil {
-			return out, rerrors.Wrap(err, "error marshalling from json ")
-		}
-		sort.Slice(item.ConfigVersions, func(i, j int) bool {
-			return item.ConfigVersions[i] < item.ConfigVersions[j]
-		})
-
-		for i := range item.ConfigVersions {
-			if item.ConfigVersions[i] == domain.MasterVersion {
-				item.ConfigVersions[0], item.ConfigVersions[i] =
-					item.ConfigVersions[i], item.ConfigVersions[0]
-
-				break
-			}
+			return domain.ListConfigsResponse{}, rerrors.Wrap(err, "error scanning config")
 		}
 
 		out.Configs = append(out.Configs, item)
@@ -136,18 +93,66 @@ func (p *Provider) GetVersions(ctx context.Context, name string) ([]string, erro
 	return versions, nil
 }
 
-func extractSort(sort domain.Sort) (field string) {
-	switch sort.SortType {
-	case api.Sort_default:
-		field = "id"
-	case api.Sort_by_name:
-		field = "name"
-	default:
-		field = "updated_at"
-	}
-	if sort.Desc {
-		field += " DESC"
+func (p *Provider) countItems(ctx context.Context, q sq.SelectBuilder) (int64, error) {
+	var total int64
+	query, args, err := q.Column("count(*)").ToSql()
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error building query for countItems")
 	}
 
-	return
+	err = p.conn.QueryRowContext(ctx, query, args...).Scan(&total)
+	if err != nil {
+		return 0, wrapError(err)
+	}
+
+	return total, nil
+}
+
+func scanConfigBase(rows sqldb.RowScanner) (domain.ConfigBase, error) {
+	var item domain.ConfigBase
+
+	var typeName string
+	err := rows.Scan(
+		&item.Id,
+		&item.Name,
+		&typeName,
+		&item.CreatedAt,
+		&item.UpdatedAt,
+	)
+	if err != nil {
+		return item, rerrors.Wrap(err, "error scanning row")
+	}
+
+	item.Type = api.ConfigType(api.ConfigType_value[typeName])
+
+	return item, nil
+}
+
+func applySorting(q sq.SelectBuilder, sort domain.Sort) sq.SelectBuilder {
+	direction := ascSort
+	if sort.Desc {
+		direction = descSort
+	}
+
+	switch sort.SortType {
+	case api.Sort_by_name:
+		return q.OrderBy("name " + direction)
+	case api.Sort_by_updated_at:
+		return q.OrderBy("updated_at " + direction)
+	default:
+		return q.OrderBy("id " + direction)
+	}
+}
+
+func applyPaging(q sq.SelectBuilder, paging domain.Paging) sq.SelectBuilder {
+	if paging.Limit == 0 {
+		paging.Limit = defaultPageSize
+	} else {
+		paging.Limit = min(paging.Limit, defaultPageSize)
+	}
+
+	q = q.Limit(paging.Limit).
+		Offset(paging.Offset)
+
+	return q
 }

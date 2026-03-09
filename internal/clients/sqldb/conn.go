@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"github.com/pressly/goose/v3"
@@ -66,4 +67,8 @@ func (s sqlLogger) Fatalf(format string, v ...interface{}) {
 
 func (s sqlLogger) Printf(format string, v ...interface{}) {
 	log.Printf(format, v...)
+}
+
+type RowScanner interface {
+	Scan(dest ...any) error
 }
