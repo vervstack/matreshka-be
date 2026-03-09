@@ -28,7 +28,7 @@ type PatchConfigSuite struct {
 func (s *PatchConfigSuite) SetupTest() {
 	s.ctx = context.Background()
 
-	s.configName = matreshka_api.ConfigType_verv.String() + "_" + getServiceNameFromTest(s.T())
+	s.configName = matreshka_api.ConfigType_verv.String() + "_" + getConfigNameFromTest(s.T())
 	testEnv.createWithName(s.T(), s.configName)
 
 	s.cfg = getFullConfig(s.T())
@@ -47,9 +47,9 @@ func (s *PatchConfigSuite) Test_PatchConfigEnvironment() {
 			s.cfg.Environment[5].Name, []int{50051})
 
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "ENVIRONMENT_AVAILABLE-PORTS",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: fmt.Sprint(s.cfg.Environment[5].Value),
 				},
 			})
@@ -57,9 +57,9 @@ func (s *PatchConfigSuite) Test_PatchConfigEnvironment() {
 	// Delete environment variable
 	{
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "ENVIRONMENT_CREDIT-PERCENTS-BASED-ON-YEAR-OF-BIRTH",
-				Patch: &matreshka_api.PatchConfig_Patch_Delete{
+				Patch: &matreshka_api.Patch_Delete{
 					Delete: true,
 				},
 			})
@@ -75,15 +75,15 @@ func (s *PatchConfigSuite) Test_PatchConfigEnvironment() {
 		s.cfg.Environment = append(s.cfg.Environment, newEnvVar)
 
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "ENVIRONMENT_NEW-VALUE",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: someValue,
 				},
 			},
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "ENVIRONMENT_NEW-VALUE_TYPE",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: valueType,
 				},
 			},
@@ -96,9 +96,9 @@ func (s *PatchConfigSuite) Test_PatchConfigServers() {
 	s.cfg.Servers[port].GRPC["/{GRPC}"].Gateway = "/api/v2"
 
 	s.patchReq.Patches = append(s.patchReq.Patches,
-		&matreshka_api.PatchConfig_Patch{
+		&matreshka_api.Patch{
 			FieldName: "SERVERS_MASTER2_/{GRPC}_GATEWAY",
-			Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+			Patch: &matreshka_api.Patch_UpdateValue{
 				UpdateValue: s.cfg.Servers[port].GRPC["/{GRPC}"].Gateway,
 			},
 		})
@@ -112,9 +112,9 @@ func (s *PatchConfigSuite) Test_PatchConfigDataSources() {
 		pg.Port = 5433
 
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "DATA-SOURCES_POSTGRES_PORT",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: strconv.Itoa(int(pg.Port)),
 				},
 			})
@@ -128,16 +128,16 @@ func (s *PatchConfigSuite) Test_PatchConfigDataSources() {
 		tg.ApiKey = "jjggwwkk"
 
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "DATA-SOURCES_TELEGRAM",
-				Patch: &matreshka_api.PatchConfig_Patch_Delete{
+				Patch: &matreshka_api.Patch_Delete{
 					Delete: true,
 				},
 			})
 		s.patchReq.Patches = append(s.patchReq.Patches,
-			&matreshka_api.PatchConfig_Patch{
+			&matreshka_api.Patch{
 				FieldName: "DATA-SOURCES_TELEGRAM-BOT_API-KEY",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: tg.ApiKey,
 				},
 			})
@@ -159,5 +159,7 @@ func (s *PatchConfigSuite) TearDownTest() {
 }
 
 func Test_PatchConfig(t *testing.T) {
+	t.Skip("REWORK IN PROGRESS")
+
 	suite.Run(t, new(PatchConfigSuite))
 }

@@ -10,6 +10,7 @@ import (
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/service/user_errors"
 	"go.vervstack.ru/matreshka/internal/storage"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
@@ -18,7 +19,7 @@ func (c *CfgService) Patch(ctx context.Context, req domain.PatchConfigRequest) e
 	err := c.txManager.Execute(func(tx *sql.Tx) error {
 		dataStorage := c.configStorage.WithTx(tx)
 
-		originalConfig, err := c.getOrCreateConfig(ctx, dataStorage, req)
+		originalConfig, err := c.getEvonConfigNodes(ctx, dataStorage, req)
 		if err != nil {
 			return rerrors.Wrap(err, "error getting config")
 		}
@@ -44,7 +45,7 @@ func (c *CfgService) Patch(ctx context.Context, req domain.PatchConfigRequest) e
 	return nil
 }
 
-func (c *CfgService) getOrCreateConfig(ctx context.Context, dataStorage storage.Data, req domain.PatchConfigRequest) (*evon.Node, error) {
+func (c *CfgService) getEvonConfigNodes(ctx context.Context, dataStorage storage.Data, req domain.PatchConfigRequest) (*evon.Node, error) {
 	ver := toolbox.Coalesce(req.ConfigVersion, domain.MasterVersion)
 
 	cfgNodes, err := dataStorage.GetConfigNodes(ctx, req.ConfigName, ver)
@@ -52,16 +53,11 @@ func (c *CfgService) getOrCreateConfig(ctx context.Context, dataStorage storage.
 		return nil, rerrors.Wrap(err, "error getting nodes")
 	}
 
-	if cfgNodes != nil {
-		return cfgNodes, nil
+	if cfgNodes == nil {
+		return nil, rerrors.Wrap(user_errors.ErrNotFound)
 	}
 
-	err = c.createEvonConfigTx(ctx, dataStorage, req.ConfigName, req.ConfigType)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error creating config to patch to")
-	}
-
-	return &evon.Node{}, nil
+	return cfgNodes, nil
 }
 
 func (c *CfgService) validatePatch(originalConfig *evon.Node, patch *domain.PatchConfigRequest) error {

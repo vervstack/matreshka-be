@@ -65,7 +65,12 @@ func (c *Custom) Init(a *App) (err error) {
 	return nil
 }
 
-func (c *Custom) Start(ctx context.Context) error {
+func (c *Custom) Start(_ context.Context) error {
+	err := c.ServerMaster.Start()
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	return nil
 }
 

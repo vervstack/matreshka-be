@@ -3,22 +3,19 @@ package sqlite
 import (
 	"context"
 
-	errors "go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 )
 
-func (p *Provider) Create(ctx context.Context, serviceName string) (int64, error) {
-	cfgId, err := p.querier.CreateConfig(ctx, serviceName)
-	if err != nil {
-		return 0, errors.Wrap(err, "error upserting config")
+func (p *Provider) Create(ctx context.Context, r domain.CreateConfigRequest) (int64, error) {
+	params := config_queries.CreateConfigParams{
+		Name:     r.Name,
+		TypeName: r.Type.String(),
 	}
-	if cfgId != 0 {
-		return cfgId, nil
+	cfgId, err := p.querier.CreateConfig(ctx, params)
+	if err != nil {
+		return 0, wrapError(err)
 	}
 
-	cfg, err := p.querier.GetConfig(ctx, serviceName)
-	if err != nil {
-		return 0, errors.Wrap(err, "error getting config")
-	}
-
-	return cfg.ID, nil
+	return cfgId, nil
 }

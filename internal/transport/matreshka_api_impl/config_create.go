@@ -10,7 +10,6 @@ import (
 )
 
 func (s *Impl) CreateConfig(ctx context.Context, req *api.CreateConfig_Request) (*api.CreateConfig_Response, error) {
-
 	domainReq := domain.CreateConfigRequest{
 		Name: req.GetConfigName(),
 		Type: req.GetConfigType(),

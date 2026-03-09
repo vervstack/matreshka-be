@@ -42,12 +42,12 @@ var fullConfigBytes []byte
 var testEnv AppEnv
 
 func TestMain(m *testing.M) {
-	defer closer.Close()
+	//defer closer.Close()
 
-	err := initApp()
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	//err := initApp()
+	//if err != nil {
+	//	logrus.Fatal(err)
+	//}
 
 	var code int
 	code = m.Run()
@@ -228,12 +228,12 @@ func getFullConfig(t *testing.T) matreshka.AppConfig {
 		t.Fatal(errors.Wrap(err, "error during unmarshalling full config"))
 	}
 
-	fullConfig.Name = getServiceNameFromTest(t)
+	fullConfig.Name = getConfigNameFromTest(t)
 
 	return fullConfig
 }
 
-func getServiceNameFromTest(t *testing.T) string {
+func getConfigNameFromTest(t *testing.T) string {
 	return strings.ReplaceAll(t.Name(), "/", "_")
 }
 
@@ -258,6 +258,7 @@ func initInMemoryListener() *bufconn.Listener {
 
 func initInMemorySqldb(t *testing.T) *sql.DB {
 	const dialect = "sqlite"
+	//"./"+getConfigNameFromTest(t)+".db"
 	db, err := sql.Open("sqlite", ":memory:")
 	require.NoError(t, err)
 	t.Cleanup(func() {
@@ -265,10 +266,12 @@ func initInMemorySqldb(t *testing.T) *sql.DB {
 		require.NoError(t, err)
 	})
 
+	goose.SetLogger(testlogger{t})
+
 	err = goose.SetDialect(dialect)
 	require.NoError(t, err)
 
-	err = goose.Up(db, "./migrations")
+	err = goose.Up(db, "./../migrations")
 	require.NoError(t, err)
 
 	return db
@@ -293,10 +296,23 @@ func initClient(t *testing.T, lis *bufconn.Listener, grpcImpl matreshka_api.Matr
 	require.NoError(t, err)
 
 	matreshkaClient := matreshka_api.NewMatreshkaApiClient(conn)
+	ctx := t.Context()
 
-	ping, err := matreshkaClient.Version(testEnv.app.Ctx, &matreshka_api.Version_Request{})
+	ping, err := matreshkaClient.Version(ctx, &matreshka_api.Version_Request{})
 	require.NoError(t, err)
 	require.NotNil(t, ping)
 
 	return matreshkaClient
+}
+
+type testlogger struct {
+	t *testing.T
+}
+
+func (t testlogger) Printf(format string, v ...interface{}) {
+
+}
+
+func (t testlogger) Fatalf(format string, v ...interface{}) {
+	t.t.Fatalf(format, v...)
 }

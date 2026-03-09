@@ -20,10 +20,11 @@ type ConfigStorage interface {
 type Data interface {
 	// GetConfigNodes returns root node of parsed config
 	GetConfigNodes(ctx context.Context, name string, ver string) (*evon.Node, error)
+
 	GetVersions(ctx context.Context, name string) ([]string, error)
 	ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 
-	Create(ctx context.Context, serviceConfig string) (int64, error)
+	Create(ctx context.Context, request domain.CreateConfigRequest) (int64, error)
 
 	UpsertValues(ctx context.Context, req domain.PatchConfigRequest) error
 	DeleteValues(ctx context.Context, req domain.PatchConfigRequest) error

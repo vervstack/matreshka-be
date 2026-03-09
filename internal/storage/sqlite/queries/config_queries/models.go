@@ -18,6 +18,7 @@ type BinaryConfig struct {
 type Config struct {
 	ID        int64
 	Name      string
+	TypeName  string
 	UpdatedAt time.Time
 }
 

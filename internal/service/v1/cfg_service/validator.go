@@ -1,6 +1,7 @@
 package cfg_service
 
 import (
+	"sort"
 	"strings"
 
 	"go.redsock.ru/evon"
@@ -52,29 +53,7 @@ func (v Validator) IsConfigNameValid(name string) error {
 		}
 	}
 
-	if len(invalidChars) > 0 {
-		sb := strings.Builder{}
-		sb.WriteString("Name contains invalid character")
-		if len(invalidChars) > 1 {
-			sb.WriteString("s")
-		}
-
-		sb.WriteString(": ")
-
-		idx := 0
-		for r := range invalidChars {
-			sb.WriteRune(r)
-			if idx < len(invalidChars)-1 {
-				sb.WriteRune(',')
-			}
-
-			idx++
-		}
-
-		return errors.Wrap(user_errors.ErrValidation, sb.String())
-	}
-
-	return nil
+	return wrapInvalidCharsError(invalidChars)
 }
 
 func (v Validator) IsEnvNameValid(envName string) error {
@@ -91,29 +70,7 @@ func (v Validator) IsEnvNameValid(envName string) error {
 		}
 	}
 
-	if len(invalidChars) > 0 {
-		sb := strings.Builder{}
-		sb.WriteString("Variable name contains invalid character")
-		if len(invalidChars) > 1 {
-			sb.WriteString("s")
-		}
-
-		sb.WriteString(": ")
-
-		idx := 0
-		for r := range invalidChars {
-			sb.WriteRune(r)
-			if idx < len(invalidChars)-1 {
-				sb.WriteRune(',')
-			}
-
-			idx++
-		}
-
-		return errors.Wrap(user_errors.ErrValidation, sb.String())
-	}
-
-	return nil
+	return wrapInvalidCharsError(invalidChars)
 }
 
 const (
@@ -278,4 +235,36 @@ func replaceAtStart(str, old, new string) string {
 func (v Validator) normalizeAndValidateEnvName(envName string) (string, error) {
 	envName = strings.ToUpper(envName)
 	return envName, v.IsEnvNameValid(envName)
+}
+
+func wrapInvalidCharsError(invalidChars map[rune]struct{}) error {
+	if len(invalidChars) > 0 {
+		sb := strings.Builder{}
+		sb.WriteString("Variable name contains invalid character")
+
+		if len(invalidChars) > 1 {
+			sb.WriteString("s")
+		}
+
+		sb.WriteString(": ")
+
+		invalidCharsSlice := make([]rune, 0, len(invalidChars))
+		for char := range invalidChars {
+			invalidCharsSlice = append(invalidCharsSlice, char)
+		}
+
+		sort.Slice(invalidCharsSlice, func(i, j int) bool {
+			return invalidCharsSlice[i] < invalidCharsSlice[j]
+		})
+
+		for idx, char := range invalidCharsSlice {
+			sb.WriteRune(char)
+			if idx < len(invalidChars)-1 {
+				sb.WriteRune(',')
+			}
+		}
+		return errors.Wrap(user_errors.ErrValidation, sb.String())
+	}
+
+	return nil
 }

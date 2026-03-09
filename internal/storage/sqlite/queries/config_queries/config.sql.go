@@ -30,15 +30,18 @@ func (q *Queries) ClearValues(ctx context.Context, arg ClearValuesParams) error 
 
 const createConfig = `-- name: CreateConfig :one
 INSERT INTO configs
-    (name)
-VALUES (?)
-ON CONFLICT
-    DO UPDATE SET name = excluded.name
+    (name, type_name)
+VALUES (?, ?)
 RETURNING id
 `
 
-func (q *Queries) CreateConfig(ctx context.Context, name string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, createConfig, name)
+type CreateConfigParams struct {
+	Name     string
+	TypeName string
+}
+
+func (q *Queries) CreateConfig(ctx context.Context, arg CreateConfigParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, createConfig, arg.Name, arg.TypeName)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
@@ -85,9 +88,15 @@ WHERE name = ?
 LIMIT 1
 `
 
-func (q *Queries) GetConfig(ctx context.Context, name string) (Config, error) {
+type GetConfigRow struct {
+	ID        int64
+	Name      string
+	UpdatedAt time.Time
+}
+
+func (q *Queries) GetConfig(ctx context.Context, name string) (GetConfigRow, error) {
 	row := q.db.QueryRowContext(ctx, getConfig, name)
-	var i Config
+	var i GetConfigRow
 	err := row.Scan(&i.ID, &i.Name, &i.UpdatedAt)
 	return i, err
 }

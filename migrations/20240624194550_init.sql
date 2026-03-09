@@ -5,6 +5,7 @@ CREATE TABLE configs
 (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT UNIQUE NOT NULL,
+    type_name  TEXT        NOT NULL,
     updated_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

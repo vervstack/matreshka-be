@@ -38,7 +38,7 @@ func (s *Server) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	m := map[string]yaml.Node{}
 	err := unmarshal(m)
 	if err != nil {
-		return rerrors.Wrap(err, "error unmarshaling YAML")
+		return rerrors.Wrap(err, "error unmarshalling YAML")
 	}
 
 	for key, value := range m {

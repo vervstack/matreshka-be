@@ -11,11 +11,13 @@ import (
 )
 
 func (p *Provider) GetConfigNodes(ctx context.Context, serviceName string, version string) (*evon.Node, error) {
-	rows, err := p.querier.GetConfigNodes(ctx, config_queries.GetConfigNodesParams{
+	params := config_queries.GetConfigNodesParams{
 		MasterVersion: domain.MasterVersion,
 		Version:       version,
 		Name:          serviceName,
-	})
+	}
+
+	rows, err := p.querier.GetConfigNodes(ctx, params)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting config values")
 	}
@@ -26,10 +28,12 @@ func (p *Provider) GetConfigNodes(ctx context.Context, serviceName string, versi
 
 	ns := evon.NodesToStorage(nil)
 	for _, row := range rows {
-		ns.AddNode(&evon.Node{
+		n := &evon.Node{
 			Name:  row.Key,
 			Value: row.Value,
-		})
+		}
+
+		ns.AddNode(n)
 	}
 	return ns[""], nil
 }

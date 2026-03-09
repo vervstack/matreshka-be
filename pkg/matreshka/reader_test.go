@@ -70,7 +70,7 @@ func Test_ParseConfig(t *testing.T) {
 				os.ModePerm))
 
 		cfg, err := getFromFile(cfgPath)
-		require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `1f!cked` into matreshka.AppConfig\n\nerror decoding config to struct")
+		require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `1f!cked` into matreshka.AppConfig;error decoding config to struct")
 		require.Equal(t, cfg, NewEmptyConfig())
 	})
 }

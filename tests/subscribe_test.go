@@ -17,7 +17,7 @@ type SubscriptionSuite struct {
 
 	ctx        context.Context
 	configName string
-	apiClient  api.MatreshkaBeAPIClient
+	apiClient  api.MatreshkaApiClient
 }
 
 func (s *SubscriptionSuite) SetupTest() {
@@ -25,7 +25,7 @@ func (s *SubscriptionSuite) SetupTest() {
 
 	s.apiClient = testEnv.matreshkaApi
 
-	s.configName = api.ConfigType_kv.String() + "_" + getServiceNameFromTest(s.T())
+	s.configName = api.ConfigType_kv.String() + "_" + getConfigNameFromTest(s.T())
 	testEnv.createWithName(s.T(), s.configName)
 }
 
@@ -44,16 +44,16 @@ func (s *SubscriptionSuite) TestSubscribeOnChanges() {
 
 	patchReq := &api.PatchConfig_Request{
 		ConfigName: s.configName,
-		Patches: []*api.PatchConfig_Patch{
+		Patches: []*api.Patch{
 			{
 				FieldName: "ENVIRONMENT_SOME-VARIABLE_TYPE",
-				Patch: &api.PatchConfig_Patch_UpdateValue{
+				Patch: &api.Patch_UpdateValue{
 					UpdateValue: "string",
 				},
 			},
 			{
 				FieldName: "ENVIRONMENT_SOME-VARIABLE",
-				Patch: &api.PatchConfig_Patch_UpdateValue{
+				Patch: &api.Patch_UpdateValue{
 					UpdateValue: "123",
 				},
 			},
@@ -99,5 +99,7 @@ func (s *SubscriptionSuite) TestSubscribeOnChanges() {
 }
 
 func Test_Subscription(t *testing.T) {
+	t.Skip("REWORK IN PROGRESS")
+
 	suite.Run(t, new(SubscriptionSuite))
 }

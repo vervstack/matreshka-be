@@ -11,10 +11,10 @@ import (
 
 type Querier interface {
 	ClearValues(ctx context.Context, arg ClearValuesParams) error
-	CreateConfig(ctx context.Context, name string) (int64, error)
+	CreateConfig(ctx context.Context, arg CreateConfigParams) (int64, error)
 	DeleteConfig(ctx context.Context, name string) error
 	DeleteValues(ctx context.Context, arg DeleteValuesParams) error
-	GetConfig(ctx context.Context, name string) (Config, error)
+	GetConfig(ctx context.Context, name string) (GetConfigRow, error)
 	GetConfigNodes(ctx context.Context, arg GetConfigNodesParams) ([]GetConfigNodesRow, error)
 	GetIdByName(ctx context.Context, name string) (int64, error)
 	GetVersions(ctx context.Context, name string) (interface{}, error)

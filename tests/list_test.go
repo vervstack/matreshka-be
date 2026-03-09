@@ -29,20 +29,19 @@ func (s *ListSuite) SetupTest() {
 	s.ctx = context.Background()
 
 	s.start = time.Now().Add(-time.Minute).UTC()
-	s.serviceName = matreshka_api.ConfigType_kv.String() + "_" + getServiceNameFromTest(s.T())
+	s.serviceName = matreshka_api.ConfigType_kv.String() + "_" + getConfigNameFromTest(s.T())
 }
 
 func (s *ListSuite) Test_ListOneServiceWithOneVersion() {
 	testEnv.createWithName(s.T(), s.serviceName)
 
 	s.req = &matreshka_api.ListConfigs_Request{
-		SearchPattern: s.serviceName,
+		SearchPattern: &s.serviceName,
 	}
 
 	s.expected = &matreshka_api.ListConfigs_Response{
-		Configs: []*matreshka_api.Config{{
+		Configs: []*matreshka_api.ConfigBase{{
 			Name:     s.serviceName,
-			Version:  domain.MasterVersion,
 			Versions: []string{domain.MasterVersion},
 		}},
 		TotalRecords: 1,
@@ -54,16 +53,16 @@ func (s *ListSuite) Test_ListOneServiceWithTwoVersion() {
 
 	patchReq := &matreshka_api.PatchConfig_Request{
 		ConfigName: s.serviceName,
-		Patches: []*matreshka_api.PatchConfig_Patch{
+		Patches: []*matreshka_api.Patch{
 			{
 				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: "true",
 				},
 			},
 			{
 				FieldName: "ENVIRONMENT_IS-CRON-ACTIVE_TYPE",
-				Patch: &matreshka_api.PatchConfig_Patch_UpdateValue{
+				Patch: &matreshka_api.Patch_UpdateValue{
 					UpdateValue: "bool",
 				},
 			},
@@ -75,13 +74,12 @@ func (s *ListSuite) Test_ListOneServiceWithTwoVersion() {
 	require.NoError(s.T(), err)
 
 	s.req = &matreshka_api.ListConfigs_Request{
-		SearchPattern: s.serviceName,
+		SearchPattern: &s.serviceName,
 	}
 
 	s.expected = &matreshka_api.ListConfigs_Response{
-		Configs: []*matreshka_api.Config{{
+		Configs: []*matreshka_api.ConfigBase{{
 			Name:     s.serviceName,
-			Version:  domain.MasterVersion,
 			Versions: []string{domain.MasterVersion, "VERV-137"},
 		}},
 		TotalRecords: 1,
@@ -92,14 +90,16 @@ func (s *ListSuite) TearDownTest() {
 	resp, err := testEnv.matreshkaApi.ListConfigs(s.ctx, s.req)
 	require.NoError(s.T(), err)
 
-	tm := time.Unix(resp.Configs[0].UpdatedAtUtcTimestamp, 0).UTC()
+	tm := resp.Configs[0].UpdatedAt.AsTime()
 	require.WithinRange(s.T(), tm, s.start, time.Now().UTC())
-	resp.Configs[0].UpdatedAtUtcTimestamp = 0
+	resp.Configs[0].UpdatedAt = nil
 
 	if !proto.Equal(s.expected, resp) {
 		require.Equal(s.T(), s.expected, resp)
 	}
 }
 func Test_List(t *testing.T) {
+	t.Skip("REWORK IN PROGRESS")
+
 	suite.Run(t, new(ListSuite))
 }

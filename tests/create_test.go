@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,10 +27,72 @@ func (s *CreateSuite) SetupSuite() {
 }
 
 func (s *CreateSuite) SetupTest() {
-	s.ctx = context.Background()
+	s.ctx = s.T().Context()
 }
 
-func (s *CreateSuite) Test_InvalidName() {
+func (s *CreateSuite) Test_Ok() {
+	t := s.T()
+
+	expectedResults := map[matreshka_api.ConfigType]*matreshka_api.GetConfig_Response{}
+
+	testCases := []matreshka_api.ConfigType{
+		matreshka_api.ConfigType_verv,
+	}
+
+	for _, configType := range testCases {
+		t.Run(configType.String(), func(t *testing.T) {
+			configName := getConfigNameFromTest(t)
+
+			createReq := &matreshka_api.CreateConfig_Request{
+
+				ConfigName: configName,
+				ConfigType: configType,
+			}
+
+			actualResponse, err := s.api.CreateConfig(s.ctx, createReq)
+			require.NoError(t, err)
+			require.NotNil(t, actualResponse)
+
+			getConfigReq := &matreshka_api.GetConfig_Request{
+				ConfigName: configName,
+			}
+			config, err := s.api.GetConfig(s.ctx, getConfigReq)
+			require.NoError(t, err)
+			require.NotNil(t, actualResponse)
+
+			expectedResponse, ok := expectedResults[createReq.ConfigType]
+			if ok {
+				require.Equal(t, expectedResponse, config)
+			}
+		})
+	}
+}
+
+func (s *CreateSuite) Test_AlreadyExist() {
+	t := s.T()
+
+	configName := getConfigNameFromTest(t)
+
+	createReq := &matreshka_api.CreateConfig_Request{
+
+		ConfigName: configName,
+		ConfigType: matreshka_api.ConfigType_verv,
+	}
+
+	actualResponse, err := s.api.CreateConfig(s.ctx, createReq)
+	require.NoError(t, err)
+	require.NotNil(t, actualResponse)
+
+	actualResponse, err = s.api.CreateConfig(s.ctx, createReq)
+	require.Error(t, err)
+	st, ok := status.FromError(err)
+	require.True(t, ok)
+	require.Equal(t, st.Code(), codes.AlreadyExists)
+
+	require.Nil(t, actualResponse)
+}
+
+func (s *CreateSuite) Test_InvalidCharsInName() {
 	type testCase struct {
 		name         string
 		expectedCode codes.Code
@@ -40,17 +103,17 @@ func (s *CreateSuite) Test_InvalidName() {
 		"short": {
 			name:         "12",
 			expectedCode: codes.InvalidArgument,
-			message:      "Validation error\nService name must be at least 3 symbols long\n\nerror creating config\n\n",
+			message:      "Validation error;Service name must be at least 3 symbols long",
 		},
 		"invalid_char": {
 			name:         "12+a",
 			expectedCode: codes.InvalidArgument,
-			message:      "Validation error\nName contains invalid character: +\n\nerror creating config\n\n",
+			message:      "Validation error;Variable name contains invalid character: +",
 		},
 		"invalid_chars": {
 			name:         "12+a)",
 			expectedCode: codes.InvalidArgument,
-			message:      "Validation error\nName contains invalid characters: +,)\n\nerror creating config\n\n",
+			message:      "Validation error;Variable name contains invalid characters: ),+",
 		},
 	}
 

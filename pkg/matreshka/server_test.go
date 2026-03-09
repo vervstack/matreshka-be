@@ -104,17 +104,17 @@ func Test_Servers(t *testing.T) {
 			t.Run("Port_Is_Not_Int", func(t *testing.T) {
 				cfg := AppConfig{}
 				err := cfg.Unmarshal(apiInvalidPortConfig)
-				require.Equal(t, err.Error(), "strconv.Atoi: parsing \"string\": invalid syntax\nerror converting port to int\n")
+				require.Equal(t, err.Error(), "strconv.Atoi: parsing \"string\": invalid syntax;error converting port to int")
 			})
 			t.Run("Invalid_Struct", func(t *testing.T) {
 				cfg := AppConfig{}
 				err := cfg.Unmarshal(apiInvalidStructConfig)
-				require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 2: cannot unmarshal !!seq into map[string]yaml.Node\nerror unmarshalling to yaml.Nodes\n")
+				require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 2: cannot unmarshal !!seq into map[string]yaml.Node;error unmarshalling to yaml.Nodes")
 			})
 			t.Run("Invalid_Item", func(t *testing.T) {
 				cfg := AppConfig{}
 				err := cfg.Unmarshal(apiInvalidItemConfig)
-				require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 3: cannot unmarshal !!seq into map[string]yaml.Node\nerror unmarshaling YAML\nerror decoding server\n")
+				require.Equal(t, err.Error(), "yaml: unmarshal errors:\n  line 3: cannot unmarshal !!seq into map[string]yaml.Node;error unmarshalling YAML;error decoding server")
 			})
 		})
 	})

@@ -1,9 +1,7 @@
 -- name: CreateConfig :one
 INSERT INTO configs
-    (name)
-VALUES (?)
-ON CONFLICT
-    DO UPDATE SET name = excluded.name
+    (name, type_name)
+VALUES (?, ?)
 RETURNING id;
 -- name: GetConfig :one
 SELECT id,

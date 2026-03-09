@@ -4,56 +4,31 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/matreshka/internal/config_templates"
 	"go.vervstack.ru/matreshka/internal/domain"
-	"go.vervstack.ru/matreshka/internal/service/user_errors"
-	"go.vervstack.ru/matreshka/internal/storage"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *CfgService) Create(ctx context.Context, req domain.CreateConfigRequest) error {
-	err := c.txManager.Execute(
-		func(tx *sql.Tx) (err error) {
-			err = c.createEvonConfigTx(ctx, c.configStorage.WithTx(tx), req.Name, req.Type)
-			if err != nil {
-				return errors.Wrap(err, "error creating config")
-			}
-
-			return nil
-		})
+	err := c.validator.IsConfigNameValid(req.Name)
 	if err != nil {
 		return errors.Wrap(err)
 	}
 
-	return nil
+	switch req.Type {
+	case matreshka_api.ConfigType_verv:
+		return c.createEmptyEvonConfig(ctx, req)
+	default:
+		return errors.New("currently no config types except for verv is supported")
+	}
 }
 
-func (c *CfgService) createEvonConfigTx(ctx context.Context, dataStorage storage.Data, name string, cfgType matreshka_api.ConfigType) error {
-	err := c.validator.IsConfigNameValid(name)
-	if err != nil {
-		return errors.Wrap(err)
-	}
-
-	nodes, err := dataStorage.GetConfigNodes(ctx, name, domain.MasterVersion)
-	if err != nil {
-		return errors.Wrap(err, "error reading config from storage")
-	}
-
-	if nodes != nil {
-		return errors.Wrap(user_errors.ErrAlreadyExists)
-	}
-
-	_, err = dataStorage.Create(ctx, name)
-	if err != nil {
-		return errors.Wrap(err, "error saving config")
-	}
-
-	newCfg, err := initNewConfig(name, cfgType)
+func (c *CfgService) createEmptyEvonConfig(ctx context.Context, req domain.CreateConfigRequest) error {
+	newCfg, err := config_templates.InitNewConfig(req.Name, req.Type)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -63,15 +38,29 @@ func (c *CfgService) createEvonConfigTx(ctx context.Context, dataStorage storage
 		return errors.Wrap(err, "error converting config to patch")
 	}
 
-	patchReq := domain.PatchConfigRequest{
-		ConfigName:    name,
-		Upsert:        newCfgPatch,
-		ConfigVersion: domain.MasterVersion,
-	}
+	err = c.txManager.Execute(func(tx *sql.Tx) error {
+		dataStorage := c.configStorage.WithTx(tx)
 
-	err = dataStorage.UpsertValues(ctx, patchReq)
+		_, err = dataStorage.Create(ctx, req)
+		if err != nil {
+			return errors.Wrap(err, "error saving config")
+		}
+
+		patchReq := domain.PatchConfigRequest{
+			ConfigName:    req.Name,
+			Upsert:        newCfgPatch,
+			ConfigVersion: domain.MasterVersion,
+		}
+
+		err = dataStorage.UpsertValues(ctx, patchReq)
+		if err != nil {
+			return errors.Wrap(err, "error upserting new config")
+		}
+
+		return nil
+	})
 	if err != nil {
-		return errors.Wrap(err, "error upserting new config")
+		return errors.Wrap(err)
 	}
 
 	return nil
@@ -92,45 +81,4 @@ func (c *CfgService) convertConfigToPatch(cfg *evon.Node) ([]domain.PatchUpdate,
 	}
 
 	return cfgPatch, nil
-}
-
-func initNewConfig(configName string, configType matreshka_api.ConfigType) (*evon.Node, error) {
-	switch configType {
-	case matreshka_api.ConfigType_verv:
-		newCfg := matreshka.NewEmptyConfig()
-		newCfg.AppInfo = matreshka.AppInfo{
-			Name:            configName,
-			Version:         "v0.0.1",
-			StartupDuration: time.Second * 5,
-		}
-		nodes, err := evon.MarshalEnv(&newCfg)
-		if err != nil {
-			return nil, errors.Wrap(err, "error marshalling config")
-		}
-		return nodes, nil
-	case matreshka_api.ConfigType_pg:
-		return &evon.Node{
-			InnerNodes: []*evon.Node{
-				{
-					Name:  "POSTGRES-USER",
-					Value: "postgres",
-				},
-				{
-					Name:       "POSTGRES-PASSWORD",
-					Value:      "123",
-					InnerNodes: nil,
-				},
-				{
-					Name:  "POSTGRES-DB",
-					Value: "postgres",
-				},
-				{
-					Name:  "POSTGRES-HOST-AUTH-METHOD",
-					Value: "trust",
-				},
-			},
-		}, nil
-	default:
-		return &evon.Node{}, nil
-	}
 }
