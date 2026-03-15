@@ -122,6 +122,23 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
         setIsEditing(false);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const textarea = e.currentTarget;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+
+            const newValue = editedConfigText.substring(0, start) + "    " + editedConfigText.substring(end);
+            setEditedConfigText(newValue);
+
+            // Need to set cursor position after react re-render
+            setTimeout(() => {
+                textarea.selectionStart = textarea.selectionEnd = start + 4;
+            }, 0);
+        }
+    };
+
     return (
         <div className={cls.ConfigDisplayWidgetContainer}>
             <div className={cls.Header}>
@@ -168,6 +185,7 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
                             className={cls.Editor}
                             value={editedConfigText}
                             onChange={(e) => setEditedConfigText(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             style={{height: editorHeight}}
                             autoFocus
                         />
