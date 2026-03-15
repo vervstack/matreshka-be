@@ -16,8 +16,9 @@ type Services interface {
 type ConfigService interface {
 	Create(ctx context.Context, req domain.CreateConfigRequest) error
 
-	Replace(ctx context.Context, req domain.ReplaceConfigReq) error
 	Patch(ctx context.Context, configPatch domain.PatchConfigRequest) error
+
+	Save(ctx context.Context, req domain.SaveConfigReq) error
 
 	Rename(ctx context.Context, oldName, newName string) error
 
@@ -25,11 +26,6 @@ type ConfigService interface {
 	GetConfigWithNodes(ctx context.Context, name string, version string) (domain.ConfigWithNodes, error)
 
 	Delete(ctx context.Context, name string, version string) error
-}
-
-type PlainConfigService interface {
-	Save(cfg string, version string) error
-	Get(cfg string, version string) error
 }
 
 type PubSubService interface {

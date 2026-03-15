@@ -37,7 +37,13 @@ func (c *CfgService) GetConfigWithNodes(ctx context.Context, configName string, 
 		return domain.ConfigWithNodes{}, errors.Wrap(err, "error getting config by name")
 	}
 
+	cfgBase, err := c.configStorage.GetConfigByName(ctx, configName)
+	if err != nil {
+		return domain.ConfigWithNodes{}, errors.Wrap(err, "error getting config base from storage")
+	}
+
 	return domain.ConfigWithNodes{
+		Type:     cfgBase.Type,
 		Nodes:    nodes,
 		Versions: versions,
 	}, nil

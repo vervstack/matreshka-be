@@ -19,6 +19,7 @@ type Config struct {
 	ID        int64
 	Name      string
 	TypeName  string
+	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 

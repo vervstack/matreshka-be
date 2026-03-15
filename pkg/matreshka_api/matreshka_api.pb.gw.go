@@ -110,6 +110,51 @@ func local_request_MatreshkaApi_CreateConfig_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
+func request_MatreshkaApi_SaveConfig_0(ctx context.Context, marshaler runtime.Marshaler, client MatreshkaApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SaveConfig_Request
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["config_name"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "config_name")
+	}
+	protoReq.ConfigName, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "config_name", err)
+	}
+	msg, err := client.SaveConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_MatreshkaApi_SaveConfig_0(ctx context.Context, marshaler runtime.Marshaler, server MatreshkaApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq SaveConfig_Request
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["config_name"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "config_name")
+	}
+	protoReq.ConfigName, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "config_name", err)
+	}
+	msg, err := server.SaveConfig(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 var filter_MatreshkaApi_GetConfig_0 = &utilities.DoubleArray{Encoding: map[string]int{"config_name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_MatreshkaApi_GetConfig_0(ctx context.Context, marshaler runtime.Marshaler, client MatreshkaApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -232,51 +277,6 @@ func local_request_MatreshkaApi_PatchConfig_0(ctx context.Context, marshaler run
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "config_name", err)
 	}
 	msg, err := server.PatchConfig(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_MatreshkaApi_StoreConfig_0(ctx context.Context, marshaler runtime.Marshaler, client MatreshkaApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq StoreConfig_Request
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["config_name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "config_name")
-	}
-	protoReq.ConfigName, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "config_name", err)
-	}
-	msg, err := client.StoreConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_MatreshkaApi_StoreConfig_0(ctx context.Context, marshaler runtime.Marshaler, server MatreshkaApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq StoreConfig_Request
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["config_name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "config_name")
-	}
-	protoReq.ConfigName, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "config_name", err)
-	}
-	msg, err := server.StoreConfig(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -446,6 +446,26 @@ func RegisterMatreshkaApiHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 		forward_MatreshkaApi_CreateConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_MatreshkaApi_SaveConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/matreshka_api.MatreshkaApi/SaveConfig", runtime.WithHTTPPathPattern("/api/config/{config_name}/Save"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_MatreshkaApi_SaveConfig_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_MatreshkaApi_SaveConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_MatreshkaApi_GetConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -505,26 +525,6 @@ func RegisterMatreshkaApiHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 		forward_MatreshkaApi_PatchConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_MatreshkaApi_StoreConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/matreshka_api.MatreshkaApi/StoreConfig", runtime.WithHTTPPathPattern("/api/config/{config_name}/store"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_MatreshkaApi_StoreConfig_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_MatreshkaApi_StoreConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_MatreshkaApi_RenameConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -657,6 +657,23 @@ func RegisterMatreshkaApiHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 		forward_MatreshkaApi_CreateConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_MatreshkaApi_SaveConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/matreshka_api.MatreshkaApi/SaveConfig", runtime.WithHTTPPathPattern("/api/config/{config_name}/Save"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_MatreshkaApi_SaveConfig_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_MatreshkaApi_SaveConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_MatreshkaApi_GetConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -708,23 +725,6 @@ func RegisterMatreshkaApiHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 		forward_MatreshkaApi_PatchConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_MatreshkaApi_StoreConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/matreshka_api.MatreshkaApi/StoreConfig", runtime.WithHTTPPathPattern("/api/config/{config_name}/store"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_MatreshkaApi_StoreConfig_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_MatreshkaApi_StoreConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPost, pattern_MatreshkaApi_RenameConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -766,10 +766,10 @@ var (
 	pattern_MatreshkaApi_Version_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "version"}, ""))
 	pattern_MatreshkaApi_ListConfigs_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "config", "list"}, ""))
 	pattern_MatreshkaApi_CreateConfig_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "config", "create"}, ""))
+	pattern_MatreshkaApi_SaveConfig_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "config", "config_name", "Save"}, ""))
 	pattern_MatreshkaApi_GetConfig_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "config", "config_name"}, ""))
 	pattern_MatreshkaApi_GetConfigNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "config", "nodes"}, ""))
 	pattern_MatreshkaApi_PatchConfig_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "config", "config_name", "patch"}, ""))
-	pattern_MatreshkaApi_StoreConfig_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "config", "config_name", "store"}, ""))
 	pattern_MatreshkaApi_RenameConfig_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "config", "config_name", "rename", "new_name"}, ""))
 	pattern_MatreshkaApi_DeleteConfig_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "config", "config_name", "delete"}, ""))
 )
@@ -778,10 +778,10 @@ var (
 	forward_MatreshkaApi_Version_0        = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_ListConfigs_0    = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_CreateConfig_0   = runtime.ForwardResponseMessage
+	forward_MatreshkaApi_SaveConfig_0     = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_GetConfig_0      = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_GetConfigNodes_0 = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_PatchConfig_0    = runtime.ForwardResponseMessage
-	forward_MatreshkaApi_StoreConfig_0    = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_RenameConfig_0   = runtime.ForwardResponseMessage
 	forward_MatreshkaApi_DeleteConfig_0   = runtime.ForwardResponseMessage
 )

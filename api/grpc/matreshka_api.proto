@@ -30,6 +30,13 @@ service MatreshkaApi {
     };
   }
 
+  rpc SaveConfig(SaveConfig.Request) returns (SaveConfig.Response) {
+    option (google.api.http) = {
+      post: "/api/config/{config_name}/Save",
+      body: "*"
+    };
+  }
+
   // TODO rework handles below
 
   rpc GetConfig(GetConfig.Request) returns (GetConfig.Response) {
@@ -50,12 +57,7 @@ service MatreshkaApi {
       body: "*"
     };
   }
-  rpc StoreConfig(StoreConfig.Request) returns (StoreConfig.Response) {
-    option (google.api.http) = {
-      post: "/api/config/{config_name}/store",
-      body: "*"
-    };
-  }
+
 
   rpc RenameConfig(RenameConfig.Request) returns (RenameConfig.Response) {
     option (google.api.http) = {
@@ -126,7 +128,7 @@ message PatchConfig {
   message Response {}
 }
 
-message StoreConfig {
+message SaveConfig {
   message Request {
     //Config format. Default - yaml
     Format format = 1;

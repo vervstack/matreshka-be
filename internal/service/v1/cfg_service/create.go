@@ -20,7 +20,8 @@ func (c *CfgService) Create(ctx context.Context, req domain.CreateConfigRequest)
 	}
 
 	switch req.Type {
-	case matreshka_api.ConfigType_verv:
+	case matreshka_api.ConfigType_verv,
+		matreshka_api.ConfigType_kv:
 		return c.createEmptyEvonConfig(ctx, req)
 	default:
 		return errors.New("currently no config types except for verv is supported")
@@ -28,12 +29,12 @@ func (c *CfgService) Create(ctx context.Context, req domain.CreateConfigRequest)
 }
 
 func (c *CfgService) createEmptyEvonConfig(ctx context.Context, req domain.CreateConfigRequest) error {
-	newCfg, err := config_templates.InitNewConfig(req.Name, req.Type)
+	configNodes, err := config_templates.InitNewConfig(req.Name, req.Type)
 	if err != nil {
 		return errors.Wrap(err)
 	}
 
-	newCfgPatch, err := c.convertConfigToPatch(newCfg)
+	newCfgPatch, err := c.convertConfigToPatch(configNodes)
 	if err != nil {
 		return errors.Wrap(err, "error converting config to patch")
 	}

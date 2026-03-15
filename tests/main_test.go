@@ -52,13 +52,19 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func InitAppEnvironment(t *testing.T) AppEnv {
+func InitAppEnvironment(t *testing.T, opts ...opt) AppEnv {
 	ctx := t.Context()
 
 	stopFunc := func() {}
 
+	o := appEnvOpts{}
+
+	for _, opt := range opts {
+		opt(&o)
+	}
+
 	inMemoryListener := initInMemoryListener()
-	sqliteDb := initInMemorySqldb(t)
+	sqliteDb := initInMemorySqldb(t, o)
 
 	applicationBase := app.App{
 		Ctx:    ctx,
@@ -206,10 +212,23 @@ func initInMemoryListener() *bufconn.Listener {
 	return lis
 }
 
-func initInMemorySqldb(t *testing.T) *sql.DB {
+func initInMemorySqldb(t *testing.T, o appEnvOpts) *sql.DB {
 	const dialect = "sqlite"
-	//db, err := sql.Open("sqlite", "./"+getConfigNameFromTest(t)+".db")
-	db, err := sql.Open("sqlite", ":memory:")
+
+	var db *sql.DB
+	var err error
+	if o.withPersistentDb {
+		dsFile := "./" + getConfigNameFromTest(t) + ".db"
+		err = os.Remove(dsFile)
+		if !errors.Is(err, os.ErrNotExist) {
+			require.NoError(t, err)
+		}
+
+		db, err = sql.Open("sqlite", dsFile)
+	} else {
+		db, err = sql.Open("sqlite", ":memory:")
+	}
+
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		err = db.Close()
@@ -265,4 +284,16 @@ func (t testlogger) Printf(format string, v ...interface{}) {
 
 func (t testlogger) Fatalf(format string, v ...interface{}) {
 	t.t.Fatalf(format, v...)
+}
+
+type appEnvOpts struct {
+	withPersistentDb bool
+}
+
+type opt func(*appEnvOpts)
+
+func WithPersistentDb() opt {
+	return func(opts *appEnvOpts) {
+		opts.withPersistentDb = true
+	}
 }

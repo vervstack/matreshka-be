@@ -19,58 +19,48 @@ WHERE config_id = (SELECT id FROM configs WHERE name = ?)
   AND version LIKE ?;
 
 -- name: DeleteConfig :exec
-DELETE FROM configs
+DELETE
+FROM configs
 WHERE name = ?;
 
 -- name: ListConfigsCount :one
-SELECT
-    count(cfg.id)
+SELECT count(cfg.id)
 FROM configs cfg
-WHERE name LIKE '%'||?||'%';
+WHERE name LIKE '%' || ? || '%';
 
 -- name: ListConfigs :many
-WITH cfg AS (
-    SELECT
-        configs.id 			AS id,
-        configs.updated_at 	AS updated_at,
-        configs.name 		AS name
-    FROM configs
-    WHERE name LIKE '%'||?||'%'
-    GROUP BY configs.name
-),
-     versions AS (
-         SELECT
-             cv.config_id as config_id,
-             cv.version version
-         FROM configs_values cv
-                  INNER JOIN cfg c on c.id = cv.config_id
-         GROUP BY config_id, version
-         UNION ALL
-         SELECT
-             c.id,
-             'master'
-         FROM cfg c
-     )
-SELECT
-    cfg.name 						    AS config_name,
-    cfg.updated_at 					    AS last_updated_at,
-    json_group_array(versions.version)  AS config_versions
+WITH cfg AS (SELECT configs.id         AS id,
+                    configs.updated_at AS updated_at,
+                    configs.name       AS name
+             FROM configs
+             WHERE name LIKE '%' || ? || '%'
+             GROUP BY configs.name),
+     versions AS (SELECT cv.config_id as config_id,
+                         cv.version      version
+                  FROM configs_values cv
+                           INNER JOIN cfg c on c.id = cv.config_id
+                  GROUP BY config_id, version
+                  UNION ALL
+                  SELECT c.id,
+                         'master'
+                  FROM cfg c)
+SELECT cfg.name                           AS config_name,
+       cfg.updated_at                     AS last_updated_at,
+       json_group_array(versions.version) AS config_versions
 FROM cfg
          LEFT JOIN versions ON versions.config_id = cfg.id
 GROUP BY cfg.id
 HAVING COUNT(cfg.id) > 0;
 
 -- name: GetVersions :one
-WITH cfg AS (
-    SELECT
-        configs.id         AS id,
-        configs.updated_at AS updated_at,
-        configs.name       AS name,
-        cv.version     AS version
-    FROM configs
-             JOIN configs_values cv ON configs.id = cv.config_id
-    WHERE name = ?
-    GROUP BY configs.name, cv.version)
+WITH cfg AS (SELECT configs.id         AS id,
+                    configs.updated_at AS updated_at,
+                    configs.name       AS name,
+                    cv.version         AS version
+             FROM configs
+                      JOIN configs_values cv ON configs.id = cv.config_id
+             WHERE name = ?
+             GROUP BY configs.name, cv.version)
 SELECT json_group_array(cfg.version)
 FROM cfg
          LEFT JOIN configs_values AS service_version
@@ -82,14 +72,15 @@ HAVING COUNT(cfg.id) > 0;
 
 -- name: RenameConfig :exec
 UPDATE configs
-SET name = :new_name WHERE name = :old_name;
+SET name = :new_name
+WHERE name = :old_name;
 
 -- name: RenameValues :exec
 UPDATE configs_values
 SET key = :new_key
 WHERE config_id = :config_id
-  AND   key = :old_key
-  AND   version = :version;
+  AND key = :old_key
+  AND version = :version;
 
 -- name: SetUpdatedAt :exec
 UPDATE configs
@@ -97,22 +88,22 @@ SET updated_at = :updated_at
 WHERE name = :name;
 
 -- name: DeleteValues :exec
-DELETE FROM configs_values
+DELETE
+FROM configs_values
 WHERE config_id = :config_id
   AND (
     key = :key
         OR
-    key like :key ||'_%'
+    key like :key || '_%'
     )
   AND version = :version;
 
 -- name: GetConfigNodes :many
-SELECT
-    cv.key,
-    coalesce(topv.value, cv.value) as value
+SELECT cv.key,
+       coalesce(topv.value, cv.value) as value
 FROM configs_values AS cv
-         INNER JOIN configs    AS c ON c.id = cv.config_id
-    AND 	  cv.version 	  = :master_version
+         INNER JOIN configs AS c ON c.id = cv.config_id
+    AND cv.version = :master_version
          LEFT JOIN configs_values AS topv ON c.id = topv.config_id
     AND topv.key = cv.key
     AND topv.version = :version
@@ -122,12 +113,22 @@ GROUP BY cv.key;
 -- name: UpsertValues :exec
 INSERT INTO configs_values
     (config_id, key, value, version)
-VALUES 	(       ?,  ?,    ?,      ?)
+VALUES (?, ?, ?, ?)
 ON CONFLICT (config_id, key, version)
     DO UPDATE SET value = excluded.value;
 
 -- name: GetIdByName :one
 SELECT id
+FROM configs
+WHERE name = ?
+LIMIT 1;
+
+-- name: GetByName :one
+SELECT id,
+       name,
+       type_name,
+       created_at,
+       updated_at
 FROM configs
 WHERE name = ?
 LIMIT 1;

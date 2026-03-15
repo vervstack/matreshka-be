@@ -10,6 +10,7 @@ import (
 
 	"go.vervstack.ru/matreshka/internal/clients/sqldb"
 	"go.vervstack.ru/matreshka/internal/domain"
+	"go.vervstack.ru/matreshka/internal/storage/sqlite/queries/config_queries"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
@@ -93,6 +94,15 @@ func (p *Provider) GetVersions(ctx context.Context, name string) ([]string, erro
 	return versions, nil
 }
 
+func (p *Provider) GetConfigByName(ctx context.Context, name string) (domain.ConfigBase, error) {
+	cfgDb, err := p.querier.GetByName(ctx, name)
+	if err != nil {
+		return domain.ConfigBase{}, wrapError(err)
+	}
+
+	return toConfigBase(cfgDb), nil
+}
+
 func (p *Provider) countItems(ctx context.Context, q sq.SelectBuilder) (int64, error) {
 	var total int64
 	query, args, err := q.Column("count(*)").ToSql()
@@ -155,4 +165,14 @@ func applyPaging(q sq.SelectBuilder, paging domain.Paging) sq.SelectBuilder {
 		Offset(paging.Offset)
 
 	return q
+}
+
+func toConfigBase(cfgDb config_queries.Config) domain.ConfigBase {
+	return domain.ConfigBase{
+		Id:        uint32(cfgDb.ID),
+		Name:      cfgDb.Name,
+		Type:      api.ConfigType(api.ConfigType_value[cfgDb.TypeName]),
+		CreatedAt: cfgDb.CreatedAt,
+		UpdatedAt: cfgDb.UpdatedAt,
+	}
 }

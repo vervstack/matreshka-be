@@ -160,6 +160,44 @@
         ]
       }
     },
+    "/api/config/{configName}/Save": {
+      "post": {
+        "operationId": "MatreshkaApi_SaveConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/matreshka_apiSaveConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "configName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/matreshka_apiMatreshkaApiSaveConfigBody"
+            }
+          }
+        ],
+        "tags": [
+          "MatreshkaApi"
+        ]
+      }
+    },
     "/api/config/{configName}/delete": {
       "post": {
         "operationId": "MatreshkaApi_DeleteConfig",
@@ -265,44 +303,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          }
-        ],
-        "tags": [
-          "MatreshkaApi"
-        ]
-      }
-    },
-    "/api/config/{configName}/store": {
-      "post": {
-        "operationId": "MatreshkaApi_StoreConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/matreshka_apiStoreConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "configName",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/matreshka_apiMatreshkaApiStoreConfigBody"
-            }
           }
         ],
         "tags": [
@@ -480,7 +480,7 @@
         }
       }
     },
-    "matreshka_apiMatreshkaApiStoreConfigBody": {
+    "matreshka_apiMatreshkaApiSaveConfigBody": {
       "type": "object",
       "properties": {
         "format": {
@@ -555,6 +555,9 @@
         }
       }
     },
+    "matreshka_apiSaveConfigResponse": {
+      "type": "object"
+    },
     "matreshka_apiSort": {
       "type": "object",
       "properties": {
@@ -574,9 +577,6 @@
         "by_updated_at"
       ],
       "default": "default"
-    },
-    "matreshka_apiStoreConfigResponse": {
-      "type": "object"
     },
     "matreshka_apiVersionResponse": {
       "type": "object",

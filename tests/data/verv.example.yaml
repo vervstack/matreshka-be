@@ -1,0 +1,20 @@
+app_info:
+  name: matreshka-be
+  version: v1.0.94
+  startup_duration: 10s
+data_sources:
+  - resource_name: sqlite
+    path: ./data/matreshka-be.db
+    migrations_folder: ./migrations
+servers:
+  50049:
+    /{FS}:
+      dist: web/dist
+    /{GRPC}:
+      module: pkg/matreshka_be_api
+      gateway: /api
+    name: MASTER
+environment:
+  - name: pass
+    type: string
+    value: ""

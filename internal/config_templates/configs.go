@@ -10,12 +10,16 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
+var ErrUnsupportedConfigType = errors.New("unsupported config type")
+
 func InitNewConfig(configName string, configType matreshka_api.ConfigType) (*evon.Node, error) {
 	switch configType {
 	case matreshka_api.ConfigType_verv:
 		return InitVervConfig(configName)
-	default:
+	case matreshka_api.ConfigType_kv:
 		return &evon.Node{}, nil
+	default:
+		return nil, ErrUnsupportedConfigType
 	}
 }
 

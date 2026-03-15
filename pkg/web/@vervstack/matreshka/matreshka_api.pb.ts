@@ -61,16 +61,16 @@ export type PatchConfigResponse = Record<string, never>;
 
 export type PatchConfig = Record<string, never>;
 
-export type StoreConfigRequest = {
+export type SaveConfigRequest = {
   format?: MatreshkaApiMatreshkaCommon.Format;
   configName?: string;
   version?: string;
   config?: Uint8Array;
 };
 
-export type StoreConfigResponse = Record<string, never>;
+export type SaveConfigResponse = Record<string, never>;
 
-export type StoreConfig = Record<string, never>;
+export type SaveConfig = Record<string, never>;
 
 export type GetConfigNodeRequest = {
   configName?: string;
@@ -127,6 +127,9 @@ export class MatreshkaApi {
   static CreateConfig(this:void, req: CreateConfigRequest, initReq?: fm.InitReq): Promise<CreateConfigResponse> {
     return fm.fetchRequest<CreateConfigResponse>(`/api/config/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
+  static SaveConfig(this:void, req: SaveConfigRequest, initReq?: fm.InitReq): Promise<SaveConfigResponse> {
+    return fm.fetchRequest<SaveConfigResponse>(`/api/config/${req.configName}/Save`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
   static GetConfig(this:void, req: GetConfigRequest, initReq?: fm.InitReq): Promise<GetConfigResponse> {
     return fm.fetchRequest<GetConfigResponse>(`/api/config/${req.configName}?${fm.renderURLSearchParams(req, ["configName"])}`, {...initReq, method: "GET"});
   }
@@ -135,9 +138,6 @@ export class MatreshkaApi {
   }
   static PatchConfig(this:void, req: PatchConfigRequest, initReq?: fm.InitReq): Promise<PatchConfigResponse> {
     return fm.fetchRequest<PatchConfigResponse>(`/api/config/${req.configName}/patch`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
-  }
-  static StoreConfig(this:void, req: StoreConfigRequest, initReq?: fm.InitReq): Promise<StoreConfigResponse> {
-    return fm.fetchRequest<StoreConfigResponse>(`/api/config/${req.configName}/store`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static RenameConfig(this:void, req: RenameConfigRequest, initReq?: fm.InitReq): Promise<RenameConfigResponse> {
     return fm.fetchRequest<RenameConfigResponse>(`/api/config/${req.configName}/rename/${req.newName}`, {...initReq, method: "POST"});

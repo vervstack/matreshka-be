@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Server) UploadConfig(c *gin.Context) {
-	grpcReq := &api.StoreConfig_Request{
+	grpcReq := &api.SaveConfig_Request{
 		ConfigName: c.Param(configNameParam),
 		Format:     extractFormat(c),
 		Version:    extractVersion(c),
@@ -22,7 +22,7 @@ func (s *Server) UploadConfig(c *gin.Context) {
 		return
 	}
 
-	_, err = s.grpcApiServer.StoreConfig(c, grpcReq)
+	_, err = s.grpcApiServer.SaveConfig(c, grpcReq)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return

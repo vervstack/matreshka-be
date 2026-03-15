@@ -203,26 +203,26 @@ func (*PatchConfig) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{4}
 }
 
-type StoreConfig struct {
+type SaveConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StoreConfig) Reset() {
-	*x = StoreConfig{}
+func (x *SaveConfig) Reset() {
+	*x = SaveConfig{}
 	mi := &file_matreshka_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StoreConfig) String() string {
+func (x *SaveConfig) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StoreConfig) ProtoMessage() {}
+func (*SaveConfig) ProtoMessage() {}
 
-func (x *StoreConfig) ProtoReflect() protoreflect.Message {
+func (x *SaveConfig) ProtoReflect() protoreflect.Message {
 	mi := &file_matreshka_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -234,8 +234,8 @@ func (x *StoreConfig) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StoreConfig.ProtoReflect.Descriptor instead.
-func (*StoreConfig) Descriptor() ([]byte, []int) {
+// Deprecated: Use SaveConfig.ProtoReflect.Descriptor instead.
+func (*SaveConfig) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{5}
 }
 
@@ -863,7 +863,7 @@ func (*PatchConfig_Response) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{4, 1}
 }
 
-type StoreConfig_Request struct {
+type SaveConfig_Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Config format. Default - yaml
 	Format        Format  `protobuf:"varint,1,opt,name=format,proto3,enum=matreshka_api.Format" json:"format,omitempty"`
@@ -874,20 +874,20 @@ type StoreConfig_Request struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StoreConfig_Request) Reset() {
-	*x = StoreConfig_Request{}
+func (x *SaveConfig_Request) Reset() {
+	*x = SaveConfig_Request{}
 	mi := &file_matreshka_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StoreConfig_Request) String() string {
+func (x *SaveConfig_Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StoreConfig_Request) ProtoMessage() {}
+func (*SaveConfig_Request) ProtoMessage() {}
 
-func (x *StoreConfig_Request) ProtoReflect() protoreflect.Message {
+func (x *SaveConfig_Request) ProtoReflect() protoreflect.Message {
 	mi := &file_matreshka_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -899,59 +899,59 @@ func (x *StoreConfig_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StoreConfig_Request.ProtoReflect.Descriptor instead.
-func (*StoreConfig_Request) Descriptor() ([]byte, []int) {
+// Deprecated: Use SaveConfig_Request.ProtoReflect.Descriptor instead.
+func (*SaveConfig_Request) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{5, 0}
 }
 
-func (x *StoreConfig_Request) GetFormat() Format {
+func (x *SaveConfig_Request) GetFormat() Format {
 	if x != nil {
 		return x.Format
 	}
 	return Format_yaml
 }
 
-func (x *StoreConfig_Request) GetConfigName() string {
+func (x *SaveConfig_Request) GetConfigName() string {
 	if x != nil {
 		return x.ConfigName
 	}
 	return ""
 }
 
-func (x *StoreConfig_Request) GetVersion() string {
+func (x *SaveConfig_Request) GetVersion() string {
 	if x != nil && x.Version != nil {
 		return *x.Version
 	}
 	return ""
 }
 
-func (x *StoreConfig_Request) GetConfig() []byte {
+func (x *SaveConfig_Request) GetConfig() []byte {
 	if x != nil {
 		return x.Config
 	}
 	return nil
 }
 
-type StoreConfig_Response struct {
+type SaveConfig_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StoreConfig_Response) Reset() {
-	*x = StoreConfig_Response{}
+func (x *SaveConfig_Response) Reset() {
+	*x = SaveConfig_Response{}
 	mi := &file_matreshka_api_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StoreConfig_Response) String() string {
+func (x *SaveConfig_Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StoreConfig_Response) ProtoMessage() {}
+func (*SaveConfig_Response) ProtoMessage() {}
 
-func (x *StoreConfig_Response) ProtoReflect() protoreflect.Message {
+func (x *SaveConfig_Response) ProtoReflect() protoreflect.Message {
 	mi := &file_matreshka_api_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -963,8 +963,8 @@ func (x *StoreConfig_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StoreConfig_Response.ProtoReflect.Descriptor instead.
-func (*StoreConfig_Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use SaveConfig_Response.ProtoReflect.Descriptor instead.
+func (*SaveConfig_Response) Descriptor() ([]byte, []int) {
 	return file_matreshka_api_proto_rawDescGZIP(), []int{5, 1}
 }
 
@@ -1413,8 +1413,9 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\n" +
 	"\b_version\x1a\n" +
 	"\n" +
-	"\bResponse\"\xb8\x01\n" +
-	"\vStoreConfig\x1a\x9c\x01\n" +
+	"\bResponse\"\xb7\x01\n" +
+	"\n" +
+	"SaveConfig\x1a\x9c\x01\n" +
 	"\aRequest\x12-\n" +
 	"\x06format\x18\x01 \x01(\x0e2\x15.matreshka_api.FormatR\x06format\x12\x1f\n" +
 	"\vconfig_name\x18\x02 \x01(\tR\n" +
@@ -1456,15 +1457,16 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\x0econfig_version\x18\x02 \x01(\tH\x00R\rconfigVersion\x88\x01\x01B\x11\n" +
 	"\x0f_config_version\x1a\n" +
 	"\n" +
-	"\bResponse2\xe8\t\n" +
+	"\bResponse2\xe3\t\n" +
 	"\fMatreshkaApi\x12`\n" +
 	"\aVersion\x12\x1e.matreshka_api.Version.Request\x1a\x1f.matreshka_api.Version.Response\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/version\x12s\n" +
 	"\vListConfigs\x12\".matreshka_api.ListConfigs.Request\x1a#.matreshka_api.ListConfigs.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/config/list\x12x\n" +
-	"\fCreateConfig\x12#.matreshka_api.CreateConfig.Request\x1a$.matreshka_api.CreateConfig.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/config/create\x12s\n" +
+	"\fCreateConfig\x12#.matreshka_api.CreateConfig.Request\x1a$.matreshka_api.CreateConfig.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/config/create\x12~\n" +
+	"\n" +
+	"SaveConfig\x12!.matreshka_api.SaveConfig.Request\x1a\".matreshka_api.SaveConfig.Response\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/config/{config_name}/Save\x12s\n" +
 	"\tGetConfig\x12 .matreshka_api.GetConfig.Request\x1a!.matreshka_api.GetConfig.Response\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/config/{config_name}\x12{\n" +
 	"\x0eGetConfigNodes\x12$.matreshka_api.GetConfigNode.Request\x1a%.matreshka_api.GetConfigNode.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/config/nodes\x12\x82\x01\n" +
-	"\vPatchConfig\x12\".matreshka_api.PatchConfig.Request\x1a#.matreshka_api.PatchConfig.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/config/{config_name}/patch\x12\x82\x01\n" +
-	"\vStoreConfig\x12\".matreshka_api.StoreConfig.Request\x1a#.matreshka_api.StoreConfig.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/config/{config_name}/store\x12\x8e\x01\n" +
+	"\vPatchConfig\x12\".matreshka_api.PatchConfig.Request\x1a#.matreshka_api.PatchConfig.Response\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/api/config/{config_name}/patch\x12\x8e\x01\n" +
 	"\fRenameConfig\x12#.matreshka_api.RenameConfig.Request\x1a$.matreshka_api.RenameConfig.Response\"3\x82\xd3\xe4\x93\x02-\"+/api/config/{config_name}/rename/{new_name}\x12\x86\x01\n" +
 	"\fDeleteConfig\x12#.matreshka_api.DeleteConfig.Request\x1a$.matreshka_api.DeleteConfig.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/config/{config_name}/delete\x12q\n" +
 	"\x12SubscribeOnChanges\x12).matreshka_api.SubscribeOnChanges.Request\x1a*.matreshka_api.SubscribeOnChanges.Response\"\x00(\x010\x01BS\x92\x82\x19\x14@vervstack/matreshkaZ9go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_apib\x06proto3"
@@ -1488,7 +1490,7 @@ var file_matreshka_api_proto_goTypes = []any{
 	(*CreateConfig)(nil),                // 2: matreshka_api.CreateConfig
 	(*GetConfig)(nil),                   // 3: matreshka_api.GetConfig
 	(*PatchConfig)(nil),                 // 4: matreshka_api.PatchConfig
-	(*StoreConfig)(nil),                 // 5: matreshka_api.StoreConfig
+	(*SaveConfig)(nil),                  // 5: matreshka_api.SaveConfig
 	(*GetConfigNode)(nil),               // 6: matreshka_api.GetConfigNode
 	(*RenameConfig)(nil),                // 7: matreshka_api.RenameConfig
 	(*SubscribeOnChanges)(nil),          // 8: matreshka_api.SubscribeOnChanges
@@ -1503,8 +1505,8 @@ var file_matreshka_api_proto_goTypes = []any{
 	(*GetConfig_Response)(nil),          // 17: matreshka_api.GetConfig.Response
 	(*PatchConfig_Request)(nil),         // 18: matreshka_api.PatchConfig.Request
 	(*PatchConfig_Response)(nil),        // 19: matreshka_api.PatchConfig.Response
-	(*StoreConfig_Request)(nil),         // 20: matreshka_api.StoreConfig.Request
-	(*StoreConfig_Response)(nil),        // 21: matreshka_api.StoreConfig.Response
+	(*SaveConfig_Request)(nil),          // 20: matreshka_api.SaveConfig.Request
+	(*SaveConfig_Response)(nil),         // 21: matreshka_api.SaveConfig.Response
 	(*GetConfigNode_Request)(nil),       // 22: matreshka_api.GetConfigNode.Request
 	(*GetConfigNode_Response)(nil),      // 23: matreshka_api.GetConfigNode.Response
 	(*RenameConfig_Request)(nil),        // 24: matreshka_api.RenameConfig.Request
@@ -1528,26 +1530,26 @@ var file_matreshka_api_proto_depIdxs = []int32{
 	33, // 3: matreshka_api.CreateConfig.Request.config_type:type_name -> matreshka_api.ConfigType
 	34, // 4: matreshka_api.GetConfig.Request.format:type_name -> matreshka_api.Format
 	35, // 5: matreshka_api.PatchConfig.Request.patches:type_name -> matreshka_api.Patch
-	34, // 6: matreshka_api.StoreConfig.Request.format:type_name -> matreshka_api.Format
+	34, // 6: matreshka_api.SaveConfig.Request.format:type_name -> matreshka_api.Format
 	36, // 7: matreshka_api.GetConfigNode.Response.root:type_name -> matreshka_api.Node
 	35, // 8: matreshka_api.SubscribeOnChanges.Response.patches:type_name -> matreshka_api.Patch
 	10, // 9: matreshka_api.MatreshkaApi.Version:input_type -> matreshka_api.Version.Request
 	12, // 10: matreshka_api.MatreshkaApi.ListConfigs:input_type -> matreshka_api.ListConfigs.Request
 	14, // 11: matreshka_api.MatreshkaApi.CreateConfig:input_type -> matreshka_api.CreateConfig.Request
-	16, // 12: matreshka_api.MatreshkaApi.GetConfig:input_type -> matreshka_api.GetConfig.Request
-	22, // 13: matreshka_api.MatreshkaApi.GetConfigNodes:input_type -> matreshka_api.GetConfigNode.Request
-	18, // 14: matreshka_api.MatreshkaApi.PatchConfig:input_type -> matreshka_api.PatchConfig.Request
-	20, // 15: matreshka_api.MatreshkaApi.StoreConfig:input_type -> matreshka_api.StoreConfig.Request
+	20, // 12: matreshka_api.MatreshkaApi.SaveConfig:input_type -> matreshka_api.SaveConfig.Request
+	16, // 13: matreshka_api.MatreshkaApi.GetConfig:input_type -> matreshka_api.GetConfig.Request
+	22, // 14: matreshka_api.MatreshkaApi.GetConfigNodes:input_type -> matreshka_api.GetConfigNode.Request
+	18, // 15: matreshka_api.MatreshkaApi.PatchConfig:input_type -> matreshka_api.PatchConfig.Request
 	24, // 16: matreshka_api.MatreshkaApi.RenameConfig:input_type -> matreshka_api.RenameConfig.Request
 	28, // 17: matreshka_api.MatreshkaApi.DeleteConfig:input_type -> matreshka_api.DeleteConfig.Request
 	26, // 18: matreshka_api.MatreshkaApi.SubscribeOnChanges:input_type -> matreshka_api.SubscribeOnChanges.Request
 	11, // 19: matreshka_api.MatreshkaApi.Version:output_type -> matreshka_api.Version.Response
 	13, // 20: matreshka_api.MatreshkaApi.ListConfigs:output_type -> matreshka_api.ListConfigs.Response
 	15, // 21: matreshka_api.MatreshkaApi.CreateConfig:output_type -> matreshka_api.CreateConfig.Response
-	17, // 22: matreshka_api.MatreshkaApi.GetConfig:output_type -> matreshka_api.GetConfig.Response
-	23, // 23: matreshka_api.MatreshkaApi.GetConfigNodes:output_type -> matreshka_api.GetConfigNode.Response
-	19, // 24: matreshka_api.MatreshkaApi.PatchConfig:output_type -> matreshka_api.PatchConfig.Response
-	21, // 25: matreshka_api.MatreshkaApi.StoreConfig:output_type -> matreshka_api.StoreConfig.Response
+	21, // 22: matreshka_api.MatreshkaApi.SaveConfig:output_type -> matreshka_api.SaveConfig.Response
+	17, // 23: matreshka_api.MatreshkaApi.GetConfig:output_type -> matreshka_api.GetConfig.Response
+	23, // 24: matreshka_api.MatreshkaApi.GetConfigNodes:output_type -> matreshka_api.GetConfigNode.Response
+	19, // 25: matreshka_api.MatreshkaApi.PatchConfig:output_type -> matreshka_api.PatchConfig.Response
 	25, // 26: matreshka_api.MatreshkaApi.RenameConfig:output_type -> matreshka_api.RenameConfig.Response
 	29, // 27: matreshka_api.MatreshkaApi.DeleteConfig:output_type -> matreshka_api.DeleteConfig.Response
 	27, // 28: matreshka_api.MatreshkaApi.SubscribeOnChanges:output_type -> matreshka_api.SubscribeOnChanges.Response
