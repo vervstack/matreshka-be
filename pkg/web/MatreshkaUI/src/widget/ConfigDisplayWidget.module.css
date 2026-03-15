@@ -65,6 +65,8 @@
     margin: 0;
     white-space: pre-wrap;
     font-family: inherit;
+    line-height: 1.5;
+    transition: height 0.2s ease-in-out;
 }
 
 .Editor {
@@ -73,6 +75,7 @@
     border: none;
     outline: none;
     resize: none;
+    width: 100%;
 
     white-space: pre-wrap;
     font-family: inherit;
@@ -80,6 +83,9 @@
     font-size: inherit;
     padding: 0;
     margin: 0;
+    line-height: 1.5;
+    transition: height 0.2s ease-in-out;
+    display: block;
 }
 
 .EditIcon {

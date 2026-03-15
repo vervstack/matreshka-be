@@ -34,8 +34,13 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
 
     const [configText, setConfigText] = useState<string>("");
     const [editedConfigText, setEditedConfigText] = useState<string>("");
+
+
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [configType, setConfigType] = useState<string>("");
+
+    const lineCount = (isEditing ? editedConfigText : configText).split("\n").length;
+    const editorHeight = `${lineCount * 1.5}em`;
 
     const [loadFunc, setLoadFunc] = useState<Promise<void> | undefined>(undefined);
 
@@ -163,10 +168,11 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
                             className={cls.Editor}
                             value={editedConfigText}
                             onChange={(e) => setEditedConfigText(e.target.value)}
+                            style={{height: editorHeight}}
                             autoFocus
                         />
                     ) : (
-                        <pre className={cls.Pre}>{configText}</pre>
+                        <pre className={cls.Pre} style={{height: editorHeight}}>{configText}</pre>
                     )}
                 </div>
             </LoaderWrapper>
