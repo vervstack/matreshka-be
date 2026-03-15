@@ -1,0 +1,41 @@
+.ConfigDisplayWidgetContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.TitleSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.ConfigName {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.ConfigType {
+    font-size: 14px;
+    color: #888;
+}
+
+.Content {
+    flex: 1;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 8px;
+    overflow: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    border: 1px solid #333;
+}

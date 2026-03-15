@@ -188,6 +188,28 @@ func (q *Queries) GetIdByName(ctx context.Context, name string) (int64, error) {
 	return id, err
 }
 
+const getRawContent = `-- name: GetRawContent :one
+SELECT data
+FROM binary_configs
+         INNER JOIN configs ON
+    configs.id = binary_configs.config_id
+WHERE version = ?
+  AND configs.name = ?
+LIMIT 1
+`
+
+type GetRawContentParams struct {
+	Version string
+	Name    string
+}
+
+func (q *Queries) GetRawContent(ctx context.Context, arg GetRawContentParams) ([]byte, error) {
+	row := q.db.QueryRowContext(ctx, getRawContent, arg.Version, arg.Name)
+	var data []byte
+	err := row.Scan(&data)
+	return data, err
+}
+
 const getVersions = `-- name: GetVersions :one
 WITH cfg AS (SELECT configs.id         AS id,
                     configs.updated_at AS updated_at,

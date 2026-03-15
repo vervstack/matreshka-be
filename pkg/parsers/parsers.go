@@ -5,6 +5,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"gopkg.in/yaml.v3"
 
+	errors "github.com/Red-Sock/trace-errors"
+
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
@@ -93,4 +95,53 @@ func ParseVervYamlToEvon(cfgBytes []byte) (*evon.Node, error) {
 	}
 
 	return env, nil
+}
+
+func NodeToYaml(node *evon.Node, configType api.ConfigType) ([]byte, error) {
+	switch configType {
+	case api.ConfigType_kv:
+		return kvToYaml(node)
+
+	case api.ConfigType_verv:
+		return vervToYaml(node)
+	default:
+		return nil, errors.Wrap(user_errors.ErrNotImplemented, "unsupported config type to parse from node to yaml")
+	}
+}
+
+func vervToYaml(node *evon.Node) ([]byte, error) {
+	nodeStorage := evon.NodesToStorage(node)
+
+	matreshkaConf := matreshka.NewEmptyConfig()
+
+	err := evon.UnmarshalWithNodes(nodeStorage, &matreshkaConf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error unmarshalling config")
+	}
+
+	config, err := matreshkaConf.Marshal()
+	if err != nil {
+		return nil, errors.Wrap(err, "error marshalling to yaml")
+	}
+
+	return config, nil
+}
+
+func kvToYaml(node *evon.Node) ([]byte, error) {
+	nodeStorage := evon.NodesToStorage(node)
+
+	m := make(map[string]any)
+	err := evon.UnmarshalWithNodes(nodeStorage, m,
+		evon.WithSnakeUnmarshal(),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "error unmarshalling config")
+	}
+
+	config, err := yaml.Marshal(m)
+	if err != nil {
+		return nil, errors.Wrap(err, "error marshalling to yaml")
+	}
+
+	return config, nil
 }

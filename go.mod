@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/Red-Sock/go-swagger-ui v0.0.2
+	github.com/Red-Sock/trace-errors v0.0.13
 	github.com/gin-gonic/gin v1.10.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	github.com/pressly/goose/v3 v3.24.3

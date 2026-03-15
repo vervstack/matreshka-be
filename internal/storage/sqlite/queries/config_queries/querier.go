@@ -18,6 +18,7 @@ type Querier interface {
 	GetConfig(ctx context.Context, name string) (GetConfigRow, error)
 	GetConfigNodes(ctx context.Context, arg GetConfigNodesParams) ([]GetConfigNodesRow, error)
 	GetIdByName(ctx context.Context, name string) (int64, error)
+	GetRawContent(ctx context.Context, arg GetRawContentParams) ([]byte, error)
 	GetVersions(ctx context.Context, name string) (interface{}, error)
 	ListConfigs(ctx context.Context, dollar_1 sql.NullString) ([]ListConfigsRow, error)
 	ListConfigsCount(ctx context.Context, dollar_1 sql.NullString) (int64, error)

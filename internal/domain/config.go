@@ -8,11 +8,19 @@ import (
 
 const MasterVersion = "master"
 
-type ConfigWithNodes struct {
-	Type matreshka_api.ConfigType
+type ConfigNodes struct {
+	Info  ConfigInfo
+	Nodes *evon.Node
+}
 
-	Nodes    *evon.Node
-	Versions []string
+type GetConfigRawReq struct {
+	Name    string
+	Version string
+	Format  matreshka_api.Format
+}
+type ConfigRawContent struct {
+	Info ConfigInfo
+	Raw  []byte
 }
 
 type CreateConfigRequest struct {

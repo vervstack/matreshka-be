@@ -36,14 +36,14 @@ service MatreshkaApi {
       body: "*"
     };
   }
-
-  // TODO rework handles below
-
   rpc GetConfig(GetConfig.Request) returns (GetConfig.Response) {
     option (google.api.http) = {
       get: "/api/config/{config_name}",
     };
   }
+
+  // TODO rework handles below
+
   rpc GetConfigNodes(GetConfigNode.Request) returns (GetConfigNode.Response) {
     option (google.api.http) = {
       post: "/api/config/nodes",
@@ -115,6 +115,7 @@ message GetConfig {
 
   message Response {
     bytes config = 1;
+    ConfigBase base_info = 2;
   }
 }
 

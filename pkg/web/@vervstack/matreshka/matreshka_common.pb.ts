@@ -58,6 +58,7 @@ export type ConfigBase = {
   name?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  configType?: ConfigType;
 };
 
 type BasePatch = {

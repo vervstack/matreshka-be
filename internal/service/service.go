@@ -15,15 +15,15 @@ type Services interface {
 
 type ConfigService interface {
 	Create(ctx context.Context, req domain.CreateConfigRequest) error
-
 	Patch(ctx context.Context, configPatch domain.PatchConfigRequest) error
-
 	Save(ctx context.Context, req domain.SaveConfigReq) error
-
 	Rename(ctx context.Context, oldName, newName string) error
 
 	List(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
-	GetConfigWithNodes(ctx context.Context, name string, version string) (domain.ConfigWithNodes, error)
+
+	GetConfigInfo(ctx context.Context, configName string) (domain.ConfigInfo, error)
+	GetConfigRaw(ctx context.Context, req domain.GetConfigRawReq) (domain.ConfigRawContent, error)
+	GetConfigNodes(ctx context.Context, name string, version string) (domain.ConfigNodes, error)
 
 	Delete(ctx context.Context, name string, version string) error
 }

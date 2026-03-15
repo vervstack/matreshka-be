@@ -351,6 +351,9 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "configType": {
+          "$ref": "#/definitions/matreshka_apiConfigType"
         }
       }
     },
@@ -424,6 +427,9 @@
         "config": {
           "type": "string",
           "format": "byte"
+        },
+        "baseInfo": {
+          "$ref": "#/definitions/matreshka_apiConfigBase"
         }
       }
     },

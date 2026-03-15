@@ -37,3 +37,16 @@ func (p *Provider) GetConfigNodes(ctx context.Context, serviceName string, versi
 	}
 	return ns[""], nil
 }
+
+func (p *Provider) GetConfigRawContent(ctx context.Context, name string, version string) ([]byte, error) {
+	params := config_queries.GetRawContentParams{
+		Version: version,
+		Name:    name,
+	}
+	content, err := p.querier.GetRawContent(ctx, params)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	return content, nil
+}

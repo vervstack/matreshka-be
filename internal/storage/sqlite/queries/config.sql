@@ -132,3 +132,13 @@ SELECT id,
 FROM configs
 WHERE name = ?
 LIMIT 1;
+
+
+-- name: GetRawContent :one
+SELECT data
+FROM binary_configs
+         INNER JOIN configs ON
+    configs.id = binary_configs.config_id
+WHERE version = ?
+  AND configs.name = ?
+LIMIT 1

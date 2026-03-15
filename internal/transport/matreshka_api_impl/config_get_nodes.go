@@ -15,7 +15,7 @@ import (
 func (s *Impl) GetConfigNodes(ctx context.Context, req *api.GetConfigNode_Request) (*api.GetConfigNode_Response, error) {
 	ver := toolbox.Coalesce(req.Version, domain.MasterVersion)
 
-	cfg, err := s.configService.GetConfigWithNodes(ctx, req.ConfigName, ver)
+	cfg, err := s.configService.GetConfigNodes(ctx, req.ConfigName, ver)
 	if err != nil {
 		return nil, errors.Wrap(err)
 	}
@@ -25,8 +25,8 @@ func (s *Impl) GetConfigNodes(ctx context.Context, req *api.GetConfigNode_Reques
 	}
 
 	resp := &api.GetConfigNode_Response{
-		Root:     toApiNode(cfg.Nodes),
-		Versions: cfg.Versions,
+		Root: toApiNode(cfg.Nodes),
+		//Versions: cfg.Versions,
 	}
 
 	return resp, nil

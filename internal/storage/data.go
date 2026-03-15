@@ -16,7 +16,7 @@ type Data interface {
 
 	// GetConfigNodes returns root node of parsed config
 	GetConfigNodes(ctx context.Context, name string, ver string) (*evon.Node, error)
-
+	GetConfigRawContent(ctx context.Context, name string, version string) ([]byte, error)
 	GetVersions(ctx context.Context, name string) ([]string, error)
 	ListConfigs(ctx context.Context, req domain.ListConfigsRequest) (domain.ListConfigsResponse, error)
 

@@ -29,17 +29,17 @@ type StoreConfigSuite struct {
 	ctx context.Context
 
 	apiClient api.MatreshkaApiClient
+	appEnv    AppEnv
 }
 
 func (s *StoreConfigSuite) SetupSuite() {
 	t := s.T()
 	s.ctx = t.Context()
 
-	app := InitAppEnvironment(t,
-		WithPersistentDb(),
-	)
+	app := InitAppEnvironment(t)
 
 	s.apiClient = app.matreshkaApi
+	s.appEnv = app
 }
 
 func (s *StoreConfigSuite) TestStoreKeyValueConfig_Yaml() {
@@ -88,43 +88,17 @@ func (s *StoreConfigSuite) TestStoreVervConfig_Yaml() {
 }
 
 func (s *StoreConfigSuite) assertLokiConfig(configName string) {
-	getReqYaml := &api.GetConfig_Request{
-		ConfigName: configName,
-		Format:     api.Format_yaml,
-	}
+	s.appEnv.assertYamlConfigContent(s.T(), configName, lokiConfigYaml)
+	s.appEnv.assertEnvConfigContent(s.T(), configName, lokiConfigEnv)
 
-	cfgRespYaml, err := s.apiClient.GetConfig(s.ctx, getReqYaml)
-	s.Require().NoError(err)
-	s.Require().YAMLEq(string(lokiConfigYaml), string(cfgRespYaml.Config))
-
-	getReqEnv := &api.GetConfig_Request{
-		ConfigName: configName,
-		Format:     api.Format_env,
-	}
-
-	cfgRespEnv, err := s.apiClient.GetConfig(s.ctx, getReqEnv)
-	s.Require().NoError(err)
-	s.Require().Equal(string(lokiConfigEnv), string(cfgRespEnv.Config))
+	s.appEnv.assertConfigBase(s.T(), configName, api.ConfigType_kv)
 }
 
 func (s *StoreConfigSuite) assertMatreshkaConfig(configName string) {
-	getReqYaml := &api.GetConfig_Request{
-		ConfigName: configName,
-		Format:     api.Format_yaml,
-	}
+	s.appEnv.assertYamlConfigContent(s.T(), configName, vervConfigYaml)
+	s.appEnv.assertEnvConfigContent(s.T(), configName, vervConfigEnv)
 
-	cfgRespYaml, err := s.apiClient.GetConfig(s.ctx, getReqYaml)
-	s.Require().NoError(err)
-	s.Require().YAMLEq(string(vervConfigYaml), string(cfgRespYaml.Config))
-
-	getReqEnv := &api.GetConfig_Request{
-		ConfigName: configName,
-		Format:     api.Format_env,
-	}
-
-	cfgRespEnv, err := s.apiClient.GetConfig(s.ctx, getReqEnv)
-	s.Require().NoError(err)
-	s.Require().Equal(string(vervConfigEnv), string(cfgRespEnv.Config))
+	s.appEnv.assertConfigBase(s.T(), configName, api.ConfigType_verv)
 }
 
 func (s *StoreConfigSuite) createConfig(configType api.ConfigType) string {
@@ -143,4 +117,43 @@ func (s *StoreConfigSuite) createConfig(configType api.ConfigType) string {
 
 func Test_StoreConfig(t *testing.T) {
 	suite.Run(t, new(StoreConfigSuite))
+}
+
+func (e *AppEnv) assertYamlConfigContent(t *testing.T, configName string, content []byte) {
+	req := &api.GetConfig_Request{
+		ConfigName: configName,
+		Format:     api.Format_yaml,
+	}
+	resp, err := e.matreshkaApi.GetConfig(t.Context(), req)
+	require.NoError(t, err)
+	require.YAMLEq(t, string(content), string(resp.Config))
+}
+
+func (e *AppEnv) assertEnvConfigContent(t *testing.T, configName string, content []byte) {
+	req := &api.GetConfig_Request{
+		ConfigName: configName,
+		Format:     api.Format_env,
+	}
+	resp, err := e.matreshkaApi.GetConfig(t.Context(), req)
+	require.NoError(t, err)
+	require.Equal(t, string(content), string(resp.Config))
+}
+
+func (e *AppEnv) assertConfigBase(t *testing.T, configName string, cType api.ConfigType) {
+	getReq := &api.GetConfig_Request{
+		ConfigName: configName,
+	}
+
+	actualResp, err := e.matreshkaApi.GetConfig(t.Context(), getReq)
+	require.NoError(t, err)
+
+	require.NotNil(t, actualResp)
+	require.NotNil(t, actualResp.BaseInfo)
+
+	require.Equal(t, configName, actualResp.BaseInfo.Name)
+	require.Equal(t, cType, actualResp.BaseInfo.ConfigType)
+
+	require.NotEmpty(t, actualResp.BaseInfo.Id)
+	require.NotEmpty(t, actualResp.BaseInfo.CreatedAt)
+	require.NotEmpty(t, actualResp.BaseInfo.UpdatedAt)
 }

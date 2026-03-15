@@ -354,6 +354,7 @@ type ConfigBase struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ConfigType    ConfigType             `protobuf:"varint,5,opt,name=config_type,json=configType,proto3,enum=matreshka_api.ConfigType" json:"config_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -414,6 +415,13 @@ func (x *ConfigBase) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *ConfigBase) GetConfigType() ConfigType {
+	if x != nil {
+		return x.ConfigType
+	}
+	return ConfigType_plain
 }
 
 type Patch struct {
@@ -542,7 +550,7 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01\x124\n" +
 	"\vinner_nodes\x18\x03 \x03(\v2\x13.matreshka_api.NodeR\n" +
 	"innerNodesB\b\n" +
-	"\x06_value\"\xa6\x01\n" +
+	"\x06_value\"\xe2\x01\n" +
 	"\n" +
 	"ConfigBase\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
@@ -550,7 +558,9 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x88\x01\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
+	"\vconfig_type\x18\x05 \x01(\x0e2\x19.matreshka_api.ConfigTypeR\n" +
+	"configType\"\x88\x01\n" +
 	"\x05Patch\x12\x1d\n" +
 	"\n" +
 	"field_name\x18\x01 \x01(\tR\tfieldName\x12\x18\n" +
@@ -600,11 +610,12 @@ var file_matreshka_common_proto_depIdxs = []int32{
 	5, // 1: matreshka_api.Node.inner_nodes:type_name -> matreshka_api.Node
 	8, // 2: matreshka_api.ConfigBase.created_at:type_name -> google.protobuf.Timestamp
 	8, // 3: matreshka_api.ConfigBase.updated_at:type_name -> google.protobuf.Timestamp
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0, // 4: matreshka_api.ConfigBase.config_type:type_name -> matreshka_api.ConfigType
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_matreshka_common_proto_init() }
