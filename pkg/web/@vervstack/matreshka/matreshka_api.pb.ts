@@ -47,7 +47,7 @@ export type GetConfigRequest = {
 
 export type GetConfigResponse = {
   config?: Uint8Array;
-  baseInfo?: MatreshkaApiMatreshkaCommon.ConfigBase;
+  info?: MatreshkaApiMatreshkaCommon.ConfigInfo;
 };
 
 export type GetConfig = Record<string, never>;

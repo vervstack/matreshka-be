@@ -26,29 +26,17 @@ func (s *Impl) GetConfig(ctx context.Context, req *api.GetConfig_Request) (*api.
 
 	resp := &api.GetConfig_Response{
 		Config: cfg.Raw,
-		BaseInfo: &api.ConfigBase{
-			Id:         cfg.Info.Id,
-			Name:       cfg.Info.Name,
-			CreatedAt:  timestamppb.New(cfg.Info.CreatedAt),
-			UpdatedAt:  timestamppb.New(cfg.Info.UpdatedAt),
-			ConfigType: cfg.Info.Type,
+		Info: &api.ConfigInfo{
+			ConfigBase: &api.ConfigBase{
+				Id:         cfg.Info.Id,
+				Name:       cfg.Info.Name,
+				CreatedAt:  timestamppb.New(cfg.Info.CreatedAt),
+				UpdatedAt:  timestamppb.New(cfg.Info.UpdatedAt),
+				ConfigType: cfg.Info.Type,
+			},
+			Versions: cfg.Info.ConfigVersions,
 		},
 	}
-	//
-	//switch req.Format {
-	//case api.Format_env:
-	//	resp.Config = evon.Marshal(cfg.Nodes.InnerNodes)
-	//default:
-	//	switch cfg.BaseInfo.Type {
-	//	case api.ConfigType_verv:
-	//		resp.Config, err = vervToYaml(cfg.Nodes)
-	//	default:
-	//		resp.Config, err = kvToYaml(cfg.Nodes)
-	//	}
-	//	if err != nil {
-	//		return nil, rerrors.Wrap(err)
-	//	}
-	//}
 
 	return resp, nil
 }

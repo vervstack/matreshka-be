@@ -115,7 +115,7 @@ message GetConfig {
 
   message Response {
     bytes config = 1;
-    ConfigBase base_info = 2;
+    ConfigInfo info = 2;
   }
 }
 

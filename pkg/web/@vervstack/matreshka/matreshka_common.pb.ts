@@ -61,6 +61,11 @@ export type ConfigBase = {
   configType?: ConfigType;
 };
 
+export type ConfigInfo = {
+  configBase?: ConfigBase;
+  versions?: string[];
+};
+
 type BasePatch = {
   fieldName?: string;
 };

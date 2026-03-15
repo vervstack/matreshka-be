@@ -5,6 +5,7 @@ import {
     ListConfigsRequest, ListConfigsResponse,
     CreateConfigRequest, CreateConfigResponse,
     GetConfigRequest, GetConfigResponse,
+    GetConfigNodeRequest, GetConfigNodeResponse,
 } from "@vervstack/matreshka";
 
 export interface Api {
@@ -20,6 +21,8 @@ export interface Api {
     CreateConfig(req: CreateConfigRequest): Promise<CreateConfigResponse>;
 
     GetConfig(req: GetConfigRequest): Promise<GetConfigResponse>;
+
+    GetConfigNodes(req: GetConfigNodeRequest): Promise<GetConfigNodeResponse>;
 }
 
 
@@ -58,6 +61,13 @@ export const useApi = create<Api>(
             const ir = initReq();
 
             return MatreshkaApi.GetConfig(req, ir)
+        },
+
+        GetConfigNodes(req: GetConfigNodeRequest): Promise<GetConfigNodeResponse> {
+            const {initReq} = get();
+            const ir = initReq();
+
+            return MatreshkaApi.GetConfigNodes(req, ir)
         },
 
         initReq(): InitReq {

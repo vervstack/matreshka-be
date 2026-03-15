@@ -726,7 +726,7 @@ func (x *GetConfig_Request) GetFormat() Format {
 type GetConfig_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Config        []byte                 `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
-	BaseInfo      *ConfigBase            `protobuf:"bytes,2,opt,name=base_info,json=baseInfo,proto3" json:"base_info,omitempty"`
+	Info          *ConfigInfo            `protobuf:"bytes,2,opt,name=info,proto3" json:"info,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -768,9 +768,9 @@ func (x *GetConfig_Response) GetConfig() []byte {
 	return nil
 }
 
-func (x *GetConfig_Response) GetBaseInfo() *ConfigBase {
+func (x *GetConfig_Response) GetInfo() *ConfigInfo {
 	if x != nil {
-		return x.BaseInfo
+		return x.Info
 	}
 	return nil
 }
@@ -1401,7 +1401,7 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\vconfig_type\x18\x02 \x01(\x0e2\x19.matreshka_api.ConfigTypeR\n" +
 	"configType\x1a\n" +
 	"\n" +
-	"\bResponse\"\xee\x01\n" +
+	"\bResponse\"\xe5\x01\n" +
 	"\tGetConfig\x1a\x84\x01\n" +
 	"\aRequest\x12\x1f\n" +
 	"\vconfig_name\x18\x01 \x01(\tR\n" +
@@ -1409,10 +1409,10 @@ const file_matreshka_api_proto_rawDesc = "" +
 	"\aversion\x18\x02 \x01(\tH\x00R\aversion\x88\x01\x01\x12-\n" +
 	"\x06format\x18\x03 \x01(\x0e2\x15.matreshka_api.FormatR\x06formatB\n" +
 	"\n" +
-	"\b_version\x1aZ\n" +
+	"\b_version\x1aQ\n" +
 	"\bResponse\x12\x16\n" +
-	"\x06config\x18\x01 \x01(\fR\x06config\x126\n" +
-	"\tbase_info\x18\x02 \x01(\v2\x19.matreshka_api.ConfigBaseR\bbaseInfo\"\xa1\x01\n" +
+	"\x06config\x18\x01 \x01(\fR\x06config\x12-\n" +
+	"\x04info\x18\x02 \x01(\v2\x19.matreshka_api.ConfigInfoR\x04info\"\xa1\x01\n" +
 	"\vPatchConfig\x1a\x85\x01\n" +
 	"\aRequest\x12\x1f\n" +
 	"\vconfig_name\x18\x01 \x01(\tR\n" +
@@ -1529,8 +1529,9 @@ var file_matreshka_api_proto_goTypes = []any{
 	(*ConfigBase)(nil),                  // 32: matreshka_api.ConfigBase
 	(ConfigType)(0),                     // 33: matreshka_api.ConfigType
 	(Format)(0),                         // 34: matreshka_api.Format
-	(*Patch)(nil),                       // 35: matreshka_api.Patch
-	(*Node)(nil),                        // 36: matreshka_api.Node
+	(*ConfigInfo)(nil),                  // 35: matreshka_api.ConfigInfo
+	(*Patch)(nil),                       // 36: matreshka_api.Patch
+	(*Node)(nil),                        // 37: matreshka_api.Node
 }
 var file_matreshka_api_proto_depIdxs = []int32{
 	30, // 0: matreshka_api.ListConfigs.Request.paging:type_name -> matreshka_api.Paging
@@ -1538,11 +1539,11 @@ var file_matreshka_api_proto_depIdxs = []int32{
 	32, // 2: matreshka_api.ListConfigs.Response.configs:type_name -> matreshka_api.ConfigBase
 	33, // 3: matreshka_api.CreateConfig.Request.config_type:type_name -> matreshka_api.ConfigType
 	34, // 4: matreshka_api.GetConfig.Request.format:type_name -> matreshka_api.Format
-	32, // 5: matreshka_api.GetConfig.Response.base_info:type_name -> matreshka_api.ConfigBase
-	35, // 6: matreshka_api.PatchConfig.Request.patches:type_name -> matreshka_api.Patch
+	35, // 5: matreshka_api.GetConfig.Response.info:type_name -> matreshka_api.ConfigInfo
+	36, // 6: matreshka_api.PatchConfig.Request.patches:type_name -> matreshka_api.Patch
 	34, // 7: matreshka_api.SaveConfig.Request.format:type_name -> matreshka_api.Format
-	36, // 8: matreshka_api.GetConfigNode.Response.root:type_name -> matreshka_api.Node
-	35, // 9: matreshka_api.SubscribeOnChanges.Response.patches:type_name -> matreshka_api.Patch
+	37, // 8: matreshka_api.GetConfigNode.Response.root:type_name -> matreshka_api.Node
+	36, // 9: matreshka_api.SubscribeOnChanges.Response.patches:type_name -> matreshka_api.Patch
 	10, // 10: matreshka_api.MatreshkaApi.Version:input_type -> matreshka_api.Version.Request
 	12, // 11: matreshka_api.MatreshkaApi.ListConfigs:input_type -> matreshka_api.ListConfigs.Request
 	14, // 12: matreshka_api.MatreshkaApi.CreateConfig:input_type -> matreshka_api.CreateConfig.Request

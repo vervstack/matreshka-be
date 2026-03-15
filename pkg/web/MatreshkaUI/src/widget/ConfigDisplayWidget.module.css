@@ -8,24 +8,44 @@
 
 .Header {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
     margin-bottom: 20px;
-}
+    gap: 20px;
 
-.TitleSection {
-    display: flex;
-    flex-direction: column;
-}
+    .TitleSection {
+        display: flex;
+        flex-direction: column;
 
-.ConfigName {
-    font-size: 24px;
-    font-weight: bold;
-}
+        .ConfigName {
+            font-size: 24px;
+            font-weight: bold;
+        }
 
-.ConfigType {
-    font-size: 14px;
-    color: #888;
+        .ConfigType {
+            font-size: 14px;
+            color: #888;
+        }
+    }
+    .Actions {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+
+        gap: 1em;
+
+        .VersionSelect {
+            width: 10em;
+            height: 2.75em;
+            box-sizing: border-box;
+        }
+
+        .FormatSelect {
+            width: auto;
+            height: 2.75em;
+            box-sizing: border-box;
+        }
+    }
 }
 
 .Content {

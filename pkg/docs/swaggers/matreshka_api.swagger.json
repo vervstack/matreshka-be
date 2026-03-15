@@ -357,6 +357,20 @@
         }
       }
     },
+    "matreshka_apiConfigInfo": {
+      "type": "object",
+      "properties": {
+        "configBase": {
+          "$ref": "#/definitions/matreshka_apiConfigBase"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "matreshka_apiConfigType": {
       "type": "string",
       "enum": [
@@ -428,8 +442,8 @@
           "type": "string",
           "format": "byte"
         },
-        "baseInfo": {
-          "$ref": "#/definitions/matreshka_apiConfigBase"
+        "info": {
+          "$ref": "#/definitions/matreshka_apiConfigInfo"
         }
       }
     },

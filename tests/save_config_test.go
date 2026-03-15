@@ -148,12 +148,13 @@ func (e *AppEnv) assertConfigBase(t *testing.T, configName string, cType api.Con
 	require.NoError(t, err)
 
 	require.NotNil(t, actualResp)
-	require.NotNil(t, actualResp.BaseInfo)
+	require.NotNil(t, actualResp.Info)
 
-	require.Equal(t, configName, actualResp.BaseInfo.Name)
-	require.Equal(t, cType, actualResp.BaseInfo.ConfigType)
+	require.Equal(t, configName, actualResp.Info.ConfigBase.Name)
+	require.Equal(t, cType, actualResp.Info.ConfigBase.ConfigType)
+	require.Equal(t, []string{"master"}, actualResp.Info.Versions)
 
-	require.NotEmpty(t, actualResp.BaseInfo.Id)
-	require.NotEmpty(t, actualResp.BaseInfo.CreatedAt)
-	require.NotEmpty(t, actualResp.BaseInfo.UpdatedAt)
+	require.NotEmpty(t, actualResp.Info.ConfigBase.Id)
+	require.NotEmpty(t, actualResp.Info.ConfigBase.CreatedAt)
+	require.NotEmpty(t, actualResp.Info.ConfigBase.UpdatedAt)
 }

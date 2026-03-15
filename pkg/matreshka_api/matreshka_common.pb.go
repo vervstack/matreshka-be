@@ -424,6 +424,58 @@ func (x *ConfigBase) GetConfigType() ConfigType {
 	return ConfigType_plain
 }
 
+type ConfigInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConfigBase    *ConfigBase            `protobuf:"bytes,1,opt,name=config_base,json=configBase,proto3" json:"config_base,omitempty"`
+	Versions      []string               `protobuf:"bytes,2,rep,name=versions,proto3" json:"versions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfigInfo) Reset() {
+	*x = ConfigInfo{}
+	mi := &file_matreshka_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfigInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfigInfo) ProtoMessage() {}
+
+func (x *ConfigInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_matreshka_common_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfigInfo.ProtoReflect.Descriptor instead.
+func (*ConfigInfo) Descriptor() ([]byte, []int) {
+	return file_matreshka_common_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ConfigInfo) GetConfigBase() *ConfigBase {
+	if x != nil {
+		return x.ConfigBase
+	}
+	return nil
+}
+
+func (x *ConfigInfo) GetVersions() []string {
+	if x != nil {
+		return x.Versions
+	}
+	return nil
+}
+
 type Patch struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	FieldName string                 `protobuf:"bytes,1,opt,name=field_name,json=fieldName,proto3" json:"field_name,omitempty"`
@@ -439,7 +491,7 @@ type Patch struct {
 
 func (x *Patch) Reset() {
 	*x = Patch{}
-	mi := &file_matreshka_common_proto_msgTypes[4]
+	mi := &file_matreshka_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +503,7 @@ func (x *Patch) String() string {
 func (*Patch) ProtoMessage() {}
 
 func (x *Patch) ProtoReflect() protoreflect.Message {
-	mi := &file_matreshka_common_proto_msgTypes[4]
+	mi := &file_matreshka_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +516,7 @@ func (x *Patch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Patch.ProtoReflect.Descriptor instead.
 func (*Patch) Descriptor() ([]byte, []int) {
-	return file_matreshka_common_proto_rawDescGZIP(), []int{4}
+	return file_matreshka_common_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Patch) GetFieldName() string {
@@ -560,7 +612,12 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
 	"\vconfig_type\x18\x05 \x01(\x0e2\x19.matreshka_api.ConfigTypeR\n" +
-	"configType\"\x88\x01\n" +
+	"configType\"d\n" +
+	"\n" +
+	"ConfigInfo\x12:\n" +
+	"\vconfig_base\x18\x01 \x01(\v2\x19.matreshka_api.ConfigBaseR\n" +
+	"configBase\x12\x1a\n" +
+	"\bversions\x18\x02 \x03(\tR\bversions\"\x88\x01\n" +
 	"\x05Patch\x12\x1d\n" +
 	"\n" +
 	"field_name\x18\x01 \x01(\tR\tfieldName\x12\x18\n" +
@@ -593,7 +650,7 @@ func file_matreshka_common_proto_rawDescGZIP() []byte {
 }
 
 var file_matreshka_common_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_matreshka_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_matreshka_common_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_matreshka_common_proto_goTypes = []any{
 	(ConfigType)(0),               // 0: matreshka_api.ConfigType
 	(Format)(0),                   // 1: matreshka_api.Format
@@ -602,20 +659,22 @@ var file_matreshka_common_proto_goTypes = []any{
 	(*Sort)(nil),                  // 4: matreshka_api.Sort
 	(*Node)(nil),                  // 5: matreshka_api.Node
 	(*ConfigBase)(nil),            // 6: matreshka_api.ConfigBase
-	(*Patch)(nil),                 // 7: matreshka_api.Patch
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*ConfigInfo)(nil),            // 7: matreshka_api.ConfigInfo
+	(*Patch)(nil),                 // 8: matreshka_api.Patch
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_matreshka_common_proto_depIdxs = []int32{
 	2, // 0: matreshka_api.Sort.type:type_name -> matreshka_api.Sort.Type
 	5, // 1: matreshka_api.Node.inner_nodes:type_name -> matreshka_api.Node
-	8, // 2: matreshka_api.ConfigBase.created_at:type_name -> google.protobuf.Timestamp
-	8, // 3: matreshka_api.ConfigBase.updated_at:type_name -> google.protobuf.Timestamp
+	9, // 2: matreshka_api.ConfigBase.created_at:type_name -> google.protobuf.Timestamp
+	9, // 3: matreshka_api.ConfigBase.updated_at:type_name -> google.protobuf.Timestamp
 	0, // 4: matreshka_api.ConfigBase.config_type:type_name -> matreshka_api.ConfigType
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	6, // 5: matreshka_api.ConfigInfo.config_base:type_name -> matreshka_api.ConfigBase
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_matreshka_common_proto_init() }
@@ -624,7 +683,7 @@ func file_matreshka_common_proto_init() {
 		return
 	}
 	file_matreshka_common_proto_msgTypes[2].OneofWrappers = []any{}
-	file_matreshka_common_proto_msgTypes[4].OneofWrappers = []any{
+	file_matreshka_common_proto_msgTypes[5].OneofWrappers = []any{
 		(*Patch_Rename)(nil),
 		(*Patch_UpdateValue)(nil),
 		(*Patch_Delete)(nil),
@@ -635,7 +694,7 @@ func file_matreshka_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_matreshka_common_proto_rawDesc), len(file_matreshka_common_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

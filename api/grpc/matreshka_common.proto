@@ -60,6 +60,11 @@ message ConfigBase {
   ConfigType config_type = 5;
 }
 
+message ConfigInfo {
+  ConfigBase config_base = 1;
+  repeated string versions = 2;
+}
+
 message Patch {
   string field_name = 1;
   oneof patch {

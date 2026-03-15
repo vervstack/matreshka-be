@@ -1,8 +1,8 @@
 .SelectOneOfContainer {
     display: flex;
-    flex-direction: column;
     gap: 0.5em;
-    width: 100%;
+    width: fit-content;
+    height: 100%;
 }
 
 .Label {
@@ -20,7 +20,6 @@
 }
 
 .Option {
-    flex: 1;
     padding: 0.5em 12px;
     text-align: center;
     cursor: pointer;
@@ -29,6 +28,11 @@
     font-size: 14px;
     color: var(--main-fg-color);
     user-select: none;
+    white-space: nowrap;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .Option:hover:not(.Selected) {
