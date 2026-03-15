@@ -82,7 +82,10 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
 
     useEffect(() => {
         document.title = configName;
-    }, [configName]);
+        if (version != "") {
+            document.title += `@${version}`;
+        }
+    }, [configName, version]);
 
     return (
         <div className={cls.ConfigDisplayWidgetContainer}>
