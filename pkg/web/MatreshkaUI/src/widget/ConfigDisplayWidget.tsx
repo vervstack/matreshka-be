@@ -61,7 +61,7 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
             if (res.info?.versions) {
                 setVersions([...res.info.versions]);
 
-                if (version == "") {
+                if (!res.info.versions.includes(version)) {
                     setVersion(res.info.versions[0])
                 }
             }
