@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {useSearchParams} from "react-router-dom";
 import {
     Format,
 
@@ -21,8 +22,11 @@ interface ConfigDisplayWidgetProps {
 export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetProps) {
     const {GetConfig, GetConfigNodes} = useApi();
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const versionParam = searchParams.get("version");
+
     const [format, setFormat] = useState<Format>(Format.yaml);
-    const [version, setVersion] = useState<string>("");
+    const [version, setVersion] = useState<string>(versionParam || "");
     const [versions, setVersions] = useState<string[]>([]);
 
     const [configText, setConfigText] = useState<string>("");
@@ -65,6 +69,12 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
             console.error("Failed to fetch versions", err);
         });
     }, [configName, GetConfigNodes]);
+
+    useEffect(() => {
+        if (version !== "") {
+            setSearchParams({version}, {replace: true});
+        }
+    }, [version, setSearchParams]);
 
     useEffect(() => {
         loadConfig();
