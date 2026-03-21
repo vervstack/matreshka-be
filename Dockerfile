@@ -1,18 +1,18 @@
 # ---- Web client build ----
-FROM node:23-alpine3.20 AS webclient
+FROM oven/bun:1-alpine AS webclient
 
 WORKDIR /web
 
 RUN --mount=type=bind,target=/web,rw \
     --mount=type=cache,target=/web/pkg/web/@vervstack/matreshka/node_modules \
     --mount=type=cache,target=/web/pkg/web/Matreshka-UI/node_modules \
-    --mount=type=cache,target=/root/.cache/yarn \
+    --mount=type=cache,target=/root/.bun \
     cd /web/pkg/web/@vervstack/matreshka && \
-    yarn install --frozen-lockfile && \
-    yarn build && \
+    bun install --frozen-lockfile && \
+    bun run build && \
     cd /web/pkg/web/Matreshka-UI && \
-    yarn install --frozen-lockfile && \
-    yarn build && \
+    bun install --frozen-lockfile && \
+    bun run build && \
     mv dist /dist
 
 # ---- Go app build ----
