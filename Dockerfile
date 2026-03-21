@@ -1,5 +1,5 @@
 # ---- Web client build ----
-FROM oven/bun:1-alpine AS webclient
+FROM oven/bun:1.2.4-alpine AS webclient
 
 WORKDIR /web
 
@@ -10,7 +10,7 @@ RUN --mount=type=bind,target=/web,rw \
     cd /web/pkg/web/@vervstack/matreshka && \
     bun install --frozen-lockfile && \
     bun run build && \
-    cd /web/pkg/web/Matreshka-UI && \
+    cd /web/pkg/web/MatreshkaUI && \
     bun install --frozen-lockfile && \
     bun run build && \
     mv dist /dist
@@ -47,6 +47,6 @@ RUN mkdir /app/data
 
 EXPOSE 50049
 
-VOLUME './data/matreshka-be.db'
+VOLUME '/app/data'
 
 ENTRYPOINT ["./service"]
