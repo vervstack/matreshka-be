@@ -8,7 +8,7 @@
 
 .Header {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: right;
     align-items: center;
     margin-bottom: 20px;
     gap: 20px;
@@ -27,7 +27,8 @@
             color: #888;
         }
     }
-    .Actions {
+
+    .ActionsSections {
         display: flex;
         align-items: flex-end;
         justify-content: center;
@@ -45,6 +46,37 @@
             height: 2.75em;
             box-sizing: border-box;
         }
+    }
+
+    .EditSections {
+        flex: 1;
+
+        display: flex;
+        align-items: center;
+        gap: 1em;
+
+        &.hidden {
+            flex: 0;
+        }
+
+        .SaveButton, .RollbackButton {
+            width: 100%;
+            height: 100%;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+
+            &:hover {
+                background: #444;
+                border-color: #777;
+                cursor: pointer;
+            }
+
+        }
+    }
+
+    & > * {
+        /*border: red 1px solid;*/
     }
 }
 
@@ -88,46 +120,56 @@
     display: block;
 }
 
-.EditIcon {
+.TopActions {
     position: absolute;
     top: 10px;
     right: 10px;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s;
+    display: flex;
+    gap: 12px;
     z-index: 10;
 }
 
-.EditIcon:hover {
+.IconAction {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.IconAction:hover {
     opacity: 1;
 }
 
-.EditIcon img {
+.IconAction img {
     width: 20px;
     height: 20px;
     filter: invert(1);
 }
 
-.EditActions {
+.ConfigBlocks {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    flex-direction: column;
+    gap: 0;
 }
 
-.SaveButton, .RollbackButton {
-    background: #333;
-    color: #fff;
-    border: 1px solid #555;
-    padding: 4px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
+.ConfigBlocks.Comparing {
+    flex-direction: row;
+    gap: 20px;
 }
 
-.SaveButton:hover {
-    background: #444;
-    border-color: #777;
+.Column {
+    flex: 1;
+    min-width: 0;
+}
+
+.ColumnLabel {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.Changed {
+    background-color: rgba(0, 255, 0, 0.05) !important;
 }
 
 .RollbackButton {

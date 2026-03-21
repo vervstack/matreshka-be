@@ -1,3 +1,4 @@
+import cn from "classnames";
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {
@@ -12,6 +13,7 @@ import {useApi} from "@/app/hooks/api/api.ts";
 import cls from "@/widget/ConfigDisplayWidget.module.css";
 import Pencil from "@/assets/icons/Pencil.svg";
 import X from "@/assets/icons/X.svg";
+import Eye from "@/assets/icons/Eye.svg";
 
 import LoaderWrapper from "@/segments/LoaderWrapper.tsx";
 import SelectOneOf from "@/components/shared/SelectOneOf.tsx";
@@ -37,9 +39,13 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
 
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [isComparing, setIsComparing] = useState<boolean>(false);
     const [configType, setConfigType] = useState<string>("");
 
-    const lineCount = (isEditing ? editedConfigText : configText).split("\n").length;
+    const originalLines = configText.split("\n");
+    const editedLines = editedConfigText.split("\n");
+
+    const lineCount = (isComparing ? Math.max(originalLines.length, editedLines.length) : (isEditing ? editedLines.length : originalLines.length));
     const editorHeight = `${lineCount * 1.5}em`;
 
     const [loadFunc, setLoadFunc] = useState<Promise<void> | undefined>(undefined);
@@ -146,13 +152,7 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
                     <div className={cls.ConfigName}>{configName}</div>
                     {configType && <div className={cls.ConfigType}>{configType}</div>}
                 </div>
-                <div className={cls.Actions}>
-                    {isDirty && (
-                        <div className={cls.EditActions}>
-                            <button className={cls.RollbackButton} onClick={onRollback}>rollback</button>
-                            <button className={cls.SaveButton} onClick={onSave}>save</button>
-                        </div>
-                    )}
+                <div className={cls.ActionsSections}>
                     <div className={cls.VersionSelect}>
                         <SelectDropDown
                             label="Version"
@@ -171,29 +171,95 @@ export default function ConfigDisplayWidget({configName}: ConfigDisplayWidgetPro
                 </div>
             </div>
 
+            <div className={cn(cls.EditSections,
+                {
+                    [cls.hidden]: isDirty,
+                })}>
+                <button className={cls.RollbackButton}
+                        onClick={onRollback}>
+                    rollback
+                </button>
+                <button className={cls.SaveButton}
+                        onClick={onSave}>
+                    save
+                </button>
+            </div>
+
             <LoaderWrapper load={loadFunc} onClickTryAgain={loadConfig}>
                 <div className={cls.Content}>
-                    <div className={cls.EditIcon}
-                         onClick={() => setIsEditing(!isEditing)}>
-                        {isEditing ? (<img src={X} alt="Stop editing"/>)
-                            :
-                            (<img src={Pencil} alt="Edit"/>)}
-                    </div>
+                    <ContentActions
+                        isEditing={isEditing}
+                        isChanged={configText !== editedConfigText}
+                        setIsComparing={setIsComparing}
+                        isComparing={isComparing}
+                        setIsEditing={setIsEditing}
+                    />
 
-                    {isEditing ? (
-                        <textarea
-                            className={cls.Editor}
-                            value={editedConfigText}
-                            onChange={(e) => setEditedConfigText(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            style={{height: editorHeight}}
-                            autoFocus
-                        />
-                    ) : (
-                        <pre className={cls.Pre} style={{height: editorHeight}}>{configText}</pre>
-                    )}
+                    <div className={cn(cls.ConfigBlocks, {[cls.Comparing]: isComparing})}>
+                        {isComparing && (
+                            <div className={cls.Column}>
+                                <div className={cls.ColumnLabel}>Original</div>
+                                <pre className={cls.Pre} style={{height: editorHeight}}>{configText}</pre>
+                            </div>
+                        )}
+                        <div className={cls.Column}>
+                            {isComparing && <div className={cls.ColumnLabel}>Current</div>}
+                            {isEditing ? (
+                                <textarea
+                                    className={cn(cls.Editor, {[cls.Changed]: isComparing && configText !== editedConfigText})}
+                                    value={editedConfigText}
+                                    onChange={(e) => setEditedConfigText(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    style={{height: editorHeight}}
+                                    autoFocus
+                                />
+                            ) : (
+                                <pre
+                                    className={cn(cls.Pre, {[cls.Changed]: isComparing && configText !== editedConfigText})}
+                                    style={{height: editorHeight}}>{editedConfigText}</pre>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </LoaderWrapper>
         </div>
     );
+}
+
+interface ContentActionsProps {
+    isEditing: boolean;
+    isChanged: boolean;
+
+    setIsComparing: (v: boolean) => void;
+    isComparing: boolean;
+
+    setIsEditing: (v: boolean) => void;
+}
+
+function ContentActions({
+                            isEditing, isChanged,
+                            setIsComparing, isComparing,
+                            setIsEditing
+                        }: ContentActionsProps) {
+    return (
+        <div className={cls.TopActions}>
+            {isEditing && isChanged && (
+                <div className={cls.IconAction}
+                     onClick={() => setIsComparing(!isComparing)}
+                     data-tooltip-id="root-tooltip"
+                     data-tooltip-content={isChanged ? "Hide original" : "Show original"}
+                >
+                    <img src={Eye} alt="Toggle Comparison"
+                         style={{opacity: isComparing ? 1 : 0.5}}/>
+                </div>)
+            }
+
+            <div className={cls.IconAction}
+                 onClick={() => setIsEditing(!isEditing)}>
+                {isEditing ?
+                    (<img src={X} alt="Stop editing"/>)
+                    :
+                    (<img src={Pencil} alt="Edit"/>)}
+            </div>
+        </div>)
 }

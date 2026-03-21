@@ -13,6 +13,7 @@ import (
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 )
 
 const (
@@ -100,11 +101,27 @@ func MergeConfigs(master, slave AppConfig) AppConfig {
 		master.Environment = append(master.Environment, slaveVal)
 	}
 
+	serversByName := map[string]*server.Server{}
+
+	for _, s := range master.Servers {
+		serversByName[s.Name] = s
+	}
+
 	for slavePort, slaveServer := range slave.Servers {
 		_, ok := master.Servers[slavePort]
-		if !ok {
-			master.Servers[slavePort] = slaveServer
+		if ok {
+			continue
 		}
+
+		slaveServerName := slaveServer.Name
+
+		_, ok = serversByName[slaveServerName]
+		if ok {
+			//already have server with that name
+			continue
+		}
+
+		master.Servers[slavePort] = slaveServer
 	}
 
 	for i := range slave.DataSources {
