@@ -13,7 +13,6 @@ servers:
         /{GRPC}:
             module: pkg/matreshka_be_api
             gateway: /api
-        name: MASTER
 environment:
     - name: pass
       type: string
