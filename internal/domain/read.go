@@ -5,8 +5,7 @@ import (
 
 	"go.redsock.ru/evon"
 
-	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 )
 
 type ListConfigsRequest struct {

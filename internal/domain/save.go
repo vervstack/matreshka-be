@@ -1,7 +1,7 @@
 package domain
 
 import (
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 )
 
 type SaveConfigReq struct {

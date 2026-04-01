@@ -3,9 +3,8 @@ package matreshka_api_impl
 import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/domain"
-	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func toConfigList(configs []domain.ConfigBase) []*api.ConfigBase {

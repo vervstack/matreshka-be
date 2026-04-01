@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "npm.proto";
 import "matreshka_common.proto";
 
-option go_package = "go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_api";
+option go_package = "go.vervstack.ru/matreshka;matreshka_api";
 option (npm_package) = "@vervstack/matreshka";
 
 service MatreshkaApi {

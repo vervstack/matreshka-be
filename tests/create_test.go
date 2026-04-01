@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 )
 
 type CreateSuite struct {

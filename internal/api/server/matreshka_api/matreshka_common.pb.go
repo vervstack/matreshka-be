@@ -635,7 +635,7 @@ const file_matreshka_common_proto_rawDesc = "" +
 	"\x02kv\x10\x05*\x1b\n" +
 	"\x06Format\x12\b\n" +
 	"\x04yaml\x10\x00\x12\a\n" +
-	"\x03env\x10\x01BS\x92\x82\x19\x14@vervstack/matreshkaZ9go.vervstack.ru/matreshka/pkg/matreshka_api;matreshka_apib\x06proto3"
+	"\x03env\x10\x01BA\x92\x82\x19\x14@vervstack/matreshkaZ'go.vervstack.ru/matreshka;matreshka_apib\x06proto3"
 
 var (
 	file_matreshka_common_proto_rawDescOnce sync.Once

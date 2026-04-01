@@ -7,8 +7,8 @@ import (
 	"go.redsock.ru/toolbox"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/domain"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (s *Impl) GetConfig(ctx context.Context, req *api.GetConfig_Request) (*api.GetConfig_Response, error) {

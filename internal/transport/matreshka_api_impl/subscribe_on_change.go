@@ -7,9 +7,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/internal/service/v1/subscription"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (s *Impl) SubscribeOnChanges(stream api.MatreshkaApi_SubscribeOnChangesServer) error {

@@ -8,9 +8,9 @@ import (
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/config_templates"
 	"go.vervstack.ru/matreshka/internal/domain"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *CfgService) Create(ctx context.Context, req domain.CreateConfigRequest) error {

@@ -7,9 +7,9 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type parseMappingKey struct {

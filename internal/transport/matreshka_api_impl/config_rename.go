@@ -5,7 +5,7 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 )
 
 func (s *Impl) RenameConfig(ctx context.Context, req *api.RenameConfig_Request) (*api.RenameConfig_Response, error) {

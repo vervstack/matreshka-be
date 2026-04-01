@@ -9,10 +9,10 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/domain"
 	"go.vervstack.ru/matreshka/internal/service/user_errors"
 	"go.vervstack.ru/matreshka/internal/storage"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *CfgService) Patch(ctx context.Context, req domain.PatchConfigRequest) error {

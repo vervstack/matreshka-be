@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 )
 
 const (

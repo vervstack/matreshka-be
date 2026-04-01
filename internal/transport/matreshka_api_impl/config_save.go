@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	api "go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/domain"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (s *Impl) SaveConfig(ctx context.Context, req *api.SaveConfig_Request) (

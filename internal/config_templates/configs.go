@@ -6,8 +6,8 @@ import (
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 var ErrUnsupportedConfigType = errors.New("unsupported config type")

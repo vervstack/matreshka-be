@@ -20,11 +20,11 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	_ "modernc.org/sqlite"
 
+	"go.vervstack.ru/matreshka/internal/api/server/matreshka_api"
 	"go.vervstack.ru/matreshka/internal/config"
 	"go.vervstack.ru/matreshka/internal/transport/matreshka_api_impl"
 	"go.vervstack.ru/matreshka/pkg/app"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type AppEnv struct {

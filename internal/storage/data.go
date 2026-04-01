@@ -8,7 +8,6 @@ import (
 	"go.redsock.ru/evon"
 
 	"go.vervstack.ru/matreshka/internal/domain"
-	//"go.vervstack.ru/matreshka/internal/storage/pg/queries/config_queries"
 )
 
 type Data interface {
