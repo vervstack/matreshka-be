@@ -104,7 +104,7 @@ func MergeConfigs(master, slave AppConfig) AppConfig {
 	serversByName := map[string]*server.Server{}
 
 	for _, s := range master.Servers {
-		serversByName[s.Name] = s
+		serversByName[strings.ToLower(ServerName(s.Name))] = s
 	}
 
 	for slavePort, slaveServer := range slave.Servers {
@@ -113,11 +113,11 @@ func MergeConfigs(master, slave AppConfig) AppConfig {
 			continue
 		}
 
-		slaveServerName := slaveServer.Name
+		slaveServerName := strings.ToLower(ServerName(slaveServer.Name))
 
 		_, ok = serversByName[slaveServerName]
 		if ok {
-			//already have server with that name
+			// already have a server that resolves to the same destination field
 			continue
 		}
 

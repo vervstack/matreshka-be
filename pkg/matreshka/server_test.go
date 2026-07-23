@@ -119,6 +119,45 @@ func Test_Servers(t *testing.T) {
 		})
 	})
 
+	t.Run("ParseToStruct", func(t *testing.T) {
+		t.Run("Duplicate_Servers_Error", func(t *testing.T) {
+			t.Parallel()
+
+			type dst struct {
+				MASTER *server.Server
+			}
+
+			for i := 0; i < 20; i++ {
+				servers := Servers{
+					8080: {Name: "", Port: "8080"},
+					9090: {Name: "MASTER", Port: "9090"},
+				}
+
+				var d dst
+				err := servers.ParseToStruct(&d)
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "duplicate")
+			}
+		})
+
+		t.Run("Distinct_Servers_OK", func(t *testing.T) {
+			t.Parallel()
+
+			type dst struct {
+				MASTER  *server.Server
+				MASTER2 *server.Server
+			}
+
+			servers := getConfigServersFull()
+
+			var d dst
+			err := servers.ParseToStruct(&d)
+			require.NoError(t, err)
+			require.Equal(t, servers[8080], d.MASTER)
+			require.Equal(t, servers[50051], d.MASTER2)
+		})
+	})
+
 	t.Run("ENV", func(t *testing.T) {
 		t.Run("Marshal", func(t *testing.T) {
 			t.Parallel()

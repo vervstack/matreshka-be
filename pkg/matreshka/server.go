@@ -136,7 +136,16 @@ func (s Servers) ParseToStruct(dst any) error {
 		dstMapping[strings.ToLower(field.Name)] = dstRef.Field(i)
 	}
 
-	for _, serv := range s {
+	ports := make([]int, 0, len(s))
+	for port := range s {
+		ports = append(ports, port)
+	}
+	sort.Ints(ports)
+
+	assignedFrom := make(map[string]int, len(s))
+
+	for _, port := range ports {
+		serv := s[port]
 		name := strings.ToLower(ServerName(serv.Name))
 
 		v, ok := dstMapping[name]
@@ -144,11 +153,17 @@ func (s Servers) ParseToStruct(dst any) error {
 			return rerrors.New("not found field with name: " + name)
 		}
 
+		if prevPort, exists := assignedFrom[name]; exists {
+			return rerrors.New(
+				"duplicate server for field %q: ports %d and %d both resolve to it",
+				name, prevPort, port)
+		}
+		assignedFrom[name] = port
+
 		v.Set(reflect.ValueOf(serv))
 	}
 
 	return nil
-
 }
 
 type serverNamer struct {

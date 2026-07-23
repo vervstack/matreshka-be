@@ -11,6 +11,7 @@ import (
 
 	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 )
 
 func Test_ParseConfig(t *testing.T) {
@@ -232,4 +233,27 @@ func Test_ReadConfigs(t *testing.T) {
 		require.ErrorIs(t, err, os.ErrNotExist)
 		require.Equal(t, cfg, NewEmptyConfig())
 	})
+}
+
+func Test_MergeConfigs_ServerNameDedup(t *testing.T) {
+	t.Parallel()
+
+	master := NewEmptyConfig()
+	masterServer := &server.Server{
+		Name: "MASTER",
+		Port: "8080",
+	}
+	master.Servers[8080] = masterServer
+
+	slave := NewEmptyConfig()
+	slaveServer := &server.Server{
+		Name: "",
+		Port: "9090",
+	}
+	slave.Servers[9090] = slaveServer
+
+	merged := MergeConfigs(master, slave)
+
+	require.Len(t, merged.Servers, 1)
+	require.Equal(t, masterServer, merged.Servers[8080])
 }
