@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -84,5 +85,74 @@ func TestPostgres_ParseFromDsn(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, pg, expected)
+	})
+}
+
+func TestPostgres_ConnectionString(t *testing.T) {
+	base := Postgres{
+		Host:   "local.host",
+		Port:   5432,
+		User:   "SomeGuy",
+		Pwd:    "SomePass",
+		DbName: "GreatDb",
+	}
+
+	t.Run("schema_only", func(t *testing.T) {
+		pg := base
+		pg.Schema = "my_schema"
+
+		expectedOptions := url.QueryEscape("-c search_path=" + pg.Schema)
+
+		connstr := pg.ConnectionString()
+		require.Equal(t, "postgresql://SomeGuy:SomePass@local.host:5432/GreatDb?options="+expectedOptions, connstr)
+		require.Contains(t, connstr, "options="+expectedOptions)
+	})
+
+	t.Run("schema_and_sslmode", func(t *testing.T) {
+		pg := base
+		pg.Schema = "my_schema"
+		pg.SslMode = "disable"
+
+		expectedOptions := url.QueryEscape("-c search_path=" + pg.Schema)
+
+		connstr := pg.ConnectionString()
+		require.Equal(t, "postgresql://SomeGuy:SomePass@local.host:5432/GreatDb?sslmode=disable&options="+expectedOptions, connstr)
+		require.Contains(t, connstr, "sslmode=disable")
+		require.Contains(t, connstr, "options="+expectedOptions)
+	})
+}
+
+func TestPostgres_AdminConnectionString(t *testing.T) {
+	base := Postgres{
+		Host:    "local.host",
+		Port:    5432,
+		User:    "SomeGuy",
+		Pwd:     "SomePass",
+		DbName:  "GreatDb",
+		SslMode: "disable",
+		Schema:  "my_schema",
+	}
+
+	t.Run("without_admin_creds_falls_back_to_user", func(t *testing.T) {
+		pg := base
+
+		require.Equal(t, pg.ConnectionString(), pg.AdminConnectionString())
+	})
+
+	t.Run("with_admin_creds_uses_admin_user", func(t *testing.T) {
+		pg := base
+		pg.AdminUser = "AdminGuy"
+		pg.AdminPwd = "AdminPass"
+
+		adminConnstr := pg.AdminConnectionString()
+		require.Contains(t, adminConnstr, "AdminGuy:AdminPass@")
+		require.NotContains(t, adminConnstr, "SomeGuy:SomePass@")
+
+		// host/port/dbname/schema/sslmode stay the same as ConnectionString
+		expectedOptions := url.QueryEscape("-c search_path=" + pg.Schema)
+		require.Equal(t,
+			"postgresql://AdminGuy:AdminPass@local.host:5432/GreatDb?sslmode=disable&options="+expectedOptions,
+			adminConnstr,
+		)
 	})
 }

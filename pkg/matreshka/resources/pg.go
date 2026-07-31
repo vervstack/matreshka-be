@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,10 @@ type Postgres struct {
 
 	DbName  string `yaml:"name"`
 	SslMode string `yaml:"ssl_mode"`
+
+	Schema    string `yaml:"schema"`
+	AdminUser string `yaml:"admin_user"`
+	AdminPwd  string `yaml:"admin_pwd"`
 }
 
 func NewPostgres(n Name) Resource {
@@ -56,16 +61,45 @@ func (p *Postgres) MarshalYAML() (interface{}, error) {
 }
 
 func (p *Postgres) ConnectionString() string {
+	return p.connectionStringWithCreds(p.User, p.Pwd)
+}
+
+// AdminConnectionString is identical to ConnectionString, except it
+// authenticates with AdminUser/AdminPwd (typically used for running DDL
+// migrations) instead of User/Pwd. When AdminUser is not set, it falls back
+// to the regular user credentials, returning the same string as
+// ConnectionString.
+func (p *Postgres) AdminConnectionString() string {
+	if p.AdminUser == "" {
+		return p.ConnectionString()
+	}
+
+	return p.connectionStringWithCreds(p.AdminUser, p.AdminPwd)
+}
+
+// connectionStringWithCreds builds the DSN for the given user/password pair,
+// appending sslmode and (via the `options` param) the default search_path
+// derived from Schema, if set.
+func (p *Postgres) connectionStringWithCreds(user, pwd string) string {
 	connstr := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s",
-		p.User,
-		p.Pwd,
+		user,
+		pwd,
 		p.Host,
 		p.Port,
 		p.DbName,
 	)
 
+	params := make([]string, 0, 2)
 	if p.SslMode != "" {
-		connstr += fmt.Sprintf("?sslmode=%s", p.SslMode)
+		params = append(params, fmt.Sprintf("sslmode=%s", p.SslMode))
+	}
+
+	if p.Schema != "" {
+		params = append(params, fmt.Sprintf("options=%s", url.QueryEscape("-c search_path="+p.Schema)))
+	}
+
+	if len(params) > 0 {
+		connstr += "?" + strings.Join(params, "&")
 	}
 
 	return connstr

@@ -7,6 +7,9 @@ data_sources:
       pwd: matreshka
       name: matreshka
       ssl_mode: disable
+      schema: ""
+      admin_user: ""
+      admin_pwd: ""
     - resource_name: redis
       host: localhost
       port: 6379
