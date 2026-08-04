@@ -29,31 +29,71 @@ func NewEmptyConfig() AppConfig {
 	}
 }
 
-func ReadConfigs(paths ...string) (masterConfig AppConfig, err error) {
+// configSource is a single input to ReadConfig: either a path to a YAML file
+// on disk (path set) or raw in-memory YAML bytes (bytes set).
+type configSource struct {
+	path  string
+	bytes []byte
+}
+
+// ReadOption configures the list of sources ReadConfig reads from.
+type ReadOption func(*[]configSource)
+
+// WithConfigPaths adds one or more YAML files to be read from disk, in order.
+func WithConfigPaths(paths ...string) ReadOption {
+	return func(srcs *[]configSource) {
+		for _, p := range paths {
+			*srcs = append(*srcs, configSource{path: p})
+		}
+	}
+}
+
+// WithConfigBytes adds a raw in-memory YAML config source (e.g. an embedded
+// default/skeleton config compiled into the binary).
+func WithConfigBytes(b []byte) ReadOption {
+	return func(srcs *[]configSource) {
+		*srcs = append(*srcs, configSource{bytes: b})
+	}
+}
+
+// ReadConfig builds a master config from the given sources (files and/or raw
+// bytes), in the order the options were passed — earlier sources win
+// per-entry over later ones (see MergeConfigs), then overlays OS env vars.
+func ReadConfig(opts ...ReadOption) (masterConfig AppConfig, err error) {
 	masterConfig = NewEmptyConfig()
 
-	if len(paths) != 0 {
-		fileConfig, err := getFromFile(paths[0])
-		if err != nil {
-			return masterConfig, rerrors.Wrap(err, "error reading master config")
-		}
+	var srcs []configSource
+	for _, o := range opts {
+		o(&srcs)
+	}
 
-		masterConfig = MergeConfigs(masterConfig, fileConfig)
+	var errs []error
+	for _, s := range srcs {
+		var cfg AppConfig
+		var srcErr error
 
-		var errs []error
-		for _, pth := range paths[1:] {
-			fileConfig, err = getFromFile(pth)
-			if err != nil {
-				errs = append(errs, rerrors.Wrapf(err, "error reading config at %s", pth))
-				continue
+		if s.path != "" {
+			cfg, srcErr = getFromFile(s.path)
+			if srcErr != nil {
+				srcErr = rerrors.Wrapf(srcErr, "error reading config at %s", s.path)
 			}
-
-			masterConfig = MergeConfigs(masterConfig, fileConfig)
+		} else {
+			cfg, srcErr = ParseConfig(s.bytes)
+			if srcErr != nil {
+				srcErr = rerrors.Wrap(srcErr, "error parsing config bytes")
+			}
 		}
 
-		if len(errs) != 0 {
-			return masterConfig, stderrors.Join(errs...)
+		if srcErr != nil {
+			errs = append(errs, srcErr)
+			continue
 		}
+
+		masterConfig = MergeConfigs(masterConfig, cfg)
+	}
+
+	if len(errs) != 0 {
+		return masterConfig, stderrors.Join(errs...)
 	}
 
 	masterConfig, err = enrichWithEnv(masterConfig)
@@ -62,6 +102,14 @@ func ReadConfigs(paths ...string) (masterConfig AppConfig, err error) {
 	}
 
 	return masterConfig, nil
+}
+
+// ReadConfigs reads and merges YAML config files from paths, then overlays
+// OS env vars.
+//
+// Deprecated: use ReadConfig(WithConfigPaths(paths...)) instead.
+func ReadConfigs(paths ...string) (AppConfig, error) {
+	return ReadConfig(WithConfigPaths(paths...))
 }
 
 func ParseConfig(in []byte) (AppConfig, error) {

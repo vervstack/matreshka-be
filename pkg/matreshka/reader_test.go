@@ -235,6 +235,132 @@ func Test_ReadConfigs(t *testing.T) {
 	})
 }
 
+func Test_ReadConfig(t *testing.T) {
+	// Not t.Parallel(): the WITH_CONFIG_BYTES_ONLY subtest uses t.Setenv,
+	// which panics if any ancestor test is marked parallel.
+
+	tmpDirPath := path.Join(os.TempDir(), t.Name())
+	require.NoError(t, os.MkdirAll(tmpDirPath, os.ModePerm))
+
+	t.Run("WITH_CONFIG_PATHS_ONLY", func(t *testing.T) {
+		emptyConfigPath := path.Join(tmpDirPath, path.Base(t.Name()+"_empty")+".yaml")
+		defer func() {
+			require.NoError(t, os.RemoveAll(emptyConfigPath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				emptyConfigPath,
+				emptyConfig,
+				os.ModePerm))
+
+		fullConfigPath := path.Join(tmpDirPath, path.Base(t.Name()+"_full")+".yaml")
+		defer func() {
+			require.NoError(t, os.RemoveAll(fullConfigPath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				fullConfigPath,
+				fullConfig,
+				os.ModePerm))
+
+		expectedCfg, err := ReadConfigs(emptyConfigPath, fullConfigPath)
+		require.NoError(t, err)
+
+		actualCfg, err := ReadConfig(WithConfigPaths(emptyConfigPath, fullConfigPath))
+		require.NoError(t, err)
+
+		require.Equal(t, expectedCfg, actualCfg)
+	})
+
+	t.Run("WITH_CONFIG_BYTES_ONLY", func(t *testing.T) {
+		bytesCfg := []byte("app_info:\n  name: test\ndata_sources:\n  - resource_name: postgres\n    host: localhost\n")
+
+		actualCfg, err := ReadConfig(WithConfigBytes(bytesCfg))
+		require.NoError(t, err)
+
+		pg, ok := actualCfg.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "localhost", pg.Host)
+
+		t.Setenv("DATA-SOURCES_POSTGRES_HOST", "envhost")
+
+		actualCfgWithEnv, err := ReadConfig(WithConfigBytes(bytesCfg))
+		require.NoError(t, err)
+
+		pgWithEnv, ok := actualCfgWithEnv.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "envhost", pgWithEnv.Host)
+	})
+
+	t.Run("WITH_CONFIG_PATHS_AND_BYTES", func(t *testing.T) {
+		pathConfigPath := path.Join(tmpDirPath, path.Base(t.Name())+".yaml")
+		defer func() {
+			require.NoError(t, os.RemoveAll(pathConfigPath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				pathConfigPath,
+				[]byte("app_info:\n  name: test\ndata_sources:\n  - resource_name: postgres\n    host: path-host\n"),
+				os.ModePerm))
+
+		bytesCfg := []byte("app_info:\n  name: test\n  version: v0.0.1\ndata_sources:\n  - resource_name: postgres\n    host: bytes-host\n  - resource_name: redis\n    host: bytes-redis-host\n")
+
+		actualCfg, err := ReadConfig(WithConfigPaths(pathConfigPath), WithConfigBytes(bytesCfg))
+		require.NoError(t, err)
+
+		// path source registered first -> wins for a name present in both
+		pg, ok := actualCfg.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "path-host", pg.Host)
+
+		// bytes source fills in a name the path source did not declare
+		redis, ok := actualCfg.DataSources.get("redis").(*resources.Redis)
+		require.True(t, ok)
+		require.Equal(t, "bytes-redis-host", redis.Host)
+
+		// path source's app_info wins for Name; bytes-only field (Version) fills in
+		require.Equal(t, "test", actualCfg.AppInfo.Name)
+		require.Equal(t, "v0.0.1", actualCfg.AppInfo.Version)
+	})
+
+	t.Run("READ_CONFIGS_WRAPPER_REGRESSION", func(t *testing.T) {
+		fullConfigPath := path.Join(tmpDirPath, path.Base(t.Name())+".yaml")
+		defer func() {
+			require.NoError(t, os.RemoveAll(fullConfigPath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				fullConfigPath,
+				fullConfig,
+				os.ModePerm))
+
+		expectedCfg := getFullConfigTest()
+
+		actualCfg, err := ReadConfigs(fullConfigPath)
+		require.NoError(t, err)
+
+		sort.Slice(expectedCfg.Environment, func(i, j int) bool {
+			return expectedCfg.Environment[i].Name < expectedCfg.Environment[j].Name
+		})
+		sort.Slice(actualCfg.Environment, func(i, j int) bool {
+			return actualCfg.Environment[i].Name < actualCfg.Environment[j].Name
+		})
+
+		require.Equal(t, expectedCfg.AppInfo, actualCfg.AppInfo)
+		require.Equal(t, expectedCfg.DataSources, actualCfg.DataSources)
+		require.Equal(t, expectedCfg.Servers, actualCfg.Servers)
+		require.Equal(t, expectedCfg.Environment, actualCfg.Environment)
+		require.Equal(t, expectedCfg.ServiceDiscovery, actualCfg.ServiceDiscovery)
+	})
+
+	t.Run("ERROR_NONEXISTENT_FILE", func(t *testing.T) {
+		cfg, err := ReadConfig(WithConfigPaths("unreadable config path"))
+		require.Error(t, err)
+		require.ErrorIs(t, err, os.ErrNotExist)
+		require.Equal(t, NewEmptyConfig(), cfg)
+	})
+}
+
 func Test_MergeConfigs_ServerNameDedup(t *testing.T) {
 	t.Parallel()
 
