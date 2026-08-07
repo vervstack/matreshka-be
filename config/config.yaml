@@ -1,6 +1,6 @@
 app_info:
     name: matreshka-be
-    version: v1.0.98
+    version: v1.0.99
     startup_duration: 10s
 data_sources:
     - resource_name: sqlite

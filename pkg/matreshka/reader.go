@@ -239,6 +239,12 @@ func enrichWithEnv(masterConfig AppConfig) (enrichedConfig AppConfig, err error)
 			originalName = strings.ReplaceAll(originalName, "-", "_")
 			return envNamePointers[originalName]
 		},
+		// Use full-underscore style directly, with no section prefix
+		// (covers DataSources, Servers, etc. — same tolerance Environment already gets,
+		// needed since real env var names cannot contain '-')
+		func(originalName string) *evon.Node {
+			return envNamePointers[originalName]
+		},
 	}
 
 	for _, variable := range environ {

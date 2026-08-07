@@ -292,6 +292,21 @@ func Test_ReadConfig(t *testing.T) {
 		require.Equal(t, "envhost", pgWithEnv.Host)
 	})
 
+	t.Run("WITH_CONFIG_BYTES_ONLY_FULL_UNDERSCORE_ENV", func(t *testing.T) {
+		bytesCfg := []byte("app_info:\n  name: test\ndata_sources:\n  - resource_name: postgres\n    host: localhost\n")
+
+		// Fully underscored variant of DATA-SOURCES_POSTGRES_HOST: real env var
+		// names can't contain '-', so this must resolve the same way.
+		t.Setenv("DATA_SOURCES_POSTGRES_HOST", "envhost")
+
+		actualCfgWithEnv, err := ReadConfig(WithConfigBytes(bytesCfg))
+		require.NoError(t, err)
+
+		pgWithEnv, ok := actualCfgWithEnv.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "envhost", pgWithEnv.Host)
+	})
+
 	t.Run("WITH_CONFIG_PATHS_AND_BYTES", func(t *testing.T) {
 		pathConfigPath := path.Join(tmpDirPath, path.Base(t.Name())+".yaml")
 		defer func() {
