@@ -374,6 +374,80 @@ func Test_ReadConfig(t *testing.T) {
 		require.ErrorIs(t, err, os.ErrNotExist)
 		require.Equal(t, NewEmptyConfig(), cfg)
 	})
+
+	t.Run("WITH_ENV_FILE_OVERRIDES_YAML", func(t *testing.T) {
+		fullConfigPath := path.Join(tmpDirPath, path.Base(t.Name())+".yaml")
+		defer func() {
+			require.NoError(t, os.RemoveAll(fullConfigPath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				fullConfigPath,
+				fullConfig,
+				os.ModePerm))
+
+		actualCfg, err := ReadConfig(
+			WithConfigPaths(fullConfigPath),
+			WithEnvFile(path.Join("tests", "sample.env")),
+		)
+		require.NoError(t, err)
+
+		// .env overrides a field the YAML fixture already set
+		require.Equal(t, "v9.9.9", actualCfg.AppInfo.Version)
+
+		pg, ok := actualCfg.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "envfile-host", pg.Host)
+
+		// .env fills in a field the YAML fixture did not set at all
+		require.Equal(t, "envfile:1281", actualCfg.ServiceDiscovery.MakoshUrl)
+
+		// fields untouched by .env still come from YAML
+		require.Equal(t, "matreshka", actualCfg.AppInfo.Name)
+		require.Equal(t, uint64(5432), pg.Port)
+	})
+
+	t.Run("REAL_ENV_OVERRIDES_ENV_FILE", func(t *testing.T) {
+		envFilePath := path.Join(tmpDirPath, path.Base(t.Name())+".env")
+		defer func() {
+			require.NoError(t, os.RemoveAll(envFilePath))
+		}()
+		require.NoError(t,
+			os.WriteFile(
+				envFilePath,
+				[]byte("DATA-SOURCES_POSTGRES_HOST=envfilehost\n"),
+				os.ModePerm))
+
+		bytesCfg := []byte("app_info:\n  name: test\ndata_sources:\n  - resource_name: postgres\n    host: localhost\n")
+
+		actualCfg, err := ReadConfig(WithConfigBytes(bytesCfg), WithEnvFile(envFilePath))
+		require.NoError(t, err)
+
+		pg, ok := actualCfg.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "envfilehost", pg.Host)
+
+		// Real OS env var (full-underscore style, mirrors
+		// WITH_CONFIG_BYTES_ONLY_FULL_UNDERSCORE_ENV) must win over the .env file value.
+		t.Setenv("DATA_SOURCES_POSTGRES_HOST", "realenvhost")
+
+		actualCfgWithRealEnv, err := ReadConfig(WithConfigBytes(bytesCfg), WithEnvFile(envFilePath))
+		require.NoError(t, err)
+
+		pgWithRealEnv, ok := actualCfgWithRealEnv.DataSources.get("postgres").(*resources.Postgres)
+		require.True(t, ok)
+		require.Equal(t, "realenvhost", pgWithRealEnv.Host)
+	})
+
+	t.Run("ERROR_MISSING_ENV_FILE", func(t *testing.T) {
+		bytesCfg := []byte("app_info:\n  name: test\n")
+
+		cfg, err := ReadConfig(WithConfigBytes(bytesCfg), WithEnvFile("unreadable env file path"))
+		require.Error(t, err)
+		require.ErrorIs(t, err, os.ErrNotExist)
+		// the YAML/bytes sources still get merged before the env-file error is returned
+		require.Equal(t, "test", cfg.AppInfo.Name)
+	})
 }
 
 func Test_MergeConfigs_ServerNameDedup(t *testing.T) {

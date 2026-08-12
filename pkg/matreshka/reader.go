@@ -36,14 +36,21 @@ type configSource struct {
 	bytes []byte
 }
 
-// ReadOption configures the list of sources ReadConfig reads from.
-type ReadOption func(*[]configSource)
+// readOptions accumulates everything ReadOption values can configure:
+// the ordered list of YAML/bytes sources, and an optional .env file path.
+type readOptions struct {
+	srcs        []configSource
+	envFilePath string
+}
+
+// ReadOption configures how ReadConfig resolves its master config.
+type ReadOption func(*readOptions)
 
 // WithConfigPaths adds one or more YAML files to be read from disk, in order.
 func WithConfigPaths(paths ...string) ReadOption {
-	return func(srcs *[]configSource) {
+	return func(opts *readOptions) {
 		for _, p := range paths {
-			*srcs = append(*srcs, configSource{path: p})
+			opts.srcs = append(opts.srcs, configSource{path: p})
 		}
 	}
 }
@@ -51,8 +58,18 @@ func WithConfigPaths(paths ...string) ReadOption {
 // WithConfigBytes adds a raw in-memory YAML config source (e.g. an embedded
 // default/skeleton config compiled into the binary).
 func WithConfigBytes(b []byte) ReadOption {
-	return func(srcs *[]configSource) {
-		*srcs = append(*srcs, configSource{bytes: b})
+	return func(opts *readOptions) {
+		opts.srcs = append(opts.srcs, configSource{bytes: b})
+	}
+}
+
+// WithEnvFile sets an optional .env file whose KEY=VALUE values are overlaid
+// on top of the merged YAML/bytes config, but are still overridden by real OS
+// environment variables. If not passed, behavior is unchanged: only YAML/bytes
+// sources and real OS env vars are used.
+func WithEnvFile(path string) ReadOption {
+	return func(opts *readOptions) {
+		opts.envFilePath = path
 	}
 }
 
@@ -62,13 +79,13 @@ func WithConfigBytes(b []byte) ReadOption {
 func ReadConfig(opts ...ReadOption) (masterConfig AppConfig, err error) {
 	masterConfig = NewEmptyConfig()
 
-	var srcs []configSource
+	var ro readOptions
 	for _, o := range opts {
-		o(&srcs)
+		o(&ro)
 	}
 
 	var errs []error
-	for _, s := range srcs {
+	for _, s := range ro.srcs {
 		var cfg AppConfig
 		var srcErr error
 
@@ -92,11 +109,20 @@ func ReadConfig(opts ...ReadOption) (masterConfig AppConfig, err error) {
 		masterConfig = MergeConfigs(masterConfig, cfg)
 	}
 
+	var envFileLines []string
+	if ro.envFilePath != "" {
+		var envFileErr error
+		envFileLines, envFileErr = parseEnvFile(ro.envFilePath)
+		if envFileErr != nil {
+			errs = append(errs, rerrors.Wrapf(envFileErr, "error reading env file at %s", ro.envFilePath))
+		}
+	}
+
 	if len(errs) != 0 {
 		return masterConfig, stderrors.Join(errs...)
 	}
 
-	masterConfig, err = enrichWithEnv(masterConfig)
+	masterConfig, err = enrichWithEnv(masterConfig, envFileLines)
 	if err != nil {
 		return masterConfig, rerrors.Wrap(err, "error enriching master config with env vars")
 	}
@@ -200,7 +226,10 @@ func MergeConfigs(master, slave AppConfig) AppConfig {
 	return master
 }
 
-func enrichWithEnv(masterConfig AppConfig) (enrichedConfig AppConfig, err error) {
+// enrichWithEnv overlays the given .env file lines (lower priority) and then
+// real OS environment variables (highest priority) onto masterConfig. envFileLines
+// may be nil, in which case only real OS env vars are applied (unchanged behavior).
+func enrichWithEnv(masterConfig AppConfig, envFileLines []string) (enrichedConfig AppConfig, err error) {
 	projectName := strings.ToUpper(toolbox.Coalesce(os.Getenv(VervName), masterConfig.ModuleName()))
 
 	// Storage in Evon format (e.g. object_sub-field-name_leaf-field-name)
@@ -218,8 +247,36 @@ func enrichWithEnv(masterConfig AppConfig) (enrichedConfig AppConfig, err error)
 		envNamePointers[strings.ReplaceAll(name, "-", "_")] = node
 	}
 
-	environ := os.Environ()
+	// Lower priority: .env file values, applied first so real OS env vars can
+	// still override them below.
+	applyEnvOverlay(envFileLines, projectName, masterEvonStorage, envNamePointers)
 
+	// Highest priority: real OS environment variables, applied last so they
+	// always win on conflict.
+	applyEnvOverlay(os.Environ(), projectName, masterEvonStorage, envNamePointers)
+
+	masterConfig = NewEmptyConfig()
+	err = evon.UnmarshalWithNodes(masterEvonStorage, &masterConfig)
+	if err != nil {
+		return masterConfig, rerrors.Wrap(err, "error unmarshalling back to config")
+	}
+
+	sort.Slice(masterConfig.Environment, func(i, j int) bool {
+		return masterConfig.Environment[i].Name < masterConfig.Environment[j].Name
+	})
+
+	return masterConfig, nil
+}
+
+// applyEnvOverlay overlays "KEY=VALUE" lines onto the given evon node storage,
+// mutating the nodes it finds matches for in place. Used both for .env file
+// lines and for real OS environment variables (os.Environ()).
+func applyEnvOverlay(
+	lines []string,
+	projectName string,
+	masterEvonStorage evon.NodeStorage,
+	envNamePointers map[string]*evon.Node,
+) {
 	const environmentEvonPart = "ENVIRONMENT"
 
 	nodeFinders := []func(originalName string) *evon.Node{
@@ -247,7 +304,7 @@ func enrichWithEnv(masterConfig AppConfig) (enrichedConfig AppConfig, err error)
 		},
 	}
 
-	for _, variable := range environ {
+	for _, variable := range lines {
 		idx := strings.Index(variable, "=")
 		if idx == -1 {
 			continue
@@ -279,18 +336,29 @@ func enrichWithEnv(masterConfig AppConfig) (enrichedConfig AppConfig, err error)
 
 		node.Value = variableValue
 	}
+}
 
-	masterConfig = NewEmptyConfig()
-	err = evon.UnmarshalWithNodes(masterEvonStorage, &masterConfig)
+// parseEnvFile reads a .env file and returns its content as a slice of
+// trimmed "KEY=VALUE" strings. Blank lines and lines starting with '#' (after
+// trimming) are skipped. No quote stripping or "export" keyword handling is
+// performed — this matches the format evon.Marshal already emits.
+func parseEnvFile(path string) ([]string, error) {
+	bts, err := os.ReadFile(path)
 	if err != nil {
-		return masterConfig, rerrors.Wrap(err, "error unmarshalling back to config")
+		return nil, err
 	}
 
-	sort.Slice(masterConfig.Environment, func(i, j int) bool {
-		return masterConfig.Environment[i].Name < masterConfig.Environment[j].Name
-	})
+	var lines []string
+	for _, line := range strings.Split(string(bts), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
 
-	return masterConfig, nil
+		lines = append(lines, line)
+	}
+
+	return lines, nil
 }
 
 func getFromFile(pth string) (AppConfig, error) {
